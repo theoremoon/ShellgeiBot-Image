@@ -1,24 +1,22 @@
-# ShellGeiBot
+# ShellgeiBot-Image
 
-## Twitter
+A docker image for [shellgeibot](https://github.com/theoldmoon0602/ShellgeiBot). Available at [dockerhub](https://hub.docker.com/r/theoldmoon0602/shellgeibot).
 
-- [@minyoruminyon](https://twitter.com/minyoruminyon)
-
-## Specification
-
-- https://furutsuki.hatenablog.com/entry/2018/07/13/221806
-
-## Build Docker image
-
-```sh
-$ ./build.bash shellgeibot:latest
-```
 
 ## Test Docker image
 
-```sh
-$ docker container run --rm \
+```
+docker container run --rm \
   -v $(pwd):/root/src \
-  shellgeibot:latest \
+  shellgeibot \
   /bin/bash -c "bats /root/src/docker_image.bats"
 ```
+
+## Author
+
+theoldmooon0602
+
+## LICENSE
+
+Apache License
+

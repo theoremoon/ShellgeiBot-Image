@@ -3,28 +3,6 @@
 # Check https://circleci.com/docs/2.0/language-go/ for more details
 version: 2
 jobs:
-  build:
-    docker:
-      # specify the version
-      - image: circleci/golang:1.12
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
-
-    #### TEMPLATE_NOTE: go expects specific checkout path representing url
-    #### expecting it in the form of
-    ####   /go/src/github.com/circleci/go-tool
-    ####   /go/src/bitbucket.org/circleci/go-tool
-    working_directory: /go/src/github.com/theoldmoon0602/ShellGeiBot
-    steps:
-      - checkout
-
-      # specify any bash command here prefixed with `run: `
-      - run: dep ensure
-      - run: go build
-      - store_artifacts:
-          path: /go/src/github.com/theoldmoon0602/ShellGeiBot/ShellGeiBot
   image-build:
     environment:
       DOCKER_IMAGE: theoldmoon0602/shellgeibot
@@ -38,24 +16,34 @@ jobs:
           docker_layer_caching: true  # BuildKit の DLC はまだ効かないっぽい
           version: "18.09.3"
       - run:
-          name: Login Docker Hub
-          command: echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin
-      - run:
           name: Build Docker image
           command: docker build -t ${DOCKER_IMAGE} --progress=plain .
       - run:
+          name: Test Docker image
+          command: DOCKER_IMAGE=${DOCKER_IMAGE} bats docker_image.bats
+      - run:
+          name: Login Docker Hub
+          command: echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin
+      - run:
           name: Push Docker image to Docker Hub
           command: |
-            docker push ${DOCKER_IMAGE}:latest
-            DATE_TAG=$(date +%Y%m%d)
-            docker tag ${DOCKER_IMAGE}:latest ${DOCKER_IMAGE}:${DATE_TAG}
-            docker push ${DOCKER_IMAGE}:${DATE_TAG}
+            docker push ${DOCKER_IMAGE}:${CIRCLE_BRANCH}
+            if [ "${CIRCLE_BRANCH}" = "master" ]; then
+              DATE_TAG=$(date +%Y%m%d)
+              docker tag ${DOCKER_IMAGE}:${CIRCLE_BRANCH} ${DOCKER_IMAGE}:${DATE_TAG}
+              docker push ${DOCKER_IMAGE}:${DATE_TAG}
+            else
+              docker push ${DOCKER_IMAGE}:${CIRCLE_BRANCH}
+            fi
+      - run:
+          name: Apply New Image to Running
+          command: |
+            test "${CIRCLE_BRANCH}" = master && ssh -p $SSH_PORT $SSH_USER@$SSH_HOST "docker pull theoldmoon0602/shellgeibot:master && docker rmi $(docker images | grep '<none>' | awk '{print $3}')"
 
 workflows:
   version: 2
   commit-workflow:
     jobs:
-      - build
       - image-build
   scheduled-workflow:
     triggers:
