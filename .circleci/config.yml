@@ -29,10 +29,10 @@ jobs:
           command: |
             if [ "${CIRCLE_BRANCH}" = "master" ]; then
               DATE_TAG=$(date +%Y%m%d)
-              docker tag ${DOCKER_IMAGE}:${CIRCLE_BRANCH} ${DOCKER_IMAGE}:${DATE_TAG}
+              docker tag ${DOCKER_IMAGE}:latest ${DOCKER_IMAGE}:${DATE_TAG} ${DOCKER_IMAGE}:${CIRCLE_BRANCH}
               docker push ${DOCKER_IMAGE}:${DATE_TAG}
             else
-              docker tag ${DOCKER_IMAGE}:${CIRCLE_BRANCH}
+              docker tag ${DOCKER_IMAGE}:latest ${DOCKER_IMAGE}:${CIRCLE_BRANCH}
               docker push ${DOCKER_IMAGE}:${CIRCLE_BRANCH}
             fi
       - add_ssh_keys:
