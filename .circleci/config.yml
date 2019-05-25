@@ -27,7 +27,6 @@ jobs:
       - run:
           name: Push Docker image to Docker Hub
           command: |
-            docker push ${DOCKER_IMAGE}:${CIRCLE_BRANCH}
             if [ "${CIRCLE_BRANCH}" = "master" ]; then
               DATE_TAG=$(date +%Y%m%d)
               docker tag ${DOCKER_IMAGE}:${CIRCLE_BRANCH} ${DOCKER_IMAGE}:${DATE_TAG}
