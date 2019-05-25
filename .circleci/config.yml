@@ -20,7 +20,7 @@ jobs:
           command: docker build -t ${DOCKER_IMAGE} --progress=plain .
       - run:
           name: Test Docker image
-          command: DOCKER_IMAGE=${DOCKER_IMAGE} bats docker_image.bats
+          command: docker container run --rm -v $(pwd):/root/src ${DOCKER_IMAGE} /bin/bash -c "bats /root/src/docker_image.bats"
       - run:
           name: Login Docker Hub
           command: echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin
