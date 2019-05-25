@@ -36,8 +36,8 @@ jobs:
               docker push ${DOCKER_IMAGE}:${CIRCLE_BRANCH}
             fi
       - add_ssh_keys:
-        fingerprints:
-          - "29:cf:20:0a:41:36:28:49:a2:ef:7c:b3:ae:05:5b:47"
+          fingerprints:
+            - "29:cf:20:0a:41:36:28:49:a2:ef:7c:b3:ae:05:5b:47"
       - deploy:
           name: Apply New Image to Running
           command: |
