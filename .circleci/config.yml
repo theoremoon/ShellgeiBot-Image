@@ -33,6 +33,7 @@ jobs:
               docker tag ${DOCKER_IMAGE}:latest ${DOCKER_IMAGE}:${CIRCLE_BRANCH}
               docker push ${DOCKER_IMAGE}:${DATE_TAG}
               docker push ${DOCKER_IMAGE}:${CIRCLE_BRANCH}
+              docker push ${DOCKER_IMAGE}:latest
             else
               docker tag ${DOCKER_IMAGE}:latest ${DOCKER_IMAGE}:${CIRCLE_BRANCH}
               docker push ${DOCKER_IMAGE}:${CIRCLE_BRANCH}
