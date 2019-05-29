@@ -753,3 +753,8 @@
   run saizeriya
   [ $status -eq 0 ]
 }
+
+@test "edf" {
+  run edf words scientist
+  [ $status -eq 0 ]
+}
