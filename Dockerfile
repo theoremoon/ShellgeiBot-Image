@@ -90,6 +90,12 @@ WORKDIR /Open-usp-Tukubai
 RUN make install
 WORKDIR /
 
+# edfsay
+RUN git clone https://github.com/jiro4989/edfsay
+WORKDIR /edfsay
+RUN ./install.sh
+WORKDIR /
+
 
 ## Runtime
 FROM ubuntu:19.04 as runtime
