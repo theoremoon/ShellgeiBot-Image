@@ -758,3 +758,8 @@
   run edf words scientist
   [ $status -eq 0 ]
 }
+
+@test "no-more-secrets" {
+  run nms -v
+  [ $status -eq 0 ]
+}
