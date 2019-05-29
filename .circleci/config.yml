@@ -22,21 +22,16 @@ jobs:
           name: Test Docker image
           command: docker container run --rm -v docker_image.bats:/root/src/docker_image.bats ${DOCKER_IMAGE} /bin/bash -c "bats /root/src/docker_image.bats"
       - run:
-          name: Login Docker Hub
-          command: echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin
-      - run:
           name: Push Docker image to Docker Hub
           command: |
             if [ "${CIRCLE_BRANCH}" = "master" ]; then
               DATE_TAG=$(date +%Y%m%d)
+              echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin
               docker tag ${DOCKER_IMAGE}:latest ${DOCKER_IMAGE}:${DATE_TAG}
               docker tag ${DOCKER_IMAGE}:latest ${DOCKER_IMAGE}:${CIRCLE_BRANCH}
               docker push ${DOCKER_IMAGE}:${DATE_TAG}
               docker push ${DOCKER_IMAGE}:${CIRCLE_BRANCH}
               docker push ${DOCKER_IMAGE}:latest
-            else
-              docker tag ${DOCKER_IMAGE}:latest ${DOCKER_IMAGE}:${CIRCLE_BRANCH}
-              docker push ${DOCKER_IMAGE}:${CIRCLE_BRANCH}
             fi
       - add_ssh_keys:
           fingerprints:
