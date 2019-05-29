@@ -327,4 +327,10 @@ RUN nimble install rect -Y
 # man
 RUN mv /usr/bin/man.REAL /usr/bin/man
 
+# no more secrets
+RUN git clone https://github.com/bartobri/no-more-secrets.git
+WORKDIR /no-more-secrets
+RUN make nms-ncurses && make sneakers-ncurses && make install
+WORKDIR /
+
 CMD /bin/bash
