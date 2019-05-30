@@ -9,20 +9,17 @@ A docker image for [shellgeibot](https://github.com/theoldmoon0602/ShellgeiBot).
 
 Docker version 18.09 >= is requried.
 
-```bash
-./build_image.sh
 ```
-
-Run below if you check building image time that turned off build cache.
-
-```bash
-./build_image.sh --no-cache
+DOCKER_BUILDKIT=1 docker build . -t shellgeibot
 ```
 
 ## Test Docker image
 
-```bash
-./test_image.sh
+```
+docker container run --rm \
+  -v $(pwd):/root/src \
+  shellgeibot \
+  /bin/bash -c "bats /root/src/docker_image.bats"
 ```
 
 ## Author
