@@ -1,10 +1,9 @@
 # syntax = docker/dockerfile:1.0-experimental
 ## Go
 FROM ubuntu:19.04 as go-builder
-RUN apt update -qq
-RUN apt install -y -qq curl git build-essential libmecab-dev
-
-RUN curl -sfSL --retry 3 https://dl.google.com/go/go1.12.linux-amd64.tar.gz -o go.tar.gz \
+RUN apt update -qq \
+    && apt install -y -qq curl git build-essential libmecab-dev \
+    && curl -sfSL --retry 3 https://dl.google.com/go/go1.12.linux-amd64.tar.gz -o go.tar.gz \
     && tar xzf go.tar.gz -C /usr/local \
     && rm go.tar.gz
 ENV PATH $PATH:/usr/local/go/bin
@@ -38,18 +37,18 @@ RUN --mount=type=cache,target=/root/go/src \
 
 ## Ruby
 FROM ubuntu:19.04 as ruby-builder
-RUN apt update -qq
-RUN apt install -y -qq curl git build-essential ruby-dev
+RUN apt update -qq \
+    && apt install -y -qq curl git build-essential ruby-dev
 RUN --mount=type=cache,target=/root/.gem \
     gem install --quiet --no-ri --no-rdoc cureutils matsuya takarabako snacknomama rubipara marky_markov
-RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/hostilefork/whitespacers/master/ruby/whitespace.rb -o /usr/local/bin/whitespace
-RUN chmod +x /usr/local/bin/whitespace
+RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/hostilefork/whitespacers/master/ruby/whitespace.rb -o /usr/local/bin/whitespace \
+    && chmod +x /usr/local/bin/whitespace
 
 ## Python
 ## WARN: Too slow
 FROM ubuntu:19.04 as python-builder
-RUN apt update -qq
-RUN apt install -y -qq python-dev python-pip python-mecab python3-dev python3-pip
+RUN apt update -qq \
+    && apt install -y -qq python-dev python-pip python-mecab python3-dev python3-pip
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --progress-bar=off sympy numpy scipy matplotlib pillow
 RUN --mount=type=cache,target=/root/.cache/pip \
@@ -59,45 +58,41 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 ## Node.js
 FROM ubuntu:19.04 as nodejs-builder
-RUN apt update -qq
-RUN apt install -y -qq nodejs npm
+RUN apt update -qq \
+    && apt install -y -qq nodejs npm
 RUN --mount=type=cache,target=/root/.npm \
     npm install -g --silent faker-cli chemi
 
 ## .NET
 FROM ubuntu:19.04 as dotnet-builder
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt update -qq
-RUN apt install -y -qq curl git mono-mcs
-RUN git clone --depth 1 https://github.com/xztaityozx/noc.git
-RUN mcs noc/noc/noc/Program.cs
+RUN apt update -qq \
+    && apt install -y -qq curl git mono-mcs \
+    && git clone --depth 1 https://github.com/xztaityozx/noc.git \
+    && mcs noc/noc/noc/Program.cs
 
 ## General
 FROM ubuntu:19.04 as general-builder
-RUN apt update -qq
-RUN apt install -y -qq curl git build-essential
-
-# awk 5.0
-RUN curl -sfSLO https://ftp.gnu.org/gnu/gawk/gawk-5.0.0.tar.gz
-RUN tar xf gawk-5.0.0.tar.gz
-WORKDIR gawk-5.0.0
-RUN ./configure --program-suffix="-5.0.0"
-RUN make
-RUN make install
-WORKDIR /
-
-# Open-usp-Tukubai
-RUN git clone --depth 1 https://github.com/usp-engineers-community/Open-usp-Tukubai.git
-WORKDIR /Open-usp-Tukubai
-RUN make install
-WORKDIR /
-
-# edfsay
-RUN git clone https://github.com/jiro4989/edfsay
-WORKDIR /edfsay
-RUN ./install.sh
-WORKDIR /
-
+RUN apt update -qq \
+    && apt install -y -qq curl git build-essential \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && : awk 5.0 \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && curl -sfSLO https://ftp.gnu.org/gnu/gawk/gawk-5.0.0.tar.gz \
+    && tar xf gawk-5.0.0.tar.gz \
+    && (cd gawk-5.0.0 && ./configure --program-suffix="-5.0.0" && make && make install) \
+    && : \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && : Open-usp-Tukubai \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && git clone --depth 1 https://github.com/usp-engineers-community/Open-usp-Tukubai.git \
+    && (cd /Open-usp-Tukubai && make install)  \
+    && : \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && : edfsay \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && git clone https://github.com/jiro4989/edfsay \
+    && (cd /edfsay && ./install.sh) 
 
 ## Runtime
 FROM ubuntu:19.04 as runtime
@@ -115,26 +110,36 @@ RUN --mount=type=cache,target=/var/cache/apt \
     --mount=type=cache,target=/var/lib/apt \
     apt update -qq && apt install -y -qq curl git unzip
 
-# egzact
-RUN curl -sfSLO --retry 3 https://git.io/egison-3.7.14.x86_64.deb \
+RUN : \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && : egzact \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && curl -sfSLO --retry 3 https://git.io/egison-3.7.14.x86_64.deb \
     && dpkg -i ./egison-3.7.14.x86_64.deb \
-    && rm ./egison-3.7.14.x86_64.deb
-
-# egison
-RUN curl -sfSLO --retry 3 https://git.io/egzact-1.3.1.deb \
+    && rm ./egison-3.7.14.x86_64.deb \
+    && : \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && : egison \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && curl -sfSLO --retry 3 https://git.io/egzact-1.3.1.deb \
     && dpkg -i ./egzact-1.3.1.deb \
-    && rm ./egzact-1.3.1.deb
-
-# Julia
-RUN curl -sfSL --retry 3 https://julialang-s3.julialang.org/bin/linux/x64/1.1/julia-1.1.0-linux-x86_64.tar.gz -o julia.tar.gz \
+    && rm ./egzact-1.3.1.deb \
+    && : \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && : Julia \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && curl -sfSL --retry 3 https://julialang-s3.julialang.org/bin/linux/x64/1.1/julia-1.1.0-linux-x86_64.tar.gz -o julia.tar.gz \
     && tar xf julia.tar.gz \
     && rm julia.tar.gz \
-    && ln -s $(realpath $(ls | grep -E "^julia") )/bin/julia /usr/local/bin/julia
-
-# J
-RUN curl -sfSL --retry 3 http://www.jsoftware.com/download/j807/install/j807_linux64_nonavx.tar.gz -o j.tar.gz \
+    && ln -s $(realpath $(ls | grep -E "^julia") )/bin/julia /usr/local/bin/julia \
+    && : \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && : J \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && curl -sfSL --retry 3 http://www.jsoftware.com/download/j807/install/j807_linux64_nonavx.tar.gz -o j.tar.gz \
     && tar xvzf j.tar.gz \
     && rm j.tar.gz
+
 ENV PATH $PATH:/j64-807/bin
 
 # jconsole コマンドが JDK と J で重複するため、J の PATH を優先
@@ -153,53 +158,93 @@ RUN git clone --depth 1 https://github.com/fumiyas/home-commands.git \
 ENV PATH /home-commands:$PATH
 WORKDIR /
 
-# trdsql (apply sql to csv)
-RUN curl -sfSLO --retry 3 https://github.com/noborus/trdsql/releases/download/v0.5.0/trdsql_linux_amd64.zip \
-    && unzip trdsql_linux_amd64.zip \
-    && rm trdsql_linux_amd64.zip
-ENV PATH $PATH:/trdsql_linux_amd64
 
-RUN : super_unko ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+RUN : \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && : "    trdsql (apply sql to csv)" \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && curl -sfSLO --retry 3 https://github.com/noborus/trdsql/releases/download/v0.5.0/trdsql_linux_amd64.zip \
+    && unzip trdsql_linux_amd64.zip \
+    && rm trdsql_linux_amd64.zip \
+    && : \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && :     super_unko \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
     && curl -sfSLO --retry 3 https://git.io/superunko.deb \
     && dpkg -i superunko.deb \
     && rm superunko.deb \
-    && : nameko.svg ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && : \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && :     nameko.svg \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
     && curl -sfSLO https://gist.githubusercontent.com/KeenS/6194e6ef1a151c9ea82536d5850b8bc7/raw/85af9ec757308b8ca4effdf24221f642cb34703b/nameko.svg \
-    && : shellgei data ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && : \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && :     shellgei data \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
     && git clone --depth 1 https://github.com/ryuichiueda/ShellGeiData.git \
     && git clone --depth 1 https://github.com/ryuichiueda/ImageGeneratorForShBot.git \
-    && : zws ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && : \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && :     zws \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
     && curl -sfSLO https://raintrees.net/attachments/download/486/zws \
     && chmod +x zws \
-    && : osquery ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && : \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && :     osquery \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
     && curl -sfSL https://pkg.osquery.io/deb/osquery_3.3.2_1.linux.amd64.deb -o osquery.deb \
     && dpkg -i osquery.deb \
     && rm osquery.deb \
-    && : onefetch ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && : \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && :     onefetch \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
     && curl -sfSLO https://github.com/o2sh/onefetch/releases/download/v1.5.2/onefetch_linux_x86-64.zip \
     && unzip onefetch_linux_x86-64.zip -d /usr/local/bin onefetch \
     && rm onefetch_linux_x86-64.zip \
-    && : sushiro ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && : \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && :     sushiro \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
     && curl -sfSL https://raw.githubusercontent.com/redpeacock78/sushiro/master/sushiro -o /usr/local/bin/sushiro \
     && chmod +x /usr/local/bin/sushiro \
-    && : bat ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && : \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && :     bat \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
     && curl -sfSLO https://github.com/sharkdp/bat/releases/download/v0.10.0/bat_0.10.0_amd64.deb \
     && dpkg -i bat_0.10.0_amd64.deb \
     && rm bat_0.10.0_amd64.deb \
-    && : echo-meme ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && : \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && :     echo-meme \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
     && curl -sfSLO --retry 3 https://git.io/echo-meme.deb \
     && dpkg -i echo-meme.deb \
     && rm echo-meme.deb \
-    && : unicode data ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && : \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && :     unicode data \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
     && curl -sfSLO https://www.unicode.org/Public/UCD/latest/ucd/NormalizationTest.txt \
     && curl -sfSLO https://www.unicode.org/Public/UCD/latest/ucd/NamesList.txt \
-    && : pokemonsay ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && : \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && :     pokemonsay \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
     && git clone --depth 1 http://github.com/possatti/pokemonsay \
     && (cd pokemonsay; ./install.sh ) \
     && rm -r pokemonsay \
-    && : saizeriya ::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && : \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && :     saizeriya \
+    && : ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
     && curl -sfSL --retry 3 https://raw.githubusercontent.com/horo17/saizeriya/master/saizeriya -o /usr/local/bin/saizeriya \
     && chmod u+x /usr/local/bin/saizeriya
+
+ENV PATH $PATH:/trdsql_linux_amd64
 
 # imgout
 ENV PATH /ImageGeneratorForShBot:$PATH
