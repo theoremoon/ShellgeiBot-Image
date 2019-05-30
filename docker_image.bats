@@ -758,3 +758,13 @@
   run edf words scientist
   [ $status -eq 0 ]
 }
+
+@test "no-more-secrets" {
+  run nms -v
+  [ $status -eq 0 ]
+}
+
+@test "ojichat" {
+  run ojichat --version
+  [[ "${lines[0]}" =~ 'Ojisan Nanchatte (ojichat) command' ]]
+}

@@ -20,6 +20,7 @@ RUN --mount=type=cache,target=/root/go/src \
       github.com/jiro4989/align \
       github.com/jiro4989/taishoku \
       github.com/jiro4989/textimg \
+      github.com/greymd/ojichat \
     && CGO_LDFLAGS="`mecab-config --libs`" CGO_CFLAGS="-I`mecab-config --inc-dir`" \
       go get -u github.com/ryuichiueda/ke2daira \
     && find /root/go/src -type f \
@@ -319,5 +320,11 @@ RUN nimble install rect -Y
 
 # man
 RUN mv /usr/bin/man.REAL /usr/bin/man
+
+# no more secrets
+RUN git clone https://github.com/bartobri/no-more-secrets.git
+WORKDIR /no-more-secrets
+RUN make nms-ncurses && make sneakers-ncurses && make install
+WORKDIR /
 
 CMD /bin/bash
