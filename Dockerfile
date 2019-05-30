@@ -45,6 +45,7 @@ RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/hostilefork/whitespac
 RUN chmod +x /usr/local/bin/whitespace
 
 ## Python
+## WARN: Too slow
 FROM ubuntu:19.04 as python-builder
 RUN apt update -qq
 RUN apt install -y -qq python-dev python-pip python-mecab python3-dev python3-pip
@@ -157,64 +158,56 @@ RUN curl -sfSLO --retry 3 https://github.com/noborus/trdsql/releases/download/v0
     && rm trdsql_linux_amd64.zip
 ENV PATH $PATH:/trdsql_linux_amd64
 
-# super_unko
-RUN curl -sfSLO --retry 3 https://git.io/superunko.deb \
+RUN : super_unko ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && curl -sfSLO --retry 3 https://git.io/superunko.deb \
     && dpkg -i superunko.deb \
-    && rm superunko.deb
-
-# nameko.svg
-RUN curl -sfSLO https://gist.githubusercontent.com/KeenS/6194e6ef1a151c9ea82536d5850b8bc7/raw/85af9ec757308b8ca4effdf24221f642cb34703b/nameko.svg
-
-# shellgei data
-RUN git clone --depth 1 https://github.com/ryuichiueda/ShellGeiData.git
-
-# imgout
-RUN git clone --depth 1 https://github.com/ryuichiueda/ImageGeneratorForShBot.git
-ENV PATH /ImageGeneratorForShBot:$PATH
-
-# zws
-RUN curl -sfSLO https://raintrees.net/attachments/download/486/zws \
-    && chmod +x zws
-
-# osquery
-RUN curl -sfSL https://pkg.osquery.io/deb/osquery_3.3.2_1.linux.amd64.deb -o osquery.deb \
+    && rm superunko.deb \
+    && : nameko.svg ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && curl -sfSLO https://gist.githubusercontent.com/KeenS/6194e6ef1a151c9ea82536d5850b8bc7/raw/85af9ec757308b8ca4effdf24221f642cb34703b/nameko.svg \
+    && : shellgei data ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && git clone --depth 1 https://github.com/ryuichiueda/ShellGeiData.git \
+    && git clone --depth 1 https://github.com/ryuichiueda/ImageGeneratorForShBot.git \
+    && : zws ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && curl -sfSLO https://raintrees.net/attachments/download/486/zws \
+    && chmod +x zws \
+    && : osquery ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && curl -sfSL https://pkg.osquery.io/deb/osquery_3.3.2_1.linux.amd64.deb -o osquery.deb \
     && dpkg -i osquery.deb \
-    && rm osquery.deb
-
-# onefetch
-RUN curl -sfSLO https://github.com/o2sh/onefetch/releases/download/v1.5.2/onefetch_linux_x86-64.zip \
+    && rm osquery.deb \
+    && : onefetch ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && curl -sfSLO https://github.com/o2sh/onefetch/releases/download/v1.5.2/onefetch_linux_x86-64.zip \
     && unzip onefetch_linux_x86-64.zip -d /usr/local/bin onefetch \
-    && rm onefetch_linux_x86-64.zip
-
-# sushiro
-RUN curl -sfSL https://raw.githubusercontent.com/redpeacock78/sushiro/master/sushiro -o /usr/local/bin/sushiro \
-    && chmod +x /usr/local/bin/sushiro
-
-# bat
-RUN curl -sfSLO https://github.com/sharkdp/bat/releases/download/v0.10.0/bat_0.10.0_amd64.deb \
+    && rm onefetch_linux_x86-64.zip \
+    && : sushiro ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && curl -sfSL https://raw.githubusercontent.com/redpeacock78/sushiro/master/sushiro -o /usr/local/bin/sushiro \
+    && chmod +x /usr/local/bin/sushiro \
+    && : bat ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && curl -sfSLO https://github.com/sharkdp/bat/releases/download/v0.10.0/bat_0.10.0_amd64.deb \
     && dpkg -i bat_0.10.0_amd64.deb \
-    && rm bat_0.10.0_amd64.deb
-
-# echo-meme
-RUN curl -sfSLO --retry 3 https://git.io/echo-meme.deb \
+    && rm bat_0.10.0_amd64.deb \
+    && : echo-meme ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && curl -sfSLO --retry 3 https://git.io/echo-meme.deb \
     && dpkg -i echo-meme.deb \
-    && rm echo-meme.deb
-
-# unicode data
-RUN curl -sfSLO https://www.unicode.org/Public/UCD/latest/ucd/NormalizationTest.txt
-RUN curl -sfSLO https://www.unicode.org/Public/UCD/latest/ucd/NamesList.txt
-
-# pokemonsay
-RUN git clone --depth 1 http://github.com/possatti/pokemonsay \
+    && rm echo-meme.deb \
+    && : unicode data ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && curl -sfSLO https://www.unicode.org/Public/UCD/latest/ucd/NormalizationTest.txt \
+    && curl -sfSLO https://www.unicode.org/Public/UCD/latest/ucd/NamesList.txt \
+    && : pokemonsay ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && git clone --depth 1 http://github.com/possatti/pokemonsay \
     && (cd pokemonsay; ./install.sh ) \
-    && rm -r pokemonsay
-ENV PATH $PATH:/root/bin
-
-# saizeriya
-RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/horo17/saizeriya/master/saizeriya -o /usr/local/bin/saizeriya \
+    && rm -r pokemonsay \
+    && : saizeriya ::::::::::::::::::::::::::::::::::::::::::::::::: \
+    && curl -sfSL --retry 3 https://raw.githubusercontent.com/horo17/saizeriya/master/saizeriya -o /usr/local/bin/saizeriya \
     && chmod u+x /usr/local/bin/saizeriya
 
+# imgout
+ENV PATH /ImageGeneratorForShBot:$PATH
+
+# pokemonsay
+ENV PATH $PATH:/root/bin
+
 # apt
+# WARN: too slow
 RUN --mount=type=cache,target=/var/cache/apt \
     --mount=type=cache,target=/var/lib/apt \
     apt update -qq && apt install -y -qq \
