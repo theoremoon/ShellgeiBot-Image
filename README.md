@@ -5,6 +5,14 @@
 A docker image for [shellgeibot](https://github.com/theoldmoon0602/ShellgeiBot). Available at [dockerhub](https://hub.docker.com/r/theoldmoon0602/shellgeibot).
 
 
+## Build Docker Image
+
+Docker version 18.09 >= is requried.
+
+```
+DOCKER_BUILDKIT=1 docker build . -t shellgeibot
+```
+
 ## Test Docker image
 
 ```
