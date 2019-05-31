@@ -13,14 +13,17 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          docker_layer_caching: true  # BuildKit の DLC はまだ効かないっぽい
+          # docker_layer_caching: true  # 有償オプション
           version: "18.09.3"
       - run:
           name: Build Docker image
           command: docker build -t ${DOCKER_IMAGE} --progress=plain .
       - run:
           name: Test Docker image
-          command: docker container run --rm -v docker_image.bats:/root/src/docker_image.bats ${DOCKER_IMAGE} /bin/bash -c "bats /root/src/docker_image.bats"
+          command: |
+            docker create -v /root/src --name source ubuntu:19.04 /bin/true
+            docker cp docker_image.bats source:/root/src
+            docker container run --rm --volumes-from source ${DOCKER_IMAGE} /bin/bash -c "bats /root/src/docker_image.bats"
       - run:
           name: Push Docker image to Docker Hub
           command: |
