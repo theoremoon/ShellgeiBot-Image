@@ -85,6 +85,12 @@ RUN --mount=type=cache,target=/var/lib/apt,from=apt-cache,source=/var/lib/apt \
 RUN git clone --depth 1 https://github.com/xztaityozx/noc.git
 RUN mcs noc/noc/noc/Program.cs
 
+## Rust
+FROM base AS rust-builder
+RUN curl -sfSL --retry 3 https://sh.rustup.rs | sh -s -- -y
+ENV PATH $PATH:/root/.cargo/bin
+RUN cargo install --git https://github.com/lotabout/rargs.git
+
 ## Nim
 FROM base AS nim-builder
 RUN --mount=type=cache,target=/var/lib/apt,from=apt-cache,source=/var/lib/apt \
@@ -278,11 +284,6 @@ RUN --mount=type=cache,target=/var/lib/apt,from=apt-cache,source=/var/lib/apt \
       bats\
       libncurses5
 
-# Rust
-RUN curl -sfSL --retry 3 https://sh.rustup.rs | sh -s -- -y
-ENV PATH /root/.cargo/bin:$PATH
-RUN cargo install --git https://github.com/lotabout/rargs.git
-
 # Go
 COPY --from=go-builder /usr/local/go/LICENSE /usr/local/go/README.md /usr/local/go/
 COPY --from=go-builder /usr/local/go/bin/ /usr/local/go/bin/
@@ -310,6 +311,10 @@ COPY --from=nodejs-builder /usr/local/lib/node_modules /usr/local/lib/node_modul
 COPY --from=dotnet-builder /noc/noc/noc/Program.exe /noc
 COPY --from=dotnet-builder /noc/LICENSE /usr/local/share/noc/LICENSE
 COPY --from=dotnet-builder /noc/README.md /usr/local/share/noc/README.md
+
+# Rust
+COPY --from=rust-builder /root/.cargo/bin /root/.cargo/bin
+ENV PATH $PATH:/root/.cargo/bin
 
 # Nim
 COPY --from=nim-builder /root/.nimble /root/.nimble

@@ -643,9 +643,16 @@
   [ "$output" = 'シェル芸' ]
 }
 
-@test "rust" {
+@test "rustc" {
   run rustc --help
-  [ "${lines[0]}" = 'Usage: rustc [OPTIONS] INPUT' ]
+  [ $status -ne 0 ]
+  [ "$output" = 'error: no default toolchain configured' ]
+}
+
+@test "rustup" {
+  run rustup --help
+  [ $status -eq 0 ]
+  [ "${lines[1]}" = 'The Rust toolchain installer' ]
 }
 
 @test "rargs" {
