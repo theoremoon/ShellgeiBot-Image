@@ -744,6 +744,11 @@
   [[ "${lines[0]}" =~ 'Nim Compiler' ]]
 }
 
+@test "rect" {
+  run rect --help
+  [ "${lines[0]}" = 'rect is a command to crop/paste rectangle text' ]
+}
+
 @test "pokemonsay" {
   run pokemonsay --help
   [ "${lines[0]}" = '  Description: Pokemonsay makes a pokémon say something to you.' ]
