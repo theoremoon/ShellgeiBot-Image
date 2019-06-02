@@ -21,9 +21,16 @@ jobs:
       - run:
           name: Test Docker image
           command: |
+            apk add --no-progress nodejs npm
+            npm_config_unsafe_perm=true npm install --global --silent --no-progress tap-xunit
+            mkdir -p ~/reports
             docker create -v /root/src --name source ubuntu:19.04 /bin/true
             docker cp docker_image.bats source:/root/src
-            docker container run --rm --volumes-from source ${DOCKER_IMAGE} /bin/bash -c "bats /root/src/docker_image.bats"
+            docker container run --rm --volumes-from source ${DOCKER_IMAGE} \
+              /bin/bash -c "bats --tap /root/src/docker_image.bats || true" | tee result.tap
+            cat result.tap | tap-xunit > ~/reports/result.xml
+      - store_test_results:
+          path: ~/reports
       - run:
           name: Push Docker image to Docker Hub
           command: |
