@@ -1,9 +1,20 @@
 # syntax = docker/dockerfile:1.0-experimental
-## Go
-FROM ubuntu:19.04 as go-builder
-RUN apt update -qq
-RUN apt install -y -qq curl git build-essential libmecab-dev
+FROM ubuntu:19.04 AS apt-cache
+RUN apt-get update
 
+FROM ubuntu:19.04 AS base
+ENV DEBIAN_FRONTEND noninteractive
+RUN rm -f /etc/apt/apt.conf.d/docker-clean; \
+    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
+RUN --mount=type=cache,target=/var/lib/apt,from=apt-cache,source=/var/lib/apt \
+    --mount=type=cache,target=/var/cache/apt \
+    apt-get install -y -qq curl git build-essential unzip
+
+## Go
+FROM base AS go-builder
+RUN --mount=type=cache,target=/var/lib/apt,from=apt-cache,source=/var/lib/apt \
+    --mount=type=cache,target=/var/cache/apt,sharing=private \
+    apt-get install -y -qq libmecab-dev
 RUN curl -sfSL --retry 3 https://dl.google.com/go/go1.12.linux-amd64.tar.gz -o go.tar.gz \
     && tar xzf go.tar.gz -C /usr/local \
     && rm go.tar.gz
@@ -37,18 +48,20 @@ RUN --mount=type=cache,target=/root/go/src \
                 /tmp/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping/shoplist.txt
 
 ## Ruby
-FROM ubuntu:19.04 as ruby-builder
-RUN apt update -qq
-RUN apt install -y -qq curl git build-essential ruby-dev
+FROM base AS ruby-builder
+RUN --mount=type=cache,target=/var/lib/apt,from=apt-cache,source=/var/lib/apt \
+    --mount=type=cache,target=/var/cache/apt,sharing=private \
+    apt-get install -y -qq ruby-dev
 RUN --mount=type=cache,target=/root/.gem \
     gem install --quiet --no-ri --no-rdoc cureutils matsuya takarabako snacknomama rubipara marky_markov
 RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/hostilefork/whitespacers/master/ruby/whitespace.rb -o /usr/local/bin/whitespace
 RUN chmod +x /usr/local/bin/whitespace
 
 ## Python
-FROM ubuntu:19.04 as python-builder
-RUN apt update -qq
-RUN apt install -y -qq python-dev python-pip python-mecab python3-dev python3-pip
+FROM base AS python-builder
+RUN --mount=type=cache,target=/var/lib/apt,from=apt-cache,source=/var/lib/apt \
+    --mount=type=cache,target=/var/cache/apt,sharing=private \
+    apt-get install -y -qq python-dev python-pip python-mecab python3-dev python3-pip
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --progress-bar=off sympy numpy scipy matplotlib pillow
 RUN --mount=type=cache,target=/root/.cache/pip \
@@ -57,26 +70,42 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     pip3 install --progress-bar=off "https://github.com/megagonlabs/ginza/releases/download/v1.0.1/ja_ginza_nopn-1.0.1.tgz"
 
 ## Node.js
-FROM ubuntu:19.04 as nodejs-builder
-RUN apt update -qq
-RUN apt install -y -qq nodejs npm
+FROM base AS nodejs-builder
+RUN --mount=type=cache,target=/var/lib/apt,from=apt-cache,source=/var/lib/apt \
+    --mount=type=cache,target=/var/cache/apt,sharing=private \
+    apt-get install -y -qq nodejs npm
 RUN --mount=type=cache,target=/root/.npm \
     npm install -g --silent faker-cli chemi
 
 ## .NET
-FROM ubuntu:19.04 as dotnet-builder
-ENV DEBIAN_FRONTEND noninteractive
-RUN apt update -qq
-RUN apt install -y -qq curl git mono-mcs
+FROM base AS dotnet-builder
+RUN --mount=type=cache,target=/var/lib/apt,from=apt-cache,source=/var/lib/apt \
+    --mount=type=cache,target=/var/cache/apt,sharing=private \
+    apt-get install -y -qq mono-mcs
 RUN git clone --depth 1 https://github.com/xztaityozx/noc.git
 RUN mcs noc/noc/noc/Program.cs
 
-## General
-FROM ubuntu:19.04 as general-builder
-RUN apt update -qq
-RUN apt install -y -qq curl git build-essential
+## Rust
+FROM base AS rust-builder
+RUN curl -sfSL --retry 3 https://sh.rustup.rs | sh -s -- -y
+ENV PATH $PATH:/root/.cargo/bin
+RUN cargo install --git https://github.com/lotabout/rargs.git
 
-# awk 5.0
+## Nim
+FROM base AS nim-builder
+RUN --mount=type=cache,target=/var/lib/apt,from=apt-cache,source=/var/lib/apt \
+    --mount=type=cache,target=/var/cache/apt,sharing=private \
+    apt-get install -y -qq nim
+RUN nimble install rect -Y
+
+
+## General
+FROM base AS general-builder
+RUN --mount=type=cache,target=/var/lib/apt,from=apt-cache,source=/var/lib/apt \
+    --mount=type=cache,target=/var/cache/apt,sharing=private \
+    apt-get install -y -qq lib32ncursesw5-dev
+
+# gawk 5.0
 RUN curl -sfSLO https://ftp.gnu.org/gnu/gawk/gawk-5.0.0.tar.gz
 RUN tar xf gawk-5.0.0.tar.gz
 WORKDIR gawk-5.0.0
@@ -92,56 +121,53 @@ RUN make install
 WORKDIR /
 
 # edfsay
-RUN git clone https://github.com/jiro4989/edfsay
+RUN git clone --depth 1 https://github.com/jiro4989/edfsay
 WORKDIR /edfsay
 RUN ./install.sh
 WORKDIR /
 
+# no more secrets
+RUN git clone --depth 1 https://github.com/bartobri/no-more-secrets.git
+WORKDIR no-more-secrets
+RUN make nms-ncurses && make sneakers-ncurses && make install
+WORKDIR /
+
+# shellgei data
+RUN git clone --depth 1 https://github.com/ryuichiueda/ShellGeiData.git
+
+# unicode data
+RUN curl -sfSLO --retry 3 https://www.unicode.org/Public/UCD/latest/ucd/NormalizationTest.txt
+RUN curl -sfSLO --retry 3 https://www.unicode.org/Public/UCD/latest/ucd/NamesList.txt
+
+WORKDIR /downloads
+# egison
+RUN curl -sfSLO --retry 3 https://git.io/egison-3.7.14.x86_64.deb
+# egzact
+RUN curl -sfSLO --retry 3 https://git.io/egzact-1.3.1.deb
+# J
+RUN curl -sfSL --retry 3 http://www.jsoftware.com/download/j807/install/j807_linux64_nonavx.tar.gz -o j.tar.gz
+# Julia
+RUN curl -sfSL --retry 3 https://julialang-s3.julialang.org/bin/linux/x64/1.1/julia-1.1.0-linux-x86_64.tar.gz -o julia.tar.gz
+# OpenJDK
+RUN curl -sfSL --retry 3 https://download.oracle.com/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz -o openjdk11.tar.gz
+# trdsql
+RUN curl -sfSLO --retry 3 https://github.com/noborus/trdsql/releases/download/v0.5.0/trdsql_linux_amd64.zip
+# bat
+RUN curl -sfSLO --retry 3 https://github.com/sharkdp/bat/releases/download/v0.10.0/bat_0.10.0_amd64.deb
+# onefetch
+RUN curl -sfSLO --retry 3 https://github.com/o2sh/onefetch/releases/download/v1.5.2/onefetch_linux_x86-64.zip
+# osquery
+RUN curl -sfSL --retry 3 https://pkg.osquery.io/deb/osquery_3.3.2_1.linux.amd64.deb -o osquery.deb
+WORKDIR /
+
 
 ## Runtime
-FROM ubuntu:19.04 as runtime
+FROM base AS runtime
 
 # Set environments
 ENV LANG ja_JP.UTF-8
 ENV TZ JST-9
 ENV PATH /usr/games:$PATH
-ENV DEBIAN_FRONTEND noninteractive
-
-# Enable keep apt cache
-RUN rm -f etc/apt/apt.conf.d/docker-clean; \
-    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
-RUN --mount=type=cache,target=/var/cache/apt \
-    --mount=type=cache,target=/var/lib/apt \
-    apt update -qq && apt install -y -qq curl git unzip
-
-# egzact
-RUN curl -sfSLO --retry 3 https://git.io/egison-3.7.14.x86_64.deb \
-    && dpkg -i ./egison-3.7.14.x86_64.deb \
-    && rm ./egison-3.7.14.x86_64.deb
-
-# egison
-RUN curl -sfSLO --retry 3 https://git.io/egzact-1.3.1.deb \
-    && dpkg -i ./egzact-1.3.1.deb \
-    && rm ./egzact-1.3.1.deb
-
-# Julia
-RUN curl -sfSL --retry 3 https://julialang-s3.julialang.org/bin/linux/x64/1.1/julia-1.1.0-linux-x86_64.tar.gz -o julia.tar.gz \
-    && tar xf julia.tar.gz \
-    && rm julia.tar.gz \
-    && ln -s $(realpath $(ls | grep -E "^julia") )/bin/julia /usr/local/bin/julia
-
-# J
-RUN curl -sfSL --retry 3 http://www.jsoftware.com/download/j807/install/j807_linux64_nonavx.tar.gz -o j.tar.gz \
-    && tar xvzf j.tar.gz \
-    && rm j.tar.gz
-ENV PATH $PATH:/j64-807/bin
-
-# jconsole コマンドが JDK と J で重複するため、J の PATH を優先
-# OpenJDK
-RUN curl -sfSL --retry 3 https://download.oracle.com/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz -o openjdk11.tar.gz \
-    && tar xzf openjdk11.tar.gz \
-    && rm openjdk11.tar.gz
-ENV PATH $PATH:/jdk-11.0.2/bin
 
 # home-commands (echo-sd)
 WORKDIR /root
@@ -152,58 +178,30 @@ RUN git clone --depth 1 https://github.com/fumiyas/home-commands.git \
 ENV PATH /home-commands:$PATH
 WORKDIR /
 
-# trdsql (apply sql to csv)
-RUN curl -sfSLO --retry 3 https://github.com/noborus/trdsql/releases/download/v0.5.0/trdsql_linux_amd64.zip \
-    && unzip trdsql_linux_amd64.zip \
-    && rm trdsql_linux_amd64.zip
-ENV PATH $PATH:/trdsql_linux_amd64
-
 # super_unko
 RUN curl -sfSLO --retry 3 https://git.io/superunko.deb \
     && dpkg -i superunko.deb \
     && rm superunko.deb
 
 # nameko.svg
-RUN curl -sfSLO https://gist.githubusercontent.com/KeenS/6194e6ef1a151c9ea82536d5850b8bc7/raw/85af9ec757308b8ca4effdf24221f642cb34703b/nameko.svg
-
-# shellgei data
-RUN git clone --depth 1 https://github.com/ryuichiueda/ShellGeiData.git
+RUN curl -sfSLO --retry 3 https://gist.githubusercontent.com/KeenS/6194e6ef1a151c9ea82536d5850b8bc7/raw/85af9ec757308b8ca4effdf24221f642cb34703b/nameko.svg
 
 # imgout
 RUN git clone --depth 1 https://github.com/ryuichiueda/ImageGeneratorForShBot.git
 ENV PATH /ImageGeneratorForShBot:$PATH
 
 # zws
-RUN curl -sfSLO https://raintrees.net/attachments/download/486/zws \
+RUN curl -sfSLO --retry 3 https://raintrees.net/attachments/download/486/zws \
     && chmod +x zws
 
-# osquery
-RUN curl -sfSL https://pkg.osquery.io/deb/osquery_3.3.2_1.linux.amd64.deb -o osquery.deb \
-    && dpkg -i osquery.deb \
-    && rm osquery.deb
-
-# onefetch
-RUN curl -sfSLO https://github.com/o2sh/onefetch/releases/download/v1.5.2/onefetch_linux_x86-64.zip \
-    && unzip onefetch_linux_x86-64.zip -d /usr/local/bin onefetch \
-    && rm onefetch_linux_x86-64.zip
-
 # sushiro
-RUN curl -sfSL https://raw.githubusercontent.com/redpeacock78/sushiro/master/sushiro -o /usr/local/bin/sushiro \
+RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/redpeacock78/sushiro/master/sushiro -o /usr/local/bin/sushiro \
     && chmod +x /usr/local/bin/sushiro
-
-# bat
-RUN curl -sfSLO https://github.com/sharkdp/bat/releases/download/v0.10.0/bat_0.10.0_amd64.deb \
-    && dpkg -i bat_0.10.0_amd64.deb \
-    && rm bat_0.10.0_amd64.deb
 
 # echo-meme
 RUN curl -sfSLO --retry 3 https://git.io/echo-meme.deb \
     && dpkg -i echo-meme.deb \
     && rm echo-meme.deb
-
-# unicode data
-RUN curl -sfSLO https://www.unicode.org/Public/UCD/latest/ucd/NormalizationTest.txt
-RUN curl -sfSLO https://www.unicode.org/Public/UCD/latest/ucd/NamesList.txt
 
 # pokemonsay
 RUN git clone --depth 1 http://github.com/possatti/pokemonsay \
@@ -216,9 +214,9 @@ RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/horo17/saizeriya/mast
     && chmod u+x /usr/local/bin/saizeriya
 
 # apt
-RUN --mount=type=cache,target=/var/cache/apt \
-    --mount=type=cache,target=/var/lib/apt \
-    apt update -qq && apt install -y -qq \
+RUN --mount=type=cache,target=/var/lib/apt,from=apt-cache,source=/var/lib/apt \
+    --mount=type=cache,target=/var/cache/apt \
+    apt update -qq && apt-get install -y -qq \
       ruby\
       ccze\
       screen tmux\
@@ -283,15 +281,11 @@ RUN --mount=type=cache,target=/var/cache/apt \
       nodejs\
       graphviz\
       nim\
-      bats
-
-# Rust
-RUN curl -sfSL https://sh.rustup.rs | sh -s -- -y
-ENV PATH /root/.cargo/bin:$PATH
-RUN cargo install --git https://github.com/lotabout/rargs.git
+      bats\
+      libncurses5
 
 # Go
-COPY --from=go-builder /usr/local/go/LICENSE /usr/local/go/README.md /usr/local/go
+COPY --from=go-builder /usr/local/go/LICENSE /usr/local/go/README.md /usr/local/go/
 COPY --from=go-builder /usr/local/go/bin/ /usr/local/go/bin/
 COPY --from=go-builder /root/go/bin /root/go/bin
 COPY --from=go-builder /tmp/go /root/go
@@ -318,20 +312,69 @@ COPY --from=dotnet-builder /noc/noc/noc/Program.exe /noc
 COPY --from=dotnet-builder /noc/LICENSE /usr/local/share/noc/LICENSE
 COPY --from=dotnet-builder /noc/README.md /usr/local/share/noc/README.md
 
-# gawk 5.0 / Open-usp-Tukubai
+# Rust
+COPY --from=rust-builder /root/.cargo/bin /root/.cargo/bin
+ENV PATH $PATH:/root/.cargo/bin
+
+# Nim
+COPY --from=nim-builder /root/.nimble /root/.nimble
+ENV PATH $PATH:/root/.nimble/bin
+
+# gawk 5.0 / Open-usp-Tukubai / edfsay / no more secrets
 COPY --from=general-builder /usr/local /usr/local
 
-## Nim
-ENV PATH $PATH:/root/.nimble/bin
-RUN nimble install rect -Y
+# shellgei data
+COPY --from=general-builder /ShellGeiData /ShellGeiData
+
+# unicode data
+COPY --from=general-builder /NormalizationTest.txt /NamesList.txt /
+
+# egison
+RUN --mount=type=cache,target=/downloads,from=general-builder,source=/downloads \
+    dpkg -i /downloads/egison-3.7.14.x86_64.deb
+
+# egzact
+RUN --mount=type=cache,target=/downloads,from=general-builder,source=/downloads \
+    dpkg -i /downloads/egzact-1.3.1.deb
+
+# J
+RUN --mount=type=cache,target=/downloads,from=general-builder,source=/downloads \
+    tar xf /downloads/j.tar.gz
+ENV PATH $PATH:/j64-807/bin
+
+# Julia
+RUN --mount=type=cache,target=/downloads,from=general-builder,source=/downloads \
+    tar xf /downloads/julia.tar.gz \
+    && ln -s $(realpath $(ls | grep -E "^julia") )/bin/julia /usr/local/bin/julia
+
+# OpenJDK
+# jconsole コマンドが OpenJDK と J で重複するため、J の PATH を優先
+RUN --mount=type=cache,target=/downloads,from=general-builder,source=/downloads \
+    tar xf /downloads/openjdk11.tar.gz
+ENV PATH $PATH:/jdk-11.0.2/bin
+
+# trdsql (apply sql to csv)
+RUN --mount=type=cache,target=/downloads,from=general-builder,source=/downloads \
+    unzip /downloads/trdsql_linux_amd64.zip
+ENV PATH $PATH:/trdsql_linux_amd64
+
+# bat
+RUN --mount=type=cache,target=/downloads,from=general-builder,source=/downloads \
+    dpkg -i /downloads/bat_0.10.0_amd64.deb
+
+# onefetch
+RUN --mount=type=cache,target=/downloads,from=general-builder,source=/downloads \
+    unzip /downloads/onefetch_linux_x86-64.zip -d /usr/local/bin onefetch
+
+# osquery
+RUN --mount=type=cache,target=/downloads,from=general-builder,source=/downloads \
+    dpkg -i /downloads/osquery.deb
 
 # man
 RUN mv /usr/bin/man.REAL /usr/bin/man
 
-# no more secrets
-RUN git clone https://github.com/bartobri/no-more-secrets.git
-WORKDIR /no-more-secrets
-RUN make nms-ncurses && make sneakers-ncurses && make install
-WORKDIR /
+# re-disable apt cache
+RUN rm /etc/apt/apt.conf.d/keep-cache
+COPY --from=ubuntu:19.04 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
 
 CMD /bin/bash
