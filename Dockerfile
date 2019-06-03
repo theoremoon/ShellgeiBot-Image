@@ -45,7 +45,8 @@ RUN --mount=type=cache,target=/root/go/src \
                 /tmp/go/src/github.com/YuheiNakasaka/sayhuuzoku/db/data.db \
     && mkdir -p /tmp/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping \
          && cp /root/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping/shoplist.txt \
-                /tmp/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping/shoplist.txt
+                /tmp/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping/shoplist.txt \
+    && git clone https://github.com/googlefonts/noto-emoji /usr/local/src/noto-emoji
 
 ## Ruby
 FROM base AS ruby-builder
@@ -289,9 +290,11 @@ COPY --from=go-builder /usr/local/go/LICENSE /usr/local/go/README.md /usr/local/
 COPY --from=go-builder /usr/local/go/bin/ /usr/local/go/bin/
 COPY --from=go-builder /root/go/bin /root/go/bin
 COPY --from=go-builder /tmp/go /root/go
+COPY --from=go-builder /usr/local/src/noto-emoji/png/128/ /usr/local/src/noto-emoji
 ENV GOPATH /root/go
 ENV PATH $PATH:/usr/local/go/bin:/root/go/bin
 RUN ln -s /root/go/src/github.com/YuheiNakasaka/sayhuuzoku/db /
+ENV TEXTIMG_EMOJI_DIR /usr/local/src/noto-emoji
 
 # Ruby
 COPY --from=ruby-builder /usr/local/bin /usr/local/bin
