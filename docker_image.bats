@@ -780,3 +780,8 @@
   run ojichat --version
   [[ "${lines[0]}" =~ 'Ojisan Nanchatte (ojichat) command' ]]
 }
+
+@test "faketime" {
+  run faketime --version
+  [[ "${lines[0]}" =~ 'faketime: Version' ]]
+}

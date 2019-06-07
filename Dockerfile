@@ -283,7 +283,8 @@ RUN --mount=type=cache,target=/var/lib/apt,from=apt-cache,source=/var/lib/apt \
       graphviz\
       nim\
       bats\
-      libncurses5
+      libncurses5\
+      faketime
 
 # Go
 COPY --from=go-builder /usr/local/go/LICENSE /usr/local/go/README.md /usr/local/go/
