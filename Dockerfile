@@ -91,6 +91,7 @@ FROM base AS rust-builder
 RUN curl -sfSL --retry 3 https://sh.rustup.rs | sh -s -- -y
 ENV PATH $PATH:/root/.cargo/bin
 RUN cargo install --git https://github.com/lotabout/rargs.git
+RUN cargo install --git https://github.com/KoharaKazuya/forest.git
 
 ## Nim
 FROM base AS nim-builder
@@ -284,7 +285,8 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       nim\
       bats\
       libncurses5\
-      faketime
+      faketime\
+      tree
 
 # Go
 COPY --from=go-builder /usr/local/go/LICENSE /usr/local/go/README.md /usr/local/go/

@@ -785,3 +785,13 @@
   run faketime --version
   [[ "${lines[0]}" =~ 'faketime: Version' ]]
 }
+
+@test "tree" {
+  run tree --help
+  [[ "${lines[0]}" =~ 'usage: tree' ]]
+}
+
+@test "forest" {
+  run bash -c "echo シェル芸 | forest"
+  [ "$output" = '└ ─ シェル芸' ]
+}
