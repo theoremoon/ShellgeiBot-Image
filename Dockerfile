@@ -6,15 +6,15 @@ FROM ubuntu:19.04 AS base
 ENV DEBIAN_FRONTEND noninteractive
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
-RUN --mount=type=cache,target=/var/lib/apt,from=apt-cache,source=/var/lib/apt \
+RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt \
-    apt-get install -y -qq curl git build-essential unzip
+    apt-get install -y -qq --no-install-recommends curl git build-essential unzip ca-certificates
 
 ## Go
 FROM base AS go-builder
-RUN --mount=type=cache,target=/var/lib/apt,from=apt-cache,source=/var/lib/apt \
+RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq libmecab-dev
+    apt-get install -y -qq --no-install-recommends libmecab-dev
 RUN curl -sfSL --retry 3 https://dl.google.com/go/go1.12.linux-amd64.tar.gz -o go.tar.gz \
     && tar xzf go.tar.gz -C /usr/local \
     && rm go.tar.gz
@@ -22,7 +22,7 @@ ENV PATH $PATH:/usr/local/go/bin
 ENV GOPATH /root/go
 RUN --mount=type=cache,target=/root/go/src \
     --mount=type=cache,target=/root/.cache/go-build \
-    go get -u \
+    go get -u -ldflags '-w -s' \
       github.com/YuheiNakasaka/sayhuuzoku \
       github.com/tomnomnom/gron \
       github.com/ericchiang/pup \
@@ -33,26 +33,26 @@ RUN --mount=type=cache,target=/root/go/src \
       github.com/jiro4989/textimg \
       github.com/greymd/ojichat \
     && CGO_LDFLAGS="`mecab-config --libs`" CGO_CFLAGS="-I`mecab-config --inc-dir`" \
-      go get -u github.com/ryuichiueda/ke2daira \
-    && find /root/go/src -type f \
-      | grep -iE 'license|readme' \
+      go get -u -ldflags '-w -s' github.com/ryuichiueda/ke2daira \
+    && find /usr/local/go/src /root/go/src -type f \
+      | grep -Ei 'license|readme' \
       | grep -v '.go$' \
-      | xargs -I@ echo "mkdir -p @; cp -f @ @" \
-      | sed -e 's!/[^/]*;!;!' -e 's!/root/go/src/!/tmp/go/src/!3' -e 's!/root/go/src/!/tmp/go/src/!' \
-      | sh \
-    && mkdir -p /tmp/go/src/github.com/YuheiNakasaka/sayhuuzoku/db \
-         && cp /root/go/src/github.com/YuheiNakasaka/sayhuuzoku/db/data.db \
-                /tmp/go/src/github.com/YuheiNakasaka/sayhuuzoku/db/data.db \
-    && mkdir -p /tmp/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping \
-         && cp /root/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping/shoplist.txt \
-                /tmp/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping/shoplist.txt \
-    && git clone https://github.com/googlefonts/noto-emoji /usr/local/src/noto-emoji
+      | xargs -I@ echo "mkdir -p /tmp@; cp @ /tmp@" \
+      | sed -e 's!/[^/]*;!;!' \
+      | bash \
+    && mkdir -p /tmp/root/go/src/github.com/YuheiNakasaka/sayhuuzoku/db \
+              && cp /root/go/src/github.com/YuheiNakasaka/sayhuuzoku/db/data.db \
+                /tmp/root/go/src/github.com/YuheiNakasaka/sayhuuzoku/db/data.db \
+    && mkdir -p /tmp/root/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping \
+              && cp /root/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping/shoplist.txt \
+                /tmp/root/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping/shoplist.txt
+RUN git clone --depth 1 https://github.com/googlefonts/noto-emoji /usr/local/src/noto-emoji
 
 ## Ruby
 FROM base AS ruby-builder
-RUN --mount=type=cache,target=/var/lib/apt,from=apt-cache,source=/var/lib/apt \
+RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq ruby-dev
+    apt-get install -y -qq --no-install-recommends ruby-dev
 RUN --mount=type=cache,target=/root/.gem \
     gem install --quiet --no-ri --no-rdoc cureutils matsuya takarabako snacknomama rubipara marky_markov
 RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/hostilefork/whitespacers/master/ruby/whitespace.rb -o /usr/local/bin/whitespace
@@ -60,9 +60,9 @@ RUN chmod +x /usr/local/bin/whitespace
 
 ## Python
 FROM base AS python-builder
-RUN --mount=type=cache,target=/var/lib/apt,from=apt-cache,source=/var/lib/apt \
+RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq python-dev python-pip python-mecab python3-dev python3-pip
+    apt-get install -y -qq --no-install-recommends python-dev python-pip python-mecab python-setuptools python3-dev python3-pip python3-setuptools
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --progress-bar=off sympy numpy scipy matplotlib pillow
 RUN --mount=type=cache,target=/root/.cache/pip \
@@ -72,17 +72,17 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 ## Node.js
 FROM base AS nodejs-builder
-RUN --mount=type=cache,target=/var/lib/apt,from=apt-cache,source=/var/lib/apt \
+RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq nodejs npm
+    apt-get install -y -qq --no-install-recommends nodejs npm
 RUN --mount=type=cache,target=/root/.npm \
     npm install -g --silent faker-cli chemi
 
 ## .NET
 FROM base AS dotnet-builder
-RUN --mount=type=cache,target=/var/lib/apt,from=apt-cache,source=/var/lib/apt \
+RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq mono-mcs
+    apt-get install -y -qq --no-install-recommends mono-mcs
 RUN git clone --depth 1 https://github.com/xztaityozx/noc.git
 RUN mcs noc/noc/noc/Program.cs
 
@@ -91,25 +91,31 @@ FROM base AS rust-builder
 RUN curl -sfSL --retry 3 https://sh.rustup.rs | sh -s -- -y
 ENV PATH $PATH:/root/.cargo/bin
 RUN cargo install --git https://github.com/lotabout/rargs.git
+RUN cargo install --git https://github.com/KoharaKazuya/forest.git
+RUN find /root/.rustup /root/.cargo -type f \
+    | grep -Ei 'license|readme' \
+    | xargs -I@ echo "mkdir -p /tmp@; cp @ /tmp@" \
+    | sed -e 's!/[^/]*;!;!' \
+    | bash
 
 ## Nim
 FROM base AS nim-builder
-RUN --mount=type=cache,target=/var/lib/apt,from=apt-cache,source=/var/lib/apt \
+RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq nim
+    apt-get install -y -qq --no-install-recommends nim
 RUN nimble install rect -Y
 
 
 ## General
 FROM base AS general-builder
-RUN --mount=type=cache,target=/var/lib/apt,from=apt-cache,source=/var/lib/apt \
+RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq lib32ncursesw5-dev
+    apt-get install -y -qq --no-install-recommends lib32ncursesw5-dev
 
 # gawk 5.0
 RUN curl -sfSLO https://ftp.gnu.org/gnu/gawk/gawk-5.0.0.tar.gz
 RUN tar xf gawk-5.0.0.tar.gz
-WORKDIR gawk-5.0.0
+WORKDIR /gawk-5.0.0
 RUN ./configure --program-suffix="-5.0.0"
 RUN make
 RUN make install
@@ -129,7 +135,7 @@ WORKDIR /
 
 # no more secrets
 RUN git clone --depth 1 https://github.com/bartobri/no-more-secrets.git
-WORKDIR no-more-secrets
+WORKDIR /no-more-secrets
 RUN make nms-ncurses && make sneakers-ncurses && make install
 WORKDIR /
 
@@ -215,9 +221,9 @@ RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/horo17/saizeriya/mast
     && chmod u+x /usr/local/bin/saizeriya
 
 # apt
-RUN --mount=type=cache,target=/var/lib/apt,from=apt-cache,source=/var/lib/apt \
+RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt \
-    apt update -qq && apt-get install -y -qq \
+    apt-get install -y -qq \
       ruby\
       ccze\
       screen tmux\
@@ -284,13 +290,15 @@ RUN --mount=type=cache,target=/var/lib/apt,from=apt-cache,source=/var/lib/apt \
       nim\
       bats\
       libncurses5\
-      faketime
+      faketime\
+      tree
 
 # Go
 COPY --from=go-builder /usr/local/go/LICENSE /usr/local/go/README.md /usr/local/go/
-COPY --from=go-builder /usr/local/go/bin/ /usr/local/go/bin/
+COPY --from=go-builder /usr/local/go/bin /usr/local/go/bin
 COPY --from=go-builder /root/go/bin /root/go/bin
-COPY --from=go-builder /tmp/go /root/go
+COPY --from=go-builder /tmp/usr/local/go /usr/local/go
+COPY --from=go-builder /tmp/root/go /root/go
 COPY --from=go-builder /usr/local/src/noto-emoji/png/128/ /usr/local/src/noto-emoji
 ENV GOPATH /root/go
 ENV PATH $PATH:/usr/local/go/bin:/root/go/bin
@@ -313,11 +321,11 @@ COPY --from=nodejs-builder /usr/local/lib/node_modules /usr/local/lib/node_modul
 
 # .NET
 COPY --from=dotnet-builder /noc/noc/noc/Program.exe /noc
-COPY --from=dotnet-builder /noc/LICENSE /usr/local/share/noc/LICENSE
-COPY --from=dotnet-builder /noc/README.md /usr/local/share/noc/README.md
+COPY --from=dotnet-builder /noc/LICENSE /noc/README.md /usr/local/share/noc/
 
 # Rust
 COPY --from=rust-builder /root/.cargo/bin /root/.cargo/bin
+COPY --from=rust-builder /tmp/root /root
 ENV PATH $PATH:/root/.cargo/bin
 
 # Nim
@@ -333,46 +341,38 @@ COPY --from=general-builder /ShellGeiData /ShellGeiData
 # unicode data
 COPY --from=general-builder /NormalizationTest.txt /NamesList.txt /
 
-# egison
-RUN --mount=type=cache,target=/downloads,from=general-builder,source=/downloads \
-    dpkg -i /downloads/egison-3.7.14.x86_64.deb
-
-# egzact
-RUN --mount=type=cache,target=/downloads,from=general-builder,source=/downloads \
-    dpkg -i /downloads/egzact-1.3.1.deb
+# egison, egzact, bat, osquery
+RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
+    dpkg -i \
+      /downloads/egison-3.7.14.x86_64.deb \
+      /downloads/egzact-1.3.1.deb \
+      /downloads/bat_0.10.0_amd64.deb \
+      /downloads/osquery.deb
 
 # J
-RUN --mount=type=cache,target=/downloads,from=general-builder,source=/downloads \
+RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     tar xf /downloads/j.tar.gz
 ENV PATH $PATH:/j64-807/bin
 
 # Julia
-RUN --mount=type=cache,target=/downloads,from=general-builder,source=/downloads \
+RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     tar xf /downloads/julia.tar.gz \
     && ln -s $(realpath $(ls | grep -E "^julia") )/bin/julia /usr/local/bin/julia
 
 # OpenJDK
 # jconsole コマンドが OpenJDK と J で重複するため、J の PATH を優先
-RUN --mount=type=cache,target=/downloads,from=general-builder,source=/downloads \
+RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     tar xf /downloads/openjdk11.tar.gz
 ENV PATH $PATH:/jdk-11.0.2/bin
 
 # trdsql (apply sql to csv)
-RUN --mount=type=cache,target=/downloads,from=general-builder,source=/downloads \
+RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     unzip /downloads/trdsql_linux_amd64.zip
 ENV PATH $PATH:/trdsql_linux_amd64
 
-# bat
-RUN --mount=type=cache,target=/downloads,from=general-builder,source=/downloads \
-    dpkg -i /downloads/bat_0.10.0_amd64.deb
-
 # onefetch
-RUN --mount=type=cache,target=/downloads,from=general-builder,source=/downloads \
+RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     unzip /downloads/onefetch_linux_x86-64.zip -d /usr/local/bin onefetch
-
-# osquery
-RUN --mount=type=cache,target=/downloads,from=general-builder,source=/downloads \
-    dpkg -i /downloads/osquery.deb
 
 # man
 RUN mv /usr/bin/man.REAL /usr/bin/man
