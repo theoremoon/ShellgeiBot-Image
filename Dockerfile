@@ -92,6 +92,11 @@ RUN curl -sfSL --retry 3 https://sh.rustup.rs | sh -s -- -y
 ENV PATH $PATH:/root/.cargo/bin
 RUN cargo install --git https://github.com/lotabout/rargs.git
 RUN cargo install --git https://github.com/KoharaKazuya/forest.git
+RUN find /root/.rustup /root/.cargo -type f \
+    | grep -Ei 'license|readme' \
+    | xargs -I@ echo "mkdir -p /tmp@; cp @ /tmp@" \
+    | sed -e 's!/[^/]*;!;!' \
+    | bash
 
 ## Nim
 FROM base AS nim-builder
@@ -316,11 +321,11 @@ COPY --from=nodejs-builder /usr/local/lib/node_modules /usr/local/lib/node_modul
 
 # .NET
 COPY --from=dotnet-builder /noc/noc/noc/Program.exe /noc
-COPY --from=dotnet-builder /noc/LICENSE /usr/local/share/noc/LICENSE
-COPY --from=dotnet-builder /noc/README.md /usr/local/share/noc/README.md
+COPY --from=dotnet-builder /noc/LICENSE /noc/README.md /usr/local/share/noc/
 
 # Rust
 COPY --from=rust-builder /root/.cargo/bin /root/.cargo/bin
+COPY --from=rust-builder /tmp/root /root
 ENV PATH $PATH:/root/.cargo/bin
 
 # Nim
