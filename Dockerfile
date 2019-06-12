@@ -22,7 +22,7 @@ ENV PATH $PATH:/usr/local/go/bin
 ENV GOPATH /root/go
 RUN --mount=type=cache,target=/root/go/src \
     --mount=type=cache,target=/root/.cache/go-build \
-    go get -u \
+    go get -u -ldflags '-w -s' \
       github.com/YuheiNakasaka/sayhuuzoku \
       github.com/tomnomnom/gron \
       github.com/ericchiang/pup \
@@ -33,7 +33,7 @@ RUN --mount=type=cache,target=/root/go/src \
       github.com/jiro4989/textimg \
       github.com/greymd/ojichat \
     && CGO_LDFLAGS="`mecab-config --libs`" CGO_CFLAGS="-I`mecab-config --inc-dir`" \
-      go get -u github.com/ryuichiueda/ke2daira \
+      go get -u -ldflags '-w -s' github.com/ryuichiueda/ke2daira \
     && find /usr/local/go/src /root/go/src -type f \
       | grep -Ei 'license|readme' \
       | grep -v '.go$' \
