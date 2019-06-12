@@ -6,15 +6,16 @@ FROM ubuntu:19.04 AS base
 ENV DEBIAN_FRONTEND noninteractive
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
+RUN echo 'APT::Install-Recommends "false";' > /etc/apt/apt.conf.d/no-install-recommends
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt \
-    apt-get install -y -qq --no-install-recommends curl git build-essential unzip ca-certificates
+    apt-get install -y -qq curl git build-essential unzip ca-certificates
 
 ## Go
 FROM base AS go-builder
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq --no-install-recommends libmecab-dev
+    apt-get install -y -qq libmecab-dev
 RUN curl -sfSL --retry 3 https://dl.google.com/go/go1.12.linux-amd64.tar.gz -o go.tar.gz \
     && tar xzf go.tar.gz -C /usr/local \
     && rm go.tar.gz
@@ -52,7 +53,7 @@ RUN git clone --depth 1 https://github.com/googlefonts/noto-emoji /usr/local/src
 FROM base AS ruby-builder
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq --no-install-recommends ruby-dev
+    apt-get install -y -qq ruby-dev
 RUN --mount=type=cache,target=/root/.gem \
     gem install --quiet --no-ri --no-rdoc cureutils matsuya takarabako snacknomama rubipara marky_markov
 RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/hostilefork/whitespacers/master/ruby/whitespace.rb -o /usr/local/bin/whitespace
@@ -62,7 +63,7 @@ RUN chmod +x /usr/local/bin/whitespace
 FROM base AS python-builder
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq --no-install-recommends python-dev python-pip python-mecab python-setuptools python3-dev python3-pip python3-setuptools
+    apt-get install -y -qq python-dev python-pip python-mecab python-setuptools python3-dev python3-pip python3-setuptools
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --progress-bar=off sympy numpy scipy matplotlib pillow
 RUN --mount=type=cache,target=/root/.cache/pip \
@@ -74,7 +75,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 FROM base AS nodejs-builder
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq --no-install-recommends nodejs npm
+    apt-get install -y -qq nodejs npm
 RUN --mount=type=cache,target=/root/.npm \
     npm install -g --silent faker-cli chemi
 
@@ -82,7 +83,7 @@ RUN --mount=type=cache,target=/root/.npm \
 FROM base AS dotnet-builder
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq --no-install-recommends mono-mcs
+    apt-get install -y -qq mono-mcs
 RUN git clone --depth 1 https://github.com/xztaityozx/noc.git
 RUN mcs noc/noc/noc/Program.cs
 
@@ -102,7 +103,7 @@ RUN find /root/.rustup /root/.cargo -type f \
 FROM base AS nim-builder
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq --no-install-recommends nim
+    apt-get install -y -qq nim
 RUN nimble install rect -Y
 
 
@@ -110,7 +111,7 @@ RUN nimble install rect -Y
 FROM base AS general-builder
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq --no-install-recommends lib32ncursesw5-dev
+    apt-get install -y -qq lib32ncursesw5-dev
 
 # gawk 5.0
 RUN curl -sfSLO https://ftp.gnu.org/gnu/gawk/gawk-5.0.0.tar.gz
@@ -254,7 +255,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       fish\
       lolcat\
       nyancat\
-      imagemagick\
+      imagemagick ghostscript\
       moreutils\
       strace\
       whiptail\
@@ -291,7 +292,10 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       bats\
       libncurses5\
       faketime\
-      tree
+      tree\
+      file\
+      python3-pkg-resources\
+      fonts-droid-fallback fonts-lato fonts-liberation fonts-noto-mono
 
 # Go
 COPY --from=go-builder /usr/local/go/LICENSE /usr/local/go/README.md /usr/local/go/
@@ -377,8 +381,8 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
 # man
 RUN mv /usr/bin/man.REAL /usr/bin/man
 
-# re-disable apt cache
-RUN rm /etc/apt/apt.conf.d/keep-cache
+# reset apt config
+RUN rm /etc/apt/apt.conf.d/keep-cache /etc/apt/apt.conf.d/no-install-recommends
 COPY --from=ubuntu:19.04 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
 
 CMD /bin/bash
