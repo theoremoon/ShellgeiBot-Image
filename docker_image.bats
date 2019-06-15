@@ -795,3 +795,8 @@
   run bash -c "echo シェル芸 | forest"
   [ "$output" = '└ ─ シェル芸' ]
 }
+
+@test "fujiaire" {
+  run fujiaire フジエアー
+  [ "$output" = "フピエアー" ]
+}

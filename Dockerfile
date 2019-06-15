@@ -220,6 +220,10 @@ ENV PATH $PATH:/root/bin
 RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/horo17/saizeriya/master/saizeriya -o /usr/local/bin/saizeriya \
     && chmod u+x /usr/local/bin/saizeriya
 
+# fujiaire
+RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/msr-i386/fujiaire/master/fujiaire -o /usr/local/bin/fujiaire \
+    && chmod u+x /usr/local/bin/fujiaire
+
 # apt
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt \
