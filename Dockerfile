@@ -285,7 +285,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       qrencode\
       fonts-nanum fonts-symbola fonts-noto-color-emoji\
       sl\
-      chromium-browser chromium-chromedriver nginx\
+      chromium-browser chromium-chromedriver w3m nginx\
       screenfetch\
       mono-runtime\
       firefox\
@@ -297,6 +297,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       libncurses5\
       faketime\
       tree\
+      numconv\
       file\
       python3-pkg-resources\
       fonts-droid-fallback fonts-lato fonts-liberation fonts-noto-mono fonts-dejavu-core gsfonts

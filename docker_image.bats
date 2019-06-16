@@ -800,3 +800,13 @@
   run fujiaire フジエアー
   [ "$output" = "フピエアー" ]
 }
+
+@test "numconv" {
+  run numconv -h
+  [ "${lines[0]}" = 'Filter to convert integers from one number system to another.' ]
+}
+
+@test "w3m" {
+  run w3m -version
+  [[ "$output" =~ 'w3m version' ]]
+}
