@@ -295,7 +295,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       tree\
       file\
       python3-pkg-resources\
-      fonts-droid-fallback fonts-lato fonts-liberation fonts-noto-mono
+      fonts-droid-fallback fonts-lato fonts-liberation fonts-noto-mono fonts-dejavu-core gsfonts
 
 # Go
 COPY --from=go-builder /usr/local/go/LICENSE /usr/local/go/README.md /usr/local/go/
