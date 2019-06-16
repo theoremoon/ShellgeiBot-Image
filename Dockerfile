@@ -284,7 +284,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       qrencode\
       fonts-nanum fonts-symbola fonts-noto-color-emoji\
       sl\
-      chromium-browser chromium-chromedriver nginx\
+      chromium-browser chromium-chromedriver w3m nginx\
       screenfetch\
       mono-runtime\
       firefox\
@@ -295,7 +295,8 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       bats\
       libncurses5\
       faketime\
-      tree
+      tree\
+      numconv
 
 # Go
 COPY --from=go-builder /usr/local/go/LICENSE /usr/local/go/README.md /usr/local/go/
