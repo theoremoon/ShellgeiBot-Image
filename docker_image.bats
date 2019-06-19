@@ -271,7 +271,7 @@
 
 @test "kkc" {
   run kkc help
-  [ "${lines[1]}" = "  kkc help コマンド" ]
+  [ "${lines[1]}" = "  kkc help COMMAND" ]
 }
 
 @test "morsegen" {
