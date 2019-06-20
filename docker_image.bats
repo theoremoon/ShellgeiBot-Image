@@ -72,14 +72,14 @@
   [ "$output" = シェル芸 ]
 }
 
-@test "Python2" {
-  run bash -c "echo シェル芸 | python -c 'import sys;print sys.stdin.readline().rstrip()'"
-  [ "$output" = シェル芸 ]
+@test "Not python2" {
+  run python --version
+  [[ ! "$output" =~ 'Python 2.' ]]
 }
 
 @test "Python3" {
-  run bash -c "echo シェル芸 | python3 -c 'import sys;print(sys.stdin.readline().rstrip())'"
-  [ "$output" = シェル芸 ]
+  run python3 --version
+  [[ "$output" =~ 'Python 3.' ]]
 }
 
 @test "nkf" {
@@ -271,7 +271,7 @@
 
 @test "kkc" {
   run kkc help
-  [ "${lines[1]}" = "  kkc help COMMAND" ]
+  [[ "${lines[1]}" =~ "  kkc help" ]]
 }
 
 @test "morsegen" {
@@ -334,11 +334,6 @@
 @test "fonts-vlgothic" {
   run bash -c "fc-list | grep vlgothic | wc -l"
   [ $output -ge 2 ]
-}
-
-@test "inkscape" {
-  run inkscape --version
-  [[ "$output" =~ "Inkscape" ]]
 }
 
 @test "gnuplot" {
@@ -457,43 +452,23 @@
   [ $status -eq 0 ]
 }
 
-@test "sympy-python3" {
+@test "sympy" {
   run python3 -c 'import sympy; print(sympy.__name__)'
   [ "$output" = "sympy" ]
 }
 
-@test "sympy" {
-  run python -c 'import sympy; print sympy.__name__'
-  [ "$output" = "sympy" ]
-}
-
-@test "numpy-python3" {
+@test "numpy" {
   run python3 -c 'import numpy; print(numpy.__name__)'
   [ "$output" = "numpy" ]
 }
 
-@test "numpy" {
-  run python -c 'import numpy; print numpy.__name__'
-  [ "$output" = "numpy" ]
-}
-
-@test "scipy-python3" {
+@test "scipy" {
   run python3 -c 'import scipy; print(scipy.__name__)'
   [ "$output" = "scipy" ]
 }
 
-@test "scipy" {
-  run python -c 'import scipy; print scipy.__name__'
-  [ "$output" = "scipy" ]
-}
-
-@test "matplotlib-python3" {
-  run python3 -c 'import matplotlib; print(matplotlib.__name__)'
-  [ "$output" = "matplotlib" ]
-}
-
 @test "matplotlib" {
-  run python -c 'import matplotlib; print matplotlib.__name__'
+  run python3 -c 'import matplotlib; print(matplotlib.__name__)'
   [ "$output" = "matplotlib" ]
 }
 
@@ -502,25 +477,14 @@
   [ "$output" = "シェル芸" ]
 }
 
-@test "pillow-python3" {
-  run python3 -c 'import PIL; print(PIL.__name__)'
-  [ "$output" = "PIL" ]
-}
-
 @test "pillow" {
-  run python -c 'import PIL; print PIL.__name__'
+  run python3 -c 'import PIL; print(PIL.__name__)'
   [ "$output" = "PIL" ]
 }
 
 @test "asciinema" {
   run asciinema --version
   [[ "${lines[0]}" =~ "asciinema " ]]
-}
-
-@test "GiNZA" {
-  run bash -c "echo シェル芸 | python3 -m spacy.lang.ja_ginza.cli 2>/dev/null | awk 'NR>=2{print \$3}'"
-  [ "${lines[0]}" = 'シェル' ]
-  [ "${lines[1]}" = '芸' ]
 }
 
 @test "egison" {
@@ -692,7 +656,7 @@
 }
 
 @test "noc" {
-  run bash -c "echo 部邊邊󠄓邊󠄓邉邉󠄊邊邊󠄒邊󠄓邊󠄓邉邉󠄊辺邉󠄊邊邊󠄓邊󠄓邉邉󠄎辺邉󠄎邊辺󠄀邉邉󠄈辺邉󠄍邊邊󠄓部 | mono noc -d"
+  run noc --decode 部邊邊󠄓邊󠄓邉邉󠄊邊邊󠄒邊󠄓邊󠄓邉邉󠄊辺邉󠄊邊邊󠄓邊󠄓邉邉󠄎辺邉󠄎邊辺󠄀邉邉󠄈辺邉󠄍邊邊󠄓部
   [ "$output" = 'シェル芸' ]
 }
 

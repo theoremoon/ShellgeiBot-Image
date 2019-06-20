@@ -63,13 +63,9 @@ RUN chmod +x /usr/local/bin/whitespace
 FROM base AS python-builder
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq python-dev python-pip python-mecab python-setuptools python3-dev python3-pip python3-setuptools
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --progress-bar=off sympy numpy scipy matplotlib pillow
+    apt-get install -y -qq python3-dev python3-pip python3-setuptools
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip3 install --progress-bar=off yq faker sympy numpy scipy matplotlib xonsh pillow asciinema
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip3 install --progress-bar=off "https://github.com/megagonlabs/ginza/releases/download/v1.0.1/ja_ginza_nopn-1.0.1.tgz"
 
 ## Node.js
 FROM base AS nodejs-builder
@@ -281,7 +277,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       kakasi\
       dateutils\
       fonts-ipafont fonts-vlgothic\
-      inkscape gnuplot\
+      gnuplot\
       qrencode\
       fonts-nanum fonts-symbola fonts-noto-color-emoji\
       sl\
@@ -319,18 +315,18 @@ COPY --from=ruby-builder /usr/local/bin /usr/local/bin
 COPY --from=ruby-builder /var/lib/gems /var/lib/gems
 
 # Python
-COPY --from=python-builder /usr/lib/python2.7/dist-packages /usr/lib/python2.7/dist-packages
 COPY --from=python-builder /usr/local/bin /usr/local/bin
-COPY --from=python-builder /usr/local/lib/python2.7 /usr/local/lib/python2.7
 COPY --from=python-builder /usr/local/lib/python3.7 /usr/local/lib/python3.7
+RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Node.js
 COPY --from=nodejs-builder /usr/local/bin /usr/local/bin
 COPY --from=nodejs-builder /usr/local/lib/node_modules /usr/local/lib/node_modules
 
 # .NET
-COPY --from=dotnet-builder /noc/noc/noc/Program.exe /noc
-COPY --from=dotnet-builder /noc/LICENSE /noc/README.md /usr/local/share/noc/
+COPY --from=dotnet-builder /noc/noc/noc/Program.exe /usr/local/noc/noc
+COPY --from=dotnet-builder /noc/LICENSE /noc/README.md /usr/local/noc/
+RUN echo 'mono /usr/local/noc/noc "$@"' > /usr/local/bin/noc && chmod +x /usr/local/bin/noc
 
 # Rust
 COPY --from=rust-builder /root/.cargo/bin /root/.cargo/bin
