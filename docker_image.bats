@@ -774,3 +774,8 @@
   run w3m -version
   [[ "$output" =~ 'w3m version' ]]
 }
+
+@test "kagome" {
+  run kagome -h
+  [ "${lines[0]}" = 'Japanese Morphological Analyzer -- github.com/ikawaha/kagome' ]
+}
