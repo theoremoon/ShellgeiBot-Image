@@ -324,8 +324,9 @@ COPY --from=nodejs-builder /usr/local/bin /usr/local/bin
 COPY --from=nodejs-builder /usr/local/lib/node_modules /usr/local/lib/node_modules
 
 # .NET
-COPY --from=dotnet-builder /noc/noc/noc/Program.exe /noc
-COPY --from=dotnet-builder /noc/LICENSE /noc/README.md /usr/local/share/noc/
+COPY --from=dotnet-builder /noc/noc/noc/Program.exe /usr/local/noc/noc
+COPY --from=dotnet-builder /noc/LICENSE /noc/README.md /usr/local/noc/
+RUN echo 'mono /usr/local/noc/noc "$@"' > /usr/local/bin/noc && chmod +x /usr/local/bin/noc
 
 # Rust
 COPY --from=rust-builder /root/.cargo/bin /root/.cargo/bin
