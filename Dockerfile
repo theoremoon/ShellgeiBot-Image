@@ -298,6 +298,9 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       python3-pkg-resources\
       fonts-droid-fallback fonts-lato fonts-liberation fonts-noto-mono fonts-dejavu-core gsfonts
 
+# kagome
+COPY --from=ikawaha/kagome /usr/local/bin/kagome /usr/local/bin/kagome
+
 # Go
 COPY --from=go-builder /usr/local/go/LICENSE /usr/local/go/README.md /usr/local/go/
 COPY --from=go-builder /usr/local/go/bin /usr/local/go/bin
