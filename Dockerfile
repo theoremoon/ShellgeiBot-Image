@@ -102,6 +102,14 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
     apt-get install -y -qq nim
 RUN nimble install rect -Y
 
+## V
+FROM base AS v-builder
+RUN mkdir -p /root/code
+RUN git clone --depth 1 https://github.com/vlang/v /root/code/v
+WORKDIR /root/code/v/compiler
+RUN curl -sfSLO https://vlang.io/v.c
+RUN cc -w -o vc v.c
+RUN ./vc -o v .
 
 ## General
 FROM base AS general-builder
@@ -339,6 +347,13 @@ ENV PATH $PATH:/root/.cargo/bin
 # Nim
 COPY --from=nim-builder /root/.nimble /root/.nimble
 ENV PATH $PATH:/root/.nimble/bin
+
+# V
+RUN --mount=type=bind,target=/tmp/code/v,from=v-builder,source=/root/code/v \
+    mkdir -p /root/code/v \
+    && (cd /tmp/code/v && git archive --format=tar HEAD) | (cd /root/code/v && tar xf -) \
+    && cp /tmp/code/v/compiler/v /root/code/v/compiler/v \
+    && ln -s /root/code/v/compiler/v /usr/local/bin/v
 
 # gawk 5.0 / Open-usp-Tukubai / edfsay / no more secrets
 COPY --from=general-builder /usr/local /usr/local

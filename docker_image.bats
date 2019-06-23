@@ -779,3 +779,8 @@
   run kagome -h
   [ "${lines[0]}" = 'Japanese Morphological Analyzer -- github.com/ikawaha/kagome' ]
 }
+
+@test "V" {
+  run v version
+  [[ "$output" =~ 'V ' ]]
+}
