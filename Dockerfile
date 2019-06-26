@@ -304,7 +304,8 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       numconv\
       file\
       python3-pkg-resources\
-      fonts-droid-fallback fonts-lato fonts-liberation fonts-noto-mono fonts-dejavu-core gsfonts
+      fonts-droid-fallback fonts-lato fonts-liberation fonts-noto-mono fonts-dejavu-core gsfonts\
+      bf
 
 # kagome
 COPY --from=ikawaha/kagome /usr/local/bin/kagome /usr/local/bin/kagome
