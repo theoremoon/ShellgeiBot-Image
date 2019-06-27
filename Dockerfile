@@ -171,6 +171,8 @@ RUN curl -sfSLO --retry 3 https://github.com/sharkdp/bat/releases/download/v0.10
 RUN curl -sfSLO --retry 3 https://github.com/o2sh/onefetch/releases/download/v1.5.2/onefetch_linux_x86-64.zip
 # osquery
 RUN curl -sfSL --retry 3 https://pkg.osquery.io/deb/osquery_3.3.2_1.linux.amd64.deb -o osquery.deb
+# PowerShell 7 (preview)
+RUN curl -sfSLO --retry 3 https://github.com/PowerShell/PowerShell/releases/download/v7.0.0-preview.1/powershell-7.0.0-preview.1-linux-x64.tar.gz
 WORKDIR /
 
 
@@ -398,6 +400,12 @@ ENV PATH $PATH:/trdsql_linux_amd64
 # onefetch
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     unzip /downloads/onefetch_linux_x86-64.zip -d /usr/local/bin onefetch
+
+# PowerShell
+RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
+    mkdir -p /usr/local/powershell \
+    && tar xf /downloads/powershell-7.0.0-preview.1-linux-x64.tar.gz -C /usr/local/powershell \
+    && ln -s ln -s /usr/local/powershell/pwsh /usr/local/bin/
 
 # man
 RUN mv /usr/bin/man.REAL /usr/bin/man
