@@ -794,3 +794,8 @@
   run bash -c "echo 私はシェル芸を嗜みます | nise"
   [ "$output" = '我シェル芸嗜了' ]
 }
+
+@test "PowerShell" {
+  run pwsh -C Write-Host シェル芸
+  [ "$output" = 'シェル芸' ]
+}
