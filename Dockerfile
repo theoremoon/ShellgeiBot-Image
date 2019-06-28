@@ -405,7 +405,7 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     mkdir -p /usr/local/powershell \
     && tar xf /downloads/powershell-7.0.0-preview.1-linux-x64.tar.gz -C /usr/local/powershell \
-    && ln -s ln -s /usr/local/powershell/pwsh /usr/local/bin/
+    && ln -s /usr/local/powershell/pwsh /usr/local/bin/
 
 # man
 RUN mv /usr/bin/man.REAL /usr/bin/man
