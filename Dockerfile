@@ -390,7 +390,9 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
 # V
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     unzip /downloads/v.zip -d /usr/local/vlang -x v_macos -x v.exe \
-    && ln -s /usr/local/vlang/v_linux /usr/local/bin/v
+    && ln -s /usr/local/vlang/v_linux /usr/local/bin/v \
+    && mkdir -p /root/.vlang \
+    && echo /usr/local/vlang > /root/.vlang/VROOT
 
 # PowerShell
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
