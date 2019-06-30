@@ -103,15 +103,6 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
     apt-get install -y -qq nim
 RUN nimble install rect -Y
 
-## V
-FROM base AS v-builder
-RUN mkdir -p /root/code
-RUN git clone --depth 1 https://github.com/vlang/v /root/code/v
-WORKDIR /root/code/v/compiler
-RUN curl -sfSLO https://vlang.io/v.c
-RUN cc -w -o vc v.c
-RUN ./vc -o v .
-
 ## General
 FROM base AS general-builder
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
@@ -173,6 +164,8 @@ RUN curl -sfSLO --retry 3 https://github.com/o2sh/onefetch/releases/download/v1.
 RUN curl -sfSL --retry 3 https://pkg.osquery.io/deb/osquery_3.3.2_1.linux.amd64.deb -o osquery.deb
 # PowerShell 7 (preview)
 RUN curl -sfSLO --retry 3 https://github.com/PowerShell/PowerShell/releases/download/v7.0.0-preview.1/powershell-7.0.0-preview.1-linux-x64.tar.gz
+# V
+RUN curl -sfSLO --retry 3 https://github.com/vlang/v/releases/download/v0.1.10/v.zip
 WORKDIR /
 
 
@@ -352,13 +345,6 @@ ENV PATH $PATH:/root/.cargo/bin
 COPY --from=nim-builder /root/.nimble /root/.nimble
 ENV PATH $PATH:/root/.nimble/bin
 
-# V
-RUN --mount=type=bind,target=/tmp/code/v,from=v-builder,source=/root/code/v \
-    mkdir -p /root/code/v \
-    && (cd /tmp/code/v && git archive --format=tar HEAD) | (cd /root/code/v && tar xf -) \
-    && cp /tmp/code/v/compiler/v /root/code/v/compiler/v \
-    && ln -s /root/code/v/compiler/v /usr/local/bin/v
-
 # gawk 5.0 / Open-usp-Tukubai / edfsay / no more secrets
 COPY --from=general-builder /usr/local /usr/local
 
@@ -400,6 +386,11 @@ ENV PATH $PATH:/trdsql_linux_amd64
 # onefetch
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     unzip /downloads/onefetch_linux_x86-64.zip -d /usr/local/bin onefetch
+
+# V
+RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
+    unzip /downloads/v.zip -d /usr/local/vlang -x v_macos -x v.exe \
+    && ln -s /usr/local/vlang/v_linux /usr/local/bin/v
 
 # PowerShell
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
