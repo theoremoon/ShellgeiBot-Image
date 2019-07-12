@@ -437,6 +437,11 @@
   [ "${lines[11]}" = '＿＿＿＿ ___ __ _{’O 乙,_r[_ __ ___ __________________________' ]
 }
 
+@test "zen_to_i" {
+  run bash -c 'ruby -rzen_to_i -pe \$_=\$_.zen_to_i <<< 三十二'
+  [ "${lines[0]}" = '32' ]
+}
+
 @test "marky_markov" {
   run marky_markov -h
   [ "${lines[0]}" = 'Usage: marky_markov COMMAND [OPTIONS]' ]
