@@ -109,63 +109,54 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
     --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y -qq lib32ncursesw5-dev
 
+WORKDIR /downloads
 # gawk 5.0
-RUN curl -sfSLO https://ftp.gnu.org/gnu/gawk/gawk-5.0.0.tar.gz
-RUN tar xf gawk-5.0.0.tar.gz
-WORKDIR /gawk-5.0.0
-RUN ./configure --program-suffix="-5.0.0"
-RUN make
-RUN make install
-WORKDIR /
-
+RUN curl -sfSLO https://ftp.gnu.org/gnu/gawk/gawk-5.0.1.tar.gz \
+    && tar xf gawk-5.0.1.tar.gz \
+    && (cd gawk-5.0.1 && ./configure --program-suffix="-5.0.1" && make)
 # Open-usp-Tukubai
 RUN git clone --depth 1 https://github.com/usp-engineers-community/Open-usp-Tukubai.git
-WORKDIR /Open-usp-Tukubai
-RUN make install
-WORKDIR /
-
 # edfsay
 RUN git clone --depth 1 https://github.com/jiro4989/edfsay
-WORKDIR /edfsay
-RUN ./install.sh
-WORKDIR /
-
 # no more secrets
-RUN git clone --depth 1 https://github.com/bartobri/no-more-secrets.git
-WORKDIR /no-more-secrets
-RUN make nms-ncurses && make sneakers-ncurses && make install
-WORKDIR /
-
+RUN git clone --depth 1 https://github.com/bartobri/no-more-secrets.git \
+    && (cd no-more-secrets && make nms-ncurses && make sneakers-ncurses)
 # shellgei data
 RUN git clone --depth 1 https://github.com/ryuichiueda/ShellGeiData.git
+# imgout
+RUN git clone --depth 1 https://github.com/ryuichiueda/ImageGeneratorForShBot.git
 
 # unicode data
 RUN curl -sfSLO --retry 3 https://www.unicode.org/Public/UCD/latest/ucd/NormalizationTest.txt
 RUN curl -sfSLO --retry 3 https://www.unicode.org/Public/UCD/latest/ucd/NamesList.txt
 
-WORKDIR /downloads
 # egison
 RUN curl -sfSLO --retry 3 https://git.io/egison-3.7.14.x86_64.deb
 # egzact
 RUN curl -sfSLO --retry 3 https://git.io/egzact-1.3.1.deb
+# bat
+RUN curl -sfSLO --retry 3 https://github.com/sharkdp/bat/releases/download/v0.11.0/bat_0.11.0_amd64.deb
+# osquery
+RUN curl -sfSLO --retry 3 https://github.com/osquery/osquery/releases/download/4.0.0/osquery-Linux-4.0.0.deb
+# super_unko
+RUN curl -sfSLO --retry 3 https://git.io/superunko.deb
+# echo-meme
+RUN curl -sfSLO --retry 3 https://git.io/echo-meme.deb
+
 # J
 RUN curl -sfSL --retry 3 http://www.jsoftware.com/download/j807/install/j807_linux64_nonavx.tar.gz -o j.tar.gz
 # Julia
-RUN curl -sfSL --retry 3 https://julialang-s3.julialang.org/bin/linux/x64/1.1/julia-1.1.0-linux-x86_64.tar.gz -o julia.tar.gz
+RUN curl -sfSL --retry 3 https://julialang-s3.julialang.org/bin/linux/x64/1.1/julia-1.1.1-linux-x86_64.tar.gz -o julia.tar.gz
 # OpenJDK
 RUN curl -sfSL --retry 3 https://download.oracle.com/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz -o openjdk11.tar.gz
 # trdsql
-RUN curl -sfSLO --retry 3 https://github.com/noborus/trdsql/releases/download/v0.5.0/trdsql_linux_amd64.zip
-# bat
-RUN curl -sfSLO --retry 3 https://github.com/sharkdp/bat/releases/download/v0.10.0/bat_0.10.0_amd64.deb
+RUN curl -sfSLO --retry 3 https://github.com/noborus/trdsql/releases/download/v0.6.1/trdsql_linux_amd64.zip
 # onefetch
-RUN curl -sfSLO --retry 3 https://github.com/o2sh/onefetch/releases/download/v1.5.2/onefetch_linux_x86-64.zip
-# osquery
-RUN curl -sfSL --retry 3 https://pkg.osquery.io/deb/osquery_3.3.2_1.linux.amd64.deb -o osquery.deb
+RUN curl -sfSLO --retry 3 https://github.com/o2sh/onefetch/releases/download/v1.5.4/onefetch_linux_x86-64.zip
 # PowerShell 7 (preview)
 RUN curl -sfSLO --retry 3 https://github.com/PowerShell/PowerShell/releases/download/v7.0.0-preview.1/powershell-7.0.0-preview.1-linux-x64.tar.gz
 # V
-RUN curl -sfSLO --retry 3 https://github.com/vlang/v/releases/download/v0.1.10/v.zip
+RUN curl -sfSLO --retry 3 https://github.com/vlang/v/releases/download/v0.1.13/v.zip
 WORKDIR /
 
 
@@ -178,25 +169,11 @@ ENV TZ JST-9
 ENV PATH /usr/games:$PATH
 
 # home-commands (echo-sd)
-WORKDIR /root
-RUN git clone --depth 1 https://github.com/fumiyas/home-commands.git \
-    && cd home-commands \
-    && git archive --format=tar --prefix=home-commands/ HEAD | (cd / && tar xf -) \
-    && rm -rf /root/home-commands
-ENV PATH /home-commands:$PATH
-WORKDIR /
-
-# super_unko
-RUN curl -sfSLO --retry 3 https://git.io/superunko.deb \
-    && dpkg -i superunko.deb \
-    && rm superunko.deb
+RUN git clone --depth 1 https://github.com/fumiyas/home-commands /usr/local/home-commands
+ENV PATH $PATH:/usr/local/home-commands
 
 # nameko.svg
 RUN curl -sfSLO --retry 3 https://gist.githubusercontent.com/KeenS/6194e6ef1a151c9ea82536d5850b8bc7/raw/85af9ec757308b8ca4effdf24221f642cb34703b/nameko.svg
-
-# imgout
-RUN git clone --depth 1 https://github.com/ryuichiueda/ImageGeneratorForShBot.git
-ENV PATH /ImageGeneratorForShBot:$PATH
 
 # zws
 RUN curl -sfSLO --retry 3 https://raintrees.net/attachments/download/486/zws \
@@ -205,11 +182,6 @@ RUN curl -sfSLO --retry 3 https://raintrees.net/attachments/download/486/zws \
 # sushiro
 RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/redpeacock78/sushiro/master/sushiro -o /usr/local/bin/sushiro \
     && chmod +x /usr/local/bin/sushiro
-
-# echo-meme
-RUN curl -sfSLO --retry 3 https://git.io/echo-meme.deb \
-    && dpkg -i echo-meme.deb \
-    && rm echo-meme.deb
 
 # pokemonsay
 RUN git clone --depth 1 http://github.com/possatti/pokemonsay \
@@ -301,7 +273,8 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       file\
       python3-pkg-resources\
       fonts-droid-fallback fonts-lato fonts-liberation fonts-noto-mono fonts-dejavu-core gsfonts\
-      bf
+      bf\
+      libc++-dev
 
 # kagome
 COPY --from=ikawaha/kagome /usr/local/bin/kagome /usr/local/bin/kagome
@@ -345,47 +318,40 @@ ENV PATH $PATH:/root/.cargo/bin
 COPY --from=nim-builder /root/.nimble /root/.nimble
 ENV PATH $PATH:/root/.nimble/bin
 
-# gawk 5.0 / Open-usp-Tukubai / edfsay / no more secrets
-COPY --from=general-builder /usr/local /usr/local
-
 # shellgei data
-COPY --from=general-builder /ShellGeiData /ShellGeiData
+COPY --from=general-builder /downloads/ShellGeiData /ShellGeiData
+# imgout, unicode data
+RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
+    (cd /downloads/ImageGeneratorForShBot && git archive --format=tar --prefix=imgout/ HEAD) | tar xf - -C /usr/local \
+    && cp /downloads/NormalizationTest.txt /downloads/NamesList.txt /
+ENV PATH $PATH:/usr/local/imgout
 
-# unicode data
-COPY --from=general-builder /NormalizationTest.txt /NamesList.txt /
+# gawk 5.0, Open-usp-Tukubai, edfsay, no more secrets
+RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
+    (cd /downloads/gawk-5.0.1 && make install) \
+    && (cd /downloads/Open-usp-Tukubai && make install) \
+    && (cd /downloads/edfsay && ./install.sh) \
+    && (cd /downloads/no-more-secrets && make install)
 
-# egison, egzact, bat, osquery
+# egison, egzact, bat, osquery, super_unko, echo-meme
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     dpkg -i \
       /downloads/egison-3.7.14.x86_64.deb \
       /downloads/egzact-1.3.1.deb \
-      /downloads/bat_0.10.0_amd64.deb \
-      /downloads/osquery.deb
+      /downloads/bat_0.11.0_amd64.deb \
+      /downloads/osquery-Linux-4.0.0.deb \
+      /downloads/superunko.deb \
+      /downloads/echo-meme.deb
 
-# J
+# J, Julia, OpenJDK, trdsql (apply sql to csv), onefetch
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
-    tar xf /downloads/j.tar.gz
-ENV PATH $PATH:/j64-807/bin
-
-# Julia
-RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
-    tar xf /downloads/julia.tar.gz \
-    && ln -s $(realpath $(ls | grep -E "^julia") )/bin/julia /usr/local/bin/julia
-
-# OpenJDK
+    tar xf /downloads/j.tar.gz -C /usr/local \
+    && tar xf /downloads/julia.tar.gz -C /usr/local \
+    && tar xf /downloads/openjdk11.tar.gz -C /usr/local \
+    && unzip /downloads/trdsql_linux_amd64.zip -d /usr/local \
+    && unzip /downloads/onefetch_linux_x86-64.zip -d /usr/local/bin onefetch
 # jconsole コマンドが OpenJDK と J で重複するため、J の PATH を優先
-RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
-    tar xf /downloads/openjdk11.tar.gz
-ENV PATH $PATH:/jdk-11.0.2/bin
-
-# trdsql (apply sql to csv)
-RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
-    unzip /downloads/trdsql_linux_amd64.zip
-ENV PATH $PATH:/trdsql_linux_amd64
-
-# onefetch
-RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
-    unzip /downloads/onefetch_linux_x86-64.zip -d /usr/local/bin onefetch
+ENV PATH $PATH:/usr/local/j64-807/bin:/usr/local/julia-1.1.1/bin:/usr/local/jdk-11.0.2/bin:/usr/local/trdsql_linux_amd64
 
 # V
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
