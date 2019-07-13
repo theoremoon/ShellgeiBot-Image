@@ -111,9 +111,9 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
 
 WORKDIR /downloads
 # gawk 5.0
-RUN curl -sfSLO https://ftp.gnu.org/gnu/gawk/gawk-5.0.0.tar.gz \
-    && tar xf gawk-5.0.0.tar.gz \
-    && (cd gawk-5.0.0 && ./configure --program-suffix="-5.0.0" && make)
+RUN curl -sfSLO https://ftp.gnu.org/gnu/gawk/gawk-5.0.1.tar.gz \
+    && tar xf gawk-5.0.1.tar.gz \
+    && (cd gawk-5.0.1 && ./configure --program-suffix="-5.0.1" && make)
 # Open-usp-Tukubai
 RUN git clone --depth 1 https://github.com/usp-engineers-community/Open-usp-Tukubai.git
 # edfsay
@@ -135,9 +135,9 @@ RUN curl -sfSLO --retry 3 https://git.io/egison-3.7.14.x86_64.deb
 # egzact
 RUN curl -sfSLO --retry 3 https://git.io/egzact-1.3.1.deb
 # bat
-RUN curl -sfSLO --retry 3 https://github.com/sharkdp/bat/releases/download/v0.10.0/bat_0.10.0_amd64.deb
+RUN curl -sfSLO --retry 3 https://github.com/sharkdp/bat/releases/download/v0.11.0/bat_0.11.0_amd64.deb
 # osquery
-RUN curl -sfSL --retry 3 https://pkg.osquery.io/deb/osquery_3.3.2_1.linux.amd64.deb -o osquery.deb
+RUN curl -sfSLO --retry 3 https://github.com/osquery/osquery/releases/download/4.0.0/osquery-Linux-4.0.0.deb
 # super_unko
 RUN curl -sfSLO --retry 3 https://git.io/superunko.deb
 # echo-meme
@@ -146,17 +146,17 @@ RUN curl -sfSLO --retry 3 https://git.io/echo-meme.deb
 # J
 RUN curl -sfSL --retry 3 http://www.jsoftware.com/download/j807/install/j807_linux64_nonavx.tar.gz -o j.tar.gz
 # Julia
-RUN curl -sfSL --retry 3 https://julialang-s3.julialang.org/bin/linux/x64/1.1/julia-1.1.0-linux-x86_64.tar.gz -o julia.tar.gz
+RUN curl -sfSL --retry 3 https://julialang-s3.julialang.org/bin/linux/x64/1.1/julia-1.1.1-linux-x86_64.tar.gz -o julia.tar.gz
 # OpenJDK
 RUN curl -sfSL --retry 3 https://download.oracle.com/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz -o openjdk11.tar.gz
 # trdsql
-RUN curl -sfSLO --retry 3 https://github.com/noborus/trdsql/releases/download/v0.5.0/trdsql_linux_amd64.zip
+RUN curl -sfSLO --retry 3 https://github.com/noborus/trdsql/releases/download/v0.6.1/trdsql_linux_amd64.zip
 # onefetch
-RUN curl -sfSLO --retry 3 https://github.com/o2sh/onefetch/releases/download/v1.5.2/onefetch_linux_x86-64.zip
+RUN curl -sfSLO --retry 3 https://github.com/o2sh/onefetch/releases/download/v1.5.4/onefetch_linux_x86-64.zip
 # PowerShell 7 (preview)
 RUN curl -sfSLO --retry 3 https://github.com/PowerShell/PowerShell/releases/download/v7.0.0-preview.1/powershell-7.0.0-preview.1-linux-x64.tar.gz
 # V
-RUN curl -sfSLO --retry 3 https://github.com/vlang/v/releases/download/v0.1.10/v.zip
+RUN curl -sfSLO --retry 3 https://github.com/vlang/v/releases/download/v0.1.13/v.zip
 WORKDIR /
 
 
@@ -273,7 +273,8 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       file\
       python3-pkg-resources\
       fonts-droid-fallback fonts-lato fonts-liberation fonts-noto-mono fonts-dejavu-core gsfonts\
-      bf
+      bf\
+      libc++-dev
 
 # kagome
 COPY --from=ikawaha/kagome /usr/local/bin/kagome /usr/local/bin/kagome
@@ -327,7 +328,7 @@ ENV PATH $PATH:/usr/local/imgout
 
 # gawk 5.0, Open-usp-Tukubai, edfsay, no more secrets
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
-    (cd /downloads/gawk-5.0.0 && make install) \
+    (cd /downloads/gawk-5.0.1 && make install) \
     && (cd /downloads/Open-usp-Tukubai && make install) \
     && (cd /downloads/edfsay && ./install.sh) \
     && (cd /downloads/no-more-secrets && make install)
@@ -337,8 +338,8 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     dpkg -i \
       /downloads/egison-3.7.14.x86_64.deb \
       /downloads/egzact-1.3.1.deb \
-      /downloads/bat_0.10.0_amd64.deb \
-      /downloads/osquery.deb \
+      /downloads/bat_0.11.0_amd64.deb \
+      /downloads/osquery-Linux-4.0.0.deb \
       /downloads/superunko.deb \
       /downloads/echo-meme.deb
 
@@ -350,7 +351,7 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     && unzip /downloads/trdsql_linux_amd64.zip -d /usr/local \
     && unzip /downloads/onefetch_linux_x86-64.zip -d /usr/local/bin onefetch
 # jconsole コマンドが OpenJDK と J で重複するため、J の PATH を優先
-ENV PATH $PATH:/usr/local/j64-807/bin:/usr/local/julia-1.1.0/bin:/usr/local/jdk-11.0.2/bin:/usr/local/trdsql_linux_amd64
+ENV PATH $PATH:/usr/local/j64-807/bin:/usr/local/julia-1.1.1/bin:/usr/local/jdk-11.0.2/bin:/usr/local/trdsql_linux_amd64
 
 # V
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \

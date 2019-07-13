@@ -528,8 +528,8 @@
 }
 
 @test "trdsql" {
-  run trdsql -help
-  [ "${lines[0]}" = 'Usage: trdsql [OPTIONS] [SQL(SELECT...)]' ]
+  run trdsql -help 2>&1
+  [ "${lines[1]}" = 'Usage: trdsql [OPTIONS] [SQL(SELECT...)]' ]
 }
 
 @test "openjdk11" {
