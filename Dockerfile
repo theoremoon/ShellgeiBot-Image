@@ -181,7 +181,7 @@ RUN curl -sfSLO --retry 3 https://raintrees.net/attachments/download/486/zws \
 
 # sushiro
 RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/redpeacock78/sushiro/master/sushiro -o /usr/local/bin/sushiro \
-    && chmod +x /usr/local/bin/sushiro
+    && chmod +x /usr/local/bin/sushiro && sushiro -f
 
 # pokemonsay
 RUN git clone --depth 1 http://github.com/possatti/pokemonsay \
