@@ -17,6 +17,10 @@ DOCKER_BUILDKIT=1 docker build . -t shellgeibot
 
 ```
 docker container run --rm \
+  --net=none \
+  --oom-kill-disable \
+  --pids-limit=1024 \
+  --cap-add=sys_ptrace \
   -v $(pwd):/root/src \
   shellgeibot \
   /bin/bash -c "bats /root/src/docker_image.bats"

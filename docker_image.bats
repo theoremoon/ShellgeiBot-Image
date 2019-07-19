@@ -656,8 +656,9 @@
 }
 
 @test "sushiro" {
-  run sushiro -h
-  [[ "${lines[0]}" =~ 'sushiro version ' ]]
+  run sushiro -l
+  [ $status -eq 0 ]
+  [[ ! "${output}" =~ '/usr/local/share/sushiro_cache' ]]
 }
 
 @test "noc" {
