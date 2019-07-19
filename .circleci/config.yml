@@ -26,7 +26,7 @@ jobs:
             mkdir -p ~/reports
             docker create -v /root/src --name source ubuntu:19.04 /bin/true
             docker cp docker_image.bats source:/root/src
-            docker container run --rm --volumes-from source ${DOCKER_IMAGE} \
+            docker container run --net=none --rm --volumes-from source ${DOCKER_IMAGE} \
               /bin/bash -c "bats --tap /root/src/docker_image.bats || true" | tee result.tap
             cat result.tap | tap-xunit > ~/reports/result.xml
       - store_test_results:
