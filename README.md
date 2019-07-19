@@ -18,7 +18,6 @@ DOCKER_BUILDKIT=1 docker build . -t shellgeibot
 ```
 docker container run --rm \
   --net=none \
-  --memory=100m \
   --oom-kill-disable \
   --pids-limit=1024 \
   --cap-add=sys_ptrace \
