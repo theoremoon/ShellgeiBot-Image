@@ -176,8 +176,8 @@ ENV PATH $PATH:/usr/local/home-commands
 RUN curl -sfSLO --retry 3 https://gist.githubusercontent.com/KeenS/6194e6ef1a151c9ea82536d5850b8bc7/raw/85af9ec757308b8ca4effdf24221f642cb34703b/nameko.svg
 
 # zws
-RUN curl -sfSLO --retry 3 https://raintrees.net/attachments/download/486/zws \
-    && chmod +x zws
+RUN curl -sfSL --retry 3 https://raintrees.net/attachments/download/486/zws -o /usr/local/bin/zws \
+    && chmod +x /usr/local/bin/zws
 
 # sushiro
 RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/redpeacock78/sushiro/master/sushiro -o /usr/local/bin/sushiro \
