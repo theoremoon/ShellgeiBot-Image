@@ -197,6 +197,10 @@ RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/horo17/saizeriya/mast
 RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/msr-i386/fujiaire/master/fujiaire -o /usr/local/bin/fujiaire \
     && chmod u+x /usr/local/bin/fujiaire
 
+# color, rainbow
+RUN git clone --depth 1 https://github.com/jiro4989/scripts /tmp/scripts \
+    && (cd /tmp/scripts && ./install.sh)
+
 # apt
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt \
