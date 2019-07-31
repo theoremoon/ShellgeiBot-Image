@@ -169,7 +169,7 @@ ENV TZ JST-9
 ENV PATH /usr/games:$PATH
 
 # home-commands (echo-sd)
-RUN git clone --depth 1 https://github.com/fumiyas/home-commands /usr/local/home-commands
+RUN git clone --depth 1 https://github.com/fumiyas/home-commands /usr/local/home-commands && sed -i 's/殺す/うんこ/' /usr/local/home-commands/tate
 ENV PATH $PATH:/usr/local/home-commands
 
 # nameko.svg
