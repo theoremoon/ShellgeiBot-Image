@@ -72,14 +72,14 @@
   [ "$output" = シェル芸 ]
 }
 
-@test "Python2" {
-  run bash -c "echo シェル芸 | python -c 'import sys;print sys.stdin.readline().rstrip()'"
-  [ "$output" = シェル芸 ]
+@test "Not python2" {
+  run python --version
+  [[ ! "$output" =~ 'Python 2.' ]]
 }
 
 @test "Python3" {
-  run bash -c "echo シェル芸 | python3 -c 'import sys;print(sys.stdin.readline().rstrip())'"
-  [ "$output" = シェル芸 ]
+  run python3 --version
+  [[ "$output" =~ 'Python 3.' ]]
 }
 
 @test "nkf" {
@@ -233,11 +233,6 @@
   [ "$output" = "EPERM 1 許可されていない操作です" ]
 }
 
-@test "strace" {
-  run strace -V
-  [[ "${lines[0]}" =~ "strace -- version" ]]
-}
-
 @test "whiptail" {
   run whiptail -v
   [[ "$output" =~ "whiptail" ]]
@@ -271,7 +266,7 @@
 
 @test "kkc" {
   run kkc help
-  [ "${lines[1]}" = "  kkc help コマンド" ]
+  [[ "${lines[1]}" =~ "  kkc help" ]]
 }
 
 @test "morsegen" {
@@ -334,11 +329,6 @@
 @test "fonts-vlgothic" {
   run bash -c "fc-list | grep vlgothic | wc -l"
   [ $output -ge 2 ]
-}
-
-@test "inkscape" {
-  run inkscape --version
-  [[ "$output" =~ "Inkscape" ]]
 }
 
 @test "gnuplot" {
@@ -442,6 +432,11 @@
   [ "${lines[11]}" = '＿＿＿＿ ___ __ _{’O 乙,_r[_ __ ___ __________________________' ]
 }
 
+@test "zen_to_i" {
+  run bash -c 'ruby -rzen_to_i -pe \$_=\$_.zen_to_i <<< 三十二'
+  [ "${lines[0]}" = '32' ]
+}
+
 @test "marky_markov" {
   run marky_markov -h
   [ "${lines[0]}" = 'Usage: marky_markov COMMAND [OPTIONS]' ]
@@ -457,43 +452,23 @@
   [ $status -eq 0 ]
 }
 
-@test "sympy-python3" {
+@test "sympy" {
   run python3 -c 'import sympy; print(sympy.__name__)'
   [ "$output" = "sympy" ]
 }
 
-@test "sympy" {
-  run python -c 'import sympy; print sympy.__name__'
-  [ "$output" = "sympy" ]
-}
-
-@test "numpy-python3" {
+@test "numpy" {
   run python3 -c 'import numpy; print(numpy.__name__)'
   [ "$output" = "numpy" ]
 }
 
-@test "numpy" {
-  run python -c 'import numpy; print numpy.__name__'
-  [ "$output" = "numpy" ]
-}
-
-@test "scipy-python3" {
+@test "scipy" {
   run python3 -c 'import scipy; print(scipy.__name__)'
   [ "$output" = "scipy" ]
 }
 
-@test "scipy" {
-  run python -c 'import scipy; print scipy.__name__'
-  [ "$output" = "scipy" ]
-}
-
-@test "matplotlib-python3" {
-  run python3 -c 'import matplotlib; print(matplotlib.__name__)'
-  [ "$output" = "matplotlib" ]
-}
-
 @test "matplotlib" {
-  run python -c 'import matplotlib; print matplotlib.__name__'
+  run python3 -c 'import matplotlib; print(matplotlib.__name__)'
   [ "$output" = "matplotlib" ]
 }
 
@@ -502,25 +477,14 @@
   [ "$output" = "シェル芸" ]
 }
 
-@test "pillow-python3" {
-  run python3 -c 'import PIL; print(PIL.__name__)'
-  [ "$output" = "PIL" ]
-}
-
 @test "pillow" {
-  run python -c 'import PIL; print PIL.__name__'
+  run python3 -c 'import PIL; print(PIL.__name__)'
   [ "$output" = "PIL" ]
 }
 
 @test "asciinema" {
   run asciinema --version
   [[ "${lines[0]}" =~ "asciinema " ]]
-}
-
-@test "GiNZA" {
-  run bash -c "echo シェル芸 | python3 -m spacy.lang.ja_ginza.cli 2>/dev/null | awk 'NR>=2{print \$3}'"
-  [ "${lines[0]}" = 'シェル' ]
-  [ "${lines[1]}" = '芸' ]
 }
 
 @test "egison" {
@@ -552,6 +516,24 @@
   [ "${lines[2]}" = '￣Y^Y^Y^Y^Y^Y^￣' ]
 }
 
+@test "tate" {
+  run tate
+  [ "${lines[0]}" = 'ご そ ツ 気' ]
+  [ "${lines[1]}" = '提 ん イ 軽' ]
+  [ "${lines[2]}" = '供 な ｜ に' ]
+  [ "${lines[3]}" = '！ 素 ト ﹁' ]
+  [ "${lines[4]}" = '︵ 敵 で う' ]
+  [ "${lines[5]}" = '無 な き ん' ]
+  [ "${lines[6]}" = '保 ソ る こ' ]
+  [ "${lines[7]}" = '証 リ ︑ ﹂' ]
+  [ "${lines[8]}" = '︶ ュ 　 と' ]
+  [ "${lines[9]}" = '　 ｜' ]
+  [ "${lines[10]}" = '　 シ' ]
+  [ "${lines[11]}" = '　 ョ' ]
+  [ "${lines[12]}" = '　 ン' ]
+  [ "${lines[13]}" = '　 を' ]
+}
+
 @test "J" {
   run bash -c "echo \"'シェル芸'\" | jconsole"
   echo "'${lines[0]}'"
@@ -559,8 +541,8 @@
 }
 
 @test "trdsql" {
-  run trdsql -help
-  [ "${lines[0]}" = 'Usage: trdsql [OPTIONS] [SQL(SELECT...)]' ]
+  run trdsql -help 2>&1
+  [ "${lines[1]}" = 'Usage: trdsql [OPTIONS] [SQL(SELECT...)]' ]
 }
 
 @test "openjdk11" {
@@ -672,7 +654,7 @@
 }
 
 @test "zws" {
-  run bash -c "echo J+KBouKAjeKAi+KBouKAjeKAi+KAi+KAjeKAjeKBouKAjOKBouKBouKAjeKAi+KBouKAjeKAi+KAi+KAjeKAjeKAjeKAjOKBouKBouKAjeKAi+KBouKAjeKAi+KAi+KBouKAjeKAjeKAjeKBouKBouKAjeKAjeKAi+KAjeKAi+KAjeKAjeKAjeKBouKAjeKAi+KAi+KAi+KAjeKAjScK | base64 -d | ./zws -d"
+  run bash -c "echo J+KBouKAjeKAi+KBouKAjeKAi+KAi+KAjeKAjeKBouKAjOKBouKBouKAjeKAi+KBouKAjeKAi+KAi+KAjeKAjeKAjeKAjOKBouKBouKAjeKAi+KBouKAjeKAi+KAi+KBouKAjeKAjeKAjeKBouKBouKAjeKAjeKAi+KAjeKAi+KAjeKAjeKAjeKBouKAjeKAi+KAi+KAi+KAjeKAjScK | base64 -d | zws -d"
   [ "$output" = 'シェル芸' ]
 }
 
@@ -687,12 +669,13 @@
 }
 
 @test "sushiro" {
-  run sushiro -h
-  [[ "${lines[0]}" =~ 'sushiro version ' ]]
+  run sushiro -l
+  [ $status -eq 0 ]
+  [[ ! "${output}" =~ '/usr/local/share/sushiro_cache' ]]
 }
 
 @test "noc" {
-  run bash -c "echo 部邊邊󠄓邊󠄓邉邉󠄊邊邊󠄒邊󠄓邊󠄓邉邉󠄊辺邉󠄊邊邊󠄓邊󠄓邉邉󠄎辺邉󠄎邊辺󠄀邉邉󠄈辺邉󠄍邊邊󠄓部 | mono noc -d"
+  run noc --decode 部邊邊󠄓邊󠄓邉邉󠄊邊邊󠄒邊󠄓邊󠄓邉邉󠄊辺邉󠄊邊邊󠄓邊󠄓邉邉󠄎辺邉󠄎邊辺󠄀邉邉󠄈辺邉󠄍邊邊󠄓部
   [ "$output" = 'シェル芸' ]
 }
 
@@ -784,4 +767,98 @@
 @test "faketime" {
   run faketime --version
   [[ "${lines[0]}" =~ 'faketime: Version' ]]
+}
+
+@test "tree" {
+  run tree --help
+  [[ "${lines[0]}" =~ 'usage: tree' ]]
+}
+
+@test "forest" {
+  run bash -c "echo シェル芸 | forest"
+  [ "$output" = '└ ─ シェル芸' ]
+}
+
+@test "fujiaire" {
+  run fujiaire フジエアー
+  [ "$output" = "フピエアー" ]
+}
+
+@test "numconv" {
+  run numconv -h
+  [ "${lines[0]}" = 'Filter to convert integers from one number system to another.' ]
+}
+
+@test "w3m" {
+  run w3m -version
+  [[ "$output" =~ 'w3m version' ]]
+}
+
+@test "kagome" {
+  run kagome -h
+  [ "${lines[0]}" = 'Japanese Morphological Analyzer -- github.com/ikawaha/kagome' ]
+}
+
+@test "V" {
+  run v version
+  [[ "$output" =~ 'V ' ]]
+}
+
+@test "Brainf*ck" {
+  run bash -c "echo '+++++++++[>+++++++++<-]>++.<+++++++++[>++<-]>+++.---.+++++++..<+++++++++[>----<-]>-.<+++++++++[>+++<-]>+++.++++.' | bf /dev/stdin"
+  [ "$output" = 'ShellGei' ]
+}
+
+@test "nise" {
+  run bash -c "echo 私はシェル芸を嗜みます | nise"
+  [ "$output" = '我シェル芸嗜了' ]
+}
+
+@test "PowerShell" {
+  run pwsh -C Write-Host シェル芸
+  [ "$output" = 'シェル芸' ]
+}
+
+@test "color" {
+  run bash -c "color 1f"
+  [ "$output" = '[30m  \x1b[30m  [m[31m  \x1b[31m  [m[32m  \x1b[32m  [m[33m  \x1b[33m  [m[34m  \x1b[34m  [m[35m  \x1b[35m  [m[36m  \x1b[36m  [m[37m  \x1b[37m  [m' ]
+}
+
+@test "rainbow" {
+  run bash -c "rainbow -f ansi_f -t text"
+  [ "$output" = '[38;2;255;0;0mtext[m
+[38;2;255;13;0mtext[m
+[38;2;255;26;0mtext[m
+[38;2;255;39;0mtext[m
+[38;2;255;52;0mtext[m
+[38;2;255;69;0mtext[m
+[38;2;255;106;0mtext[m
+[38;2;255;143;0mtext[m
+[38;2;255;180;0mtext[m
+[38;2;255;217;0mtext[m
+[38;2;255;255;0mtext[m
+[38;2;204;230;0mtext[m
+[38;2;153;205;0mtext[m
+[38;2;102;180;0mtext[m
+[38;2;51;155;0mtext[m
+[38;2;0;128;0mtext[m
+[38;2;0;103;51mtext[m
+[38;2;0;78;102mtext[m
+[38;2;0;53;153mtext[m
+[38;2;0;28;204mtext[m
+[38;2;0;0;255mtext[m
+[38;2;15;0;230mtext[m
+[38;2;30;0;205mtext[m
+[38;2;45;0;180mtext[m
+[38;2;60;0;155mtext[m
+[38;2;75;0;130mtext[m
+[38;2;107;26;151mtext[m
+[38;2;139;52;172mtext[m
+[38;2;171;78;193mtext[m
+[38;2;203;104;214mtext[m
+[38;2;238;130;238mtext[m
+[38;2;241;104;191mtext[m
+[38;2;244;78;144mtext[m
+[38;2;247;52;97mtext[m
+[38;2;250;26;50mtext[m' ]
 }
