@@ -237,7 +237,6 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       nyancat\
       imagemagick ghostscript\
       moreutils\
-      strace\
       whiptail\
       pandoc\
       postgresql-common\

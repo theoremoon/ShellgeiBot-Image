@@ -233,11 +233,6 @@
   [ "$output" = "EPERM 1 許可されていない操作です" ]
 }
 
-@test "strace" {
-  run strace -V
-  [[ "${lines[0]}" =~ "strace -- version" ]]
-}
-
 @test "whiptail" {
   run whiptail -v
   [[ "$output" =~ "whiptail" ]]
