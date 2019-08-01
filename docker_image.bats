@@ -864,6 +864,17 @@
 }
 
 @test "csharp" {
-  run bash -c "csharp -e 'print(\"シェル芸\")'"
-  [[ "$output" =~ "シェル芸" ]]
+  run csharp -e 'print("シェル芸")'
+  [ "$output" == "シェル芸" ]
+}
+
+@test "terminal-parrot" {
+  run terminal-parrot -h
+  [ $status -eq 2 ]
+  [ "${lines[0]}" == 'Usage of terminal-parrot:' ]
+}
+
+@test "cmatrix" {
+  run cmatrix -h
+  [[ "${lines[0]}" =~ 'Usage: cmatrix' ]]
 }
