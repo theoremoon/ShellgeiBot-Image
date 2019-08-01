@@ -49,6 +49,7 @@ RUN --mount=type=cache,target=/root/go/src \
               && cp /root/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping/shoplist.txt \
                 /tmp/root/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping/shoplist.txt
 RUN git clone --depth 1 https://github.com/googlefonts/noto-emoji /usr/local/src/noto-emoji
+RUN go get -u github.com/jmhobbs/terminal-parrot
 
 ## Ruby
 FROM base AS ruby-builder
@@ -274,6 +275,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       tree\
       numconv\
       file\
+      cmatrix\
       python3-pkg-resources\
       fonts-droid-fallback fonts-lato fonts-liberation fonts-noto-mono fonts-dejavu-core gsfonts\
       bf\
