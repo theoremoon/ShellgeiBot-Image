@@ -34,6 +34,7 @@ RUN --mount=type=cache,target=/root/go/src \
       github.com/jiro4989/textimg \
       github.com/greymd/ojichat \
       github.com/ikawaha/nise \
+      github.com/jmhobbs/terminal-parrot \
     && CGO_LDFLAGS="`mecab-config --libs`" CGO_CFLAGS="-I`mecab-config --inc-dir`" \
       go get -u -ldflags '-w -s' github.com/ryuichiueda/ke2daira \
     && find /usr/local/go/src /root/go/src -type f \
@@ -49,7 +50,6 @@ RUN --mount=type=cache,target=/root/go/src \
               && cp /root/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping/shoplist.txt \
                 /tmp/root/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping/shoplist.txt
 RUN git clone --depth 1 https://github.com/googlefonts/noto-emoji /usr/local/src/noto-emoji
-RUN go get -u github.com/jmhobbs/terminal-parrot
 
 ## Ruby
 FROM base AS ruby-builder
