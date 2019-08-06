@@ -868,6 +868,11 @@
   [ "$output" == "シェル芸" ]
 }
 
+@test "5ktrillion" {
+  run bash -c "5ktrillion -5"
+  [ "$output" = '5000兆円欲しい！' ]
+}
+
 @test "terminal-parrot" {
   run terminal-parrot -h
   [ $status -eq 2 ]
@@ -878,3 +883,11 @@
   run cmatrix -h
   [[ "${lines[0]}" =~ 'Usage: cmatrix' ]]
 }
+
+@test "textchat" {
+  run bash -c "textchat -n bob hello"
+  [ "$output" = ".-----.  .---------.                                                            
+| bob | <   hello  |                                                            
+\`-----'  \`---------'                                                            " ]
+}
+
