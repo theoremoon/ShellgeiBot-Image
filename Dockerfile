@@ -32,6 +32,7 @@ RUN --mount=type=cache,target=/root/go/src \
       github.com/jiro4989/align \
       github.com/jiro4989/taishoku \
       github.com/jiro4989/textimg \
+      github.com/jiro4989/textchat \
       github.com/greymd/ojichat \
       github.com/ikawaha/nise \
       github.com/jmhobbs/terminal-parrot \
