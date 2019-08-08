@@ -893,6 +893,6 @@
 
 @test "HanazonoMincho" {
   run bash -c "fc-list | grep 花園明朝"
-  [ "${lines[0]}" == '/usr/share/fonts/truetype/hanamin/HanaMinA.ttf: 花園明朝A,HanaMinA:style=Regular' ]
-  [ "${lines[1]}" == '/usr/share/fonts/truetype/hanamin/HanaMinB.ttf: 花園明朝B,HanaMinB:style=Regular' ]
+  [ "${lines[0]}" == '/usr/share/fonts/truetype/hanazono/HanaMinA.ttf: 花園明朝A,HanaMinA:style=Regular' ]
+  [ "${lines[1]}" == '/usr/share/fonts/truetype/hanazono/HanaMinB.ttf: 花園明朝B,HanaMinB:style=Regular' ]
 }

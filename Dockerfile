@@ -159,8 +159,6 @@ RUN curl -sfSLO --retry 3 https://github.com/o2sh/onefetch/releases/download/v1.
 RUN curl -sfSLO --retry 3 https://github.com/PowerShell/PowerShell/releases/download/v7.0.0-preview.1/powershell-7.0.0-preview.1-linux-x64.tar.gz
 # V
 RUN curl -sfSLO --retry 3 https://github.com/vlang/v/releases/download/v0.1.13/v.zip
-# Hanazono Mincho
-RUN curl -sfSLO --retry 3 https://ja.osdn.net/projects/hanazono-font/downloads/68253/hanazono-20170904.zip
 WORKDIR /
 
 
@@ -280,7 +278,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       file\
       cmatrix\
       python3-pkg-resources\
-      fonts-droid-fallback fonts-lato fonts-liberation fonts-noto-mono fonts-dejavu-core gsfonts\
+      fonts-droid-fallback fonts-lato fonts-liberation fonts-noto-mono fonts-dejavu-core gsfonts fonts-hanazono\
       bf\
       libc++-dev\
       mono-csharp-shell
@@ -374,11 +372,6 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     mkdir -p /usr/local/powershell \
     && tar xf /downloads/powershell-7.0.0-preview.1-linux-x64.tar.gz -C /usr/local/powershell \
     && ln -s /usr/local/powershell/pwsh /usr/local/bin/
-
-# Hanazono Mincho
-RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
-    mkdir -p /usr/share/fonts/truetype/hanamin \
-    && unzip /downloads/hanazono-20170904.zip -d /usr/share/fonts/truetype/hanamin
 
 # man
 RUN mv /usr/bin/man.REAL /usr/bin/man
