@@ -865,7 +865,7 @@
 
 @test "csharp" {
   run csharp -e 'print("シェル芸")'
-  [ "$output" == "シェル芸" ]
+  [ "$output" = "シェル芸" ]
 }
 
 @test "5ktrillion" {
@@ -895,4 +895,9 @@
   run bash -c "fc-list | grep 花園明朝"
   [ "${lines[0]}" == '/usr/share/fonts/truetype/hanazono/HanaMinA.ttf: 花園明朝A,HanaMinA:style=Regular' ]
   [ "${lines[1]}" == '/usr/share/fonts/truetype/hanazono/HanaMinB.ttf: 花園明朝B,HanaMinB:style=Regular' ]
+}
+
+@test "ipcalc" {
+  run ipcalc 192.168.10.55
+  [ "${lines[0]}" = 'Address:   192.168.10.55        11000000.10101000.00001010. 00110111' ]
 }
