@@ -906,3 +906,8 @@
   run bash -c "echo -n unko | chant | chant -d"
   [ "$output" = "unko" ]
 }
+
+@test "rsvg-convert" {
+  run rsvg-convert -v
+  [[ ${output} =~ 'rsvg-convert version' ]]
+}
