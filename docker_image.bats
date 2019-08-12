@@ -903,6 +903,6 @@
 }
 
 @test "yukichant" {
-  run bash -c "echo -e unko | chant | chant -d"
+  run bash -c "echo -n unko | chant | chant -d"
   [ "$output" = "unko" ]
 }
