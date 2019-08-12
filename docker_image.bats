@@ -901,3 +901,8 @@
   run ipcalc 192.168.10.55
   [ "${lines[0]}" = 'Address:   192.168.10.55        11000000.10101000.00001010. 00110111' ]
 }
+
+@test "yukichant" {
+  run bash -c "echo -n unko | chant | chant -d"
+  [ "$output" = "unko" ]
+}
