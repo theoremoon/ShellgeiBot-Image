@@ -911,3 +911,8 @@
   run rsvg-convert -v
   [[ ${output} =~ 'rsvg-convert version' ]]
 }
+
+@test "agrep" {
+  run bash -c "echo unko | agrep -2 miko"
+  [ "$output" = "unko" ]
+}

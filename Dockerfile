@@ -283,7 +283,8 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       libc++-dev\
       mono-csharp-shell\
       ipcalc\
-      librsvg2-bin
+      librsvg2-bin\
+      agrep
 
 # kagome
 COPY --from=ikawaha/kagome /usr/local/bin/kagome /usr/local/bin/kagome
