@@ -284,7 +284,8 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       mono-csharp-shell\
       ipcalc\
       librsvg2-bin\
-      agrep
+      agrep \
+      xvfb xterm x11-apps xdotool
 
 # kagome
 COPY --from=ikawaha/kagome /usr/local/bin/kagome /usr/local/bin/kagome
