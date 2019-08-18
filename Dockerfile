@@ -133,7 +133,7 @@ RUN curl -sfSLO --retry 3 https://www.unicode.org/Public/UCD/latest/ucd/Normaliz
 RUN curl -sfSLO --retry 3 https://www.unicode.org/Public/UCD/latest/ucd/NamesList.txt
 
 # egison
-RUN curl -sfSLO --retry 3 https://git.io/egison-3.7.14.x86_64.deb
+RUN curl -sfSLO --retry 3 https://git.io/egison.x86_64.deb
 # egzact
 RUN curl -sfSLO --retry 3 https://git.io/egzact-1.3.1.deb
 # bat
