@@ -909,10 +909,30 @@
 
 @test "rsvg-convert" {
   run rsvg-convert -v
-  [[ ${output} =~ 'rsvg-convert version' ]]
+  [[ "${output}" =~ 'rsvg-convert version' ]]
 }
 
 @test "agrep" {
   run bash -c "echo unko | agrep -2 miko"
   [ "$output" = "unko" ]
+}
+
+@test "xvfb" {
+  run Xvfb -help
+  [ "${lines[0]}" = 'use: X [:<display>] [option]' ]
+}
+
+@test "xterm" {
+  run xterm -v
+  [[ "$output" =~ 'XTerm' ]]
+}
+
+@test "x11-apps" {
+  run which xwd
+  [ "$output" = '/usr/bin/xwd' ]
+}
+
+@test "xdotool" {
+  run xdotool --version
+  [[ "$output" =~ 'xdotool version' ]]
 }
