@@ -488,9 +488,8 @@
 }
 
 @test "egison" {
-  run egison --help
-  echo "'${lines[0]}'"
-  [ "${lines[0]}" = 'Usage: egison [options]' ]
+  run egison -e '(foldl + 0 (take 10 nats))'
+  [ "$output" = "55" ]
 }
 
 @test "egzact" {
