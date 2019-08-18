@@ -133,7 +133,7 @@ RUN curl -sfSLO --retry 3 https://www.unicode.org/Public/UCD/latest/ucd/Normaliz
 RUN curl -sfSLO --retry 3 https://www.unicode.org/Public/UCD/latest/ucd/NamesList.txt
 
 # egison
-RUN curl -sfSLO --retry 3 https://git.io/egison-3.7.14.x86_64.deb
+RUN curl -sfSLO --retry 3 https://git.io/egison.x86_64.deb
 # egzact
 RUN curl -sfSLO --retry 3 https://git.io/egzact-1.3.1.deb
 # bat
@@ -347,7 +347,7 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
 # egison, egzact, bat, osquery, super_unko, echo-meme
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     dpkg -i \
-      /downloads/egison-3.7.14.x86_64.deb \
+      /downloads/egison.x86_64.deb \
       /downloads/egzact-1.3.1.deb \
       /downloads/bat_0.11.0_amd64.deb \
       /downloads/osquery-Linux-4.0.0.deb \
