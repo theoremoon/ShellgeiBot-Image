@@ -18,6 +18,7 @@ jobs:
       - run:
           name: Build Docker image
           command: |
+            apk add --no-progress git
             git log --pretty="format:%h %cd %s [%an]" --date=iso | head -n 20 > revision.log
             docker build -t ${DOCKER_IMAGE} --progress=plain .
       - run:
