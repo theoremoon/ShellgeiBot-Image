@@ -1,5 +1,6 @@
 # syntax = docker/dockerfile:1.0-experimental
 FROM ubuntu:19.04 AS apt-cache
+
 RUN apt-get update
 
 FROM ubuntu:19.04 AS base
@@ -383,5 +384,12 @@ RUN mv /usr/bin/man.REAL /usr/bin/man
 # reset apt config
 RUN rm /etc/apt/apt.conf.d/keep-cache /etc/apt/apt.conf.d/no-install-recommends
 COPY --from=ubuntu:19.04 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
+
+# ShellgeiBot-Image information
+RUN mkdir -p /etc/shellgeibot-image
+COPY revision.log /etc/shellgeibot-image
+COPY LICENSE /etc/shellgeibot-image
+COPY README.md /etc/shellgeibot-image
+COPY bin/shellgeibot-image /usr/local/bin
 
 CMD /bin/bash

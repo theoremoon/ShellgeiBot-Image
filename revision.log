@@ -1,0 +1,32 @@
+Note:
+  コンテナ内に本ファイルを取り込む際はCircleCIからgitコマンドを呼び出して上書き
+  してからDockerイメージに取り込む。よって、リポジトリとしてこのファイルを更新維
+  持する必要はない。
+
+  このファイルが存在する理由は、あくまでもローカルでdocker buildする際に、取り込
+  むファイルが存在しないとまずいためである。
+
+  CircleCIからgitコマンドを実行した際は、以下のようなログで上書きされる。
+
+---
+
+3375b6f 2019-08-24 08:31:10 +0900 :wrench: ShellgeiBot-Imageのリポジトリ情報をコンテナに含めるようにした [jiro4989]
+6615810 2019-08-18 20:46:49 +0900 Merge pull request #52 from greymd/master [theoldmoon0602]
+6a86938 2019-08-18 20:45:30 +0900 Merge pull request #51 from horo17/x11 [theoldmoon0602]
+5baefde 2019-08-18 12:29:42 +0100 Fix BATS test case for Egsion [greymd]
+ce2aed1 2019-08-18 12:13:08 +0100 Fix Egison package name for installation [greymd]
+1f914d7 2019-08-18 11:50:06 +0100 Use latest Egison [greymd]
+0746ca6 2019-08-18 11:13:25 +0900 add x11 [so]
+30cb591 2019-08-14 20:07:11 +0900 Merge pull request #50 from amanoese/feature/add-agrep [theoldmoon0602]
+df6973c 2019-08-14 09:35:09 +0000 add agrep [amanoese]
+781d1d1 2019-08-12 20:13:10 +0900 Merge pull request #49 from horo17/add-rsvg-convert [theoldmoon0602]
+03c5fe3 2019-08-12 16:46:10 +0900 enable conversion from SVG to PNG [so]
+a1d69f6 2019-08-12 14:12:58 +0900 Merge pull request #48 from amanoese/feature/add-yukichant [theoldmoon0602]
+abf5016 2019-08-12 11:08:12 +0900 fix test case [amanoese]
+09b370f 2019-08-12 06:39:59 +0900 add yukichant command [amanoese]
+f7df04f 2019-08-10 14:10:42 +0900 Merge pull request #47 from horo17/add-ipcalc [so]
+4f37077 2019-08-10 13:53:02 +0900 add: ipcalc command [so]
+b9b35aa 2019-08-08 22:43:56 +0900 Merge pull request #46 from horo17/add-hanamin-font [theoldmoon0602]
+e8c975f 2019-08-08 22:23:07 +0900 refactor: install Hanazono fonts using package instead of downloading them separately [so]
+bcb7caf 2019-08-08 08:50:34 +0900 Merge pull request #45 from horo17/add-hanamin-font [theoldmoon0602]
+0f1fcdc 2019-08-08 00:58:39 +0900 add: Hanazono Mincho font [so]

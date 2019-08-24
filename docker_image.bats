@@ -935,3 +935,8 @@
   run xdotool --version
   [[ "$output" =~ 'xdotool version' ]]
 }
+
+@test "shellgeibot-image" {
+  run shellgeibot-image help
+  [ $status -eq 0 ]
+}
