@@ -81,12 +81,17 @@ RUN --mount=type=cache,target=/root/.npm \
 
 ## .NET
 FROM base AS dotnet-builder
+RUN curl -sfSLO --retry 3 https://packages.microsoft.com/config/ubuntu/19.04/packages-microsoft-prod.deb
+RUN dpkg -i /packages-microsoft-prod.deb
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    curl -sfSLO --retry 3 https://packages.microsoft.com/config/ubuntu/19.04/packages-microsoft-prod.deb
-RUN dpkg -i packages-microsoft-prod.deb && apt-get update -y && apt-get install -y -qq mono-mcs dotnet-sdk-2.2
+    apt-get install -y -qq apt-transport-https
+RUN --mount=type=cache,id=dotnet-list,target=/var/lib/apt/lists \
+    --mount=type=cache,id=dotnet-packages,target=/var/cache/apt \
+    apt-get update \
+    && apt-get install -y -qq dotnet-sdk-2.2
 RUN git clone --depth 1 https://github.com/xztaityozx/noc.git
-RUN mcs noc/noc/noc/Program.cs
+RUN (cd /noc/noc/noc; dotnet build --configuration Release)
 
 ## Rust
 FROM base AS rust-builder
@@ -266,7 +271,6 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       sl\
       chromium-browser chromium-chromedriver w3m nginx\
       screenfetch\
-      mono-runtime\
       firefox\
       lua5.3 php7.2 php7.2-cli php7.2-common\
       nodejs\
@@ -318,11 +322,17 @@ COPY --from=nodejs-builder /usr/local/bin /usr/local/bin
 COPY --from=nodejs-builder /usr/local/lib/node_modules /usr/local/lib/node_modules
 
 # .NET
-COPY --from=dotnet-builder /noc/noc/noc/Program.exe /usr/local/noc/noc
-COPY --from=dotnet-builder /noc/LICENSE /noc/README.md /usr/local/noc/
-COPY --from=dotnet-builder /usr/share/dotnet /usr/share/dotnet
-RUN ln -s /usr/bin/dotnet /usr/share/dotnet/dotnet
-RUN echo 'mono /usr/local/noc/noc "$@"' > /usr/local/bin/noc && chmod +x /usr/local/bin/noc
+RUN --mount=type=bind,target=/packages-microsoft-prod.deb,from=dotnet-builder,source=/packages-microsoft-prod.deb \
+    dpkg -i /packages-microsoft-prod.deb
+RUN --mount=type=cache,id=dotnet-list,target=/var/lib/apt/lists \
+    --mount=type=cache,id=dotnet-pkg,target=/var/cache/apt \
+    apt-get install -y -qq dotnet-sdk-2.2
+COPY --from=dotnet-builder /noc/LICENSE /noc/README.md \
+    /noc/noc/noc/bin/Release/netcoreapp2.1/noc.dll \
+    /noc/noc/noc/bin/Release/netcoreapp2.1/noc.runtimeconfig.json \
+    /usr/local/noc/
+RUN echo 'dotnet /usr/local/noc/noc.dll "$@"' > /usr/local/bin/noc \
+    && chmod +x /usr/local/bin/noc
 
 # Rust
 COPY --from=rust-builder /root/.cargo/bin /root/.cargo/bin
