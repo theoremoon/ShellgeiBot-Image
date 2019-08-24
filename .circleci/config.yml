@@ -17,9 +17,9 @@ jobs:
           version: "18.09.3"
       - run:
           name: Build Docker image
-          command:
-            - git log --pretty='format:%h %cd %s [%an]' --date=iso | head -n 20 > revision.log
-            - docker build -t ${DOCKER_IMAGE} --progress=plain .
+          command: |
+            git log --pretty="format:%h %cd %s [%an]" --date=iso | head -n 20 > revision.log
+            docker build -t ${DOCKER_IMAGE} --progress=plain .
       - run:
           name: Test Docker image
           command: |
