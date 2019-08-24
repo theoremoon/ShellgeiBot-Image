@@ -83,7 +83,8 @@ RUN --mount=type=cache,target=/root/.npm \
 FROM base AS dotnet-builder
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq mono-mcs
+    curl -sfSLO --retry 3 https://packages.microsoft.com/config/ubuntu/19.04/packages-microsoft-prod.deb
+RUN dpkg -i packages-microsoft-prod.deb && apt-get update -y && apt-get install -y -qq mono-mcs dotnet-sdk-2.2
 RUN git clone --depth 1 https://github.com/xztaityozx/noc.git
 RUN mcs noc/noc/noc/Program.cs
 
@@ -319,6 +320,8 @@ COPY --from=nodejs-builder /usr/local/lib/node_modules /usr/local/lib/node_modul
 # .NET
 COPY --from=dotnet-builder /noc/noc/noc/Program.exe /usr/local/noc/noc
 COPY --from=dotnet-builder /noc/LICENSE /noc/README.md /usr/local/noc/
+COPY --from=dotnet-builder /usr/share/dotnet /usr/share/dotnet
+RUN ln -s /usr/bin/dotnet /usr/share/dotnet/dotnet
 RUN echo 'mono /usr/local/noc/noc "$@"' > /usr/local/bin/noc && chmod +x /usr/local/bin/noc
 
 # Rust

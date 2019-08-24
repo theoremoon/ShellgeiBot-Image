@@ -885,8 +885,8 @@
 
 @test "textchat" {
   run bash -c "textchat -n bob hello"
-  [ "$output" = ".-----.  .---------.                                                            
-| bob | <   hello  |                                                            
+  [ "$output" = ".-----.  .---------.
+| bob | <   hello  |
 \`-----'  \`---------'                                                            " ]
 }
 
@@ -939,4 +939,9 @@
 @test "shellgeibot-image" {
   run shellgeibot-image help
   [ $status -eq 0 ]
+}
+
+@test "dotnet" {
+  run dotnet --version
+  [[ "$output" == 2.2.* ]]
 }
