@@ -940,3 +940,8 @@
   run shellgeibot-image help
   [ $status -eq 0 ]
 }
+
+@test "dotnet" {
+  run dotnet --version
+  [[ "$output" == 2.2.* ]]
+}
