@@ -945,3 +945,8 @@
   run dotnet --version
   [[ "$output" == 2.2.* ]]
 }
+
+@test "muscular" {
+  run muscular
+  [ "${lines[0]}" = 'Usage: muscular [command]' ]
+}
