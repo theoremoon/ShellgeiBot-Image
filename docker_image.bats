@@ -950,3 +950,8 @@
   run bash -c "muscular shout ナイスバルク | grep -P -o '\p{Katakana}'|tr -d '\n'"
   [ "${lines[0]}" = 'ナイスバルク' ]
 }
+
+@test "ponpe" {
+  run ponpe ponponpain haraita-i
+  [ "$output" = 'pͪoͣnⷢpͣoꙶnͭpͣa͡iꙶn' ]
+}
