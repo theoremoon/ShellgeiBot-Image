@@ -947,6 +947,6 @@
 }
 
 @test "muscular" {
-  run muscular
-  [ "${lines[0]}" = 'Usage: muscular [command]' ]
+  run bash -c "muscular shout ナイスバルク | grep -P -o '\p{Katakana}'|tr -d '\n'"
+  [ "${lines[0]}" = 'ナイスバルク' ]
 }
