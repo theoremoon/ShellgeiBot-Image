@@ -950,3 +950,8 @@
   run muscular
   [ "${lines[0]}" = 'Usage: muscular [command]' ]
 }
+
+@test "ponpe" {
+  run ponpe ponponpain haraita-i
+  [ "$output" = 'pͪoͣnⷢpͣoꙶnͭpͣa͡iꙶn' ]
+}
