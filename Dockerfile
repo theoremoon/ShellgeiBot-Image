@@ -38,6 +38,7 @@ RUN --mount=type=cache,target=/root/go/src \
       github.com/greymd/ojichat \
       github.com/ikawaha/nise \
       github.com/jmhobbs/terminal-parrot \
+      github.com/ryuichiueda/kkcw \
     && CGO_LDFLAGS="`mecab-config --libs`" CGO_CFLAGS="-I`mecab-config --inc-dir`" \
       go get -u -ldflags '-w -s' github.com/ryuichiueda/ke2daira \
     && find /usr/local/go/src /root/go/src -type f \
@@ -135,8 +136,6 @@ RUN git clone --depth 1 https://github.com/bartobri/no-more-secrets.git \
 RUN git clone --depth 1 https://github.com/ryuichiueda/ShellGeiData.git
 # imgout
 RUN git clone --depth 1 https://github.com/ryuichiueda/ImageGeneratorForShBot.git
-# kkcw 
-RUN git clone --depth 1 https://github.com/ryuichiueda/kkcw.git
 
 # unicode data
 RUN curl -sfSLO --retry 3 https://www.unicode.org/Public/UCD/latest/ucd/NormalizationTest.txt
@@ -351,7 +350,6 @@ COPY --from=general-builder /downloads/ShellGeiData /ShellGeiData
 # imgout, unicode data
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     (cd /downloads/ImageGeneratorForShBot && git archive --format=tar --prefix=imgout/ HEAD) | tar xf - -C /usr/local \
-    && (cd /downloads/kkcw && git archive --format=tar --prefix=imgout/ HEAD) | tar xf - -C /usr/local \
     && cp /downloads/NormalizationTest.txt /downloads/NamesList.txt /
 ENV PATH $PATH:/usr/local/imgout:/usr/local/kkcw
 
