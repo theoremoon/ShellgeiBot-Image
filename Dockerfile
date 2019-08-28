@@ -135,7 +135,7 @@ RUN git clone --depth 1 https://github.com/bartobri/no-more-secrets.git \
 RUN git clone --depth 1 https://github.com/ryuichiueda/ShellGeiData.git
 # imgout
 RUN git clone --depth 1 https://github.com/ryuichiueda/ImageGeneratorForShBot.git
-# imgout
+# kkcw 
 RUN git clone --depth 1 https://github.com/ryuichiueda/kkcw.git
 
 # unicode data
