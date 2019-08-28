@@ -652,6 +652,11 @@
   [ "$output" = 'usage: imgout [-f <font>]' ]
 }
 
+@test "kkcw" {
+  run kkcw <<< やまだたろう
+  [ "$output" = '山田太郎' ]
+}
+
 @test "zws" {
   run bash -c "echo J+KBouKAjeKAi+KBouKAjeKAi+KAi+KAjeKAjeKBouKAjOKBouKBouKAjeKAi+KBouKAjeKAi+KAi+KAjeKAjeKAjeKAjOKBouKBouKAjeKAi+KBouKAjeKAi+KAi+KBouKAjeKAjeKAjeKBouKBouKAjeKAjeKAi+KAjeKAi+KAjeKAjeKAjeKBouKAjeKAi+KAi+KAi+KAjeKAjScK | base64 -d | zws -d"
   [ "$output" = 'シェル芸' ]

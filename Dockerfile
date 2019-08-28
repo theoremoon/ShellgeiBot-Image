@@ -135,6 +135,8 @@ RUN git clone --depth 1 https://github.com/bartobri/no-more-secrets.git \
 RUN git clone --depth 1 https://github.com/ryuichiueda/ShellGeiData.git
 # imgout
 RUN git clone --depth 1 https://github.com/ryuichiueda/ImageGeneratorForShBot.git
+# kkcw 
+RUN git clone --depth 1 https://github.com/ryuichiueda/kkcw.git
 
 # unicode data
 RUN curl -sfSLO --retry 3 https://www.unicode.org/Public/UCD/latest/ucd/NormalizationTest.txt
@@ -349,8 +351,9 @@ COPY --from=general-builder /downloads/ShellGeiData /ShellGeiData
 # imgout, unicode data
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     (cd /downloads/ImageGeneratorForShBot && git archive --format=tar --prefix=imgout/ HEAD) | tar xf - -C /usr/local \
+    && (cd /downloads/kkcw && git archive --format=tar --prefix=imgout/ HEAD) | tar xf - -C /usr/local \
     && cp /downloads/NormalizationTest.txt /downloads/NamesList.txt /
-ENV PATH $PATH:/usr/local/imgout
+ENV PATH $PATH:/usr/local/imgout:/usr/local/kkcw
 
 # gawk 5.0, Open-usp-Tukubai, edfsay, no more secrets
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
