@@ -890,9 +890,9 @@
 
 @test "textchat" {
   run bash -c "textchat -n bob hello"
-  [ "$output" = ".-----.  .---------.
-| bob | <   hello  |
-\`-----'  \`---------'                                                            " ]
+  [ "${lines[0]}" == ".-----.  .---------.                                                            " ]
+  [ "${lines[1]}" == "| bob | <   hello  |                                                            " ]
+  [ "${lines[2]}" == "\`-----'  \`---------'                                                            " ]
 }
 
 @test "HanazonoMincho" {
