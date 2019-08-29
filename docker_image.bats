@@ -890,8 +890,8 @@
 
 @test "textchat" {
   run bash -c "textchat -n bob hello"
-  [ "$output" = ".-----.  .---------.                                                            
-| bob | <   hello  |                                                            
+  [ "$output" = ".-----.  .---------.
+| bob | <   hello  |
 \`-----'  \`---------'                                                            " ]
 }
 
@@ -959,4 +959,9 @@
 @test "ponpe" {
   run ponpe ponponpain haraita-i
   [ "$output" = 'pͪoͣnⷢpͣoꙶnͭpͣa͡iꙶn' ]
+}
+
+@test "rb" {
+  run which rb
+  [ "$output" = '/usr/local/bin/rb' ]
 }
