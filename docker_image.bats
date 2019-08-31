@@ -789,7 +789,7 @@
 }
 
 @test "py" {
-  run py 'F1%2==1' <(seq 2)
+  run bash -c 'seq 2 | py "F1%2==1"'
   [ "$output" = "1" ]
 }
 
