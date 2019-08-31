@@ -788,6 +788,11 @@
   [ "$output" = "フピエアー" ]
 }
 
+@test "py" {
+  run py 'F1%2==1' <(seq 2)
+  [ "$output" = "1" ]
+}
+
 @test "numconv" {
   run numconv -h
   [ "${lines[0]}" = 'Filter to convert integers from one number system to another.' ]
