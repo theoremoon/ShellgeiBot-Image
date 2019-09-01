@@ -963,7 +963,7 @@
 
 @test "ponpe" {
   run ponpe ponponpain haraita-i
-  [ "$output" = 'pͪoͣnⷢpͣoꙶnͭpͣa͡iꙶn' ]
+  [ "$output" = 'pͪoͣnͬpͣoͥnͭpͣa͡iͥn' ]
 }
 
 @test "rb" {
