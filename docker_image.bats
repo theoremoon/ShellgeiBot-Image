@@ -788,8 +788,8 @@
   [ "$output" = "フピエアー" ]
 }
 
-@test "py" {
-  run bash -c 'seq 2 | py "F1%2==1"'
+@test "opy" {
+  run bash -c 'seq 2 | opy "F1%2==1"'
   [ "$output" = "1" ]
 }
 
