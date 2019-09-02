@@ -209,9 +209,9 @@ RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/horo17/saizeriya/mast
 RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/msr-i386/fujiaire/master/fujiaire -o /usr/local/bin/fujiaire \
     && chmod u+x /usr/local/bin/fujiaire
 
-# py
-RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/ryuichiueda/py/master/py -o /usr/local/bin/py \
-    && chmod u+x /usr/local/bin/py
+# opy
+RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/ryuichiueda/opy/master/opy -o /usr/local/bin/opy \
+    && chmod u+x /usr/local/bin/opy
 
 # color, rainbow
 RUN git clone --depth 1 https://github.com/jiro4989/scripts /tmp/scripts \
