@@ -163,8 +163,7 @@ RUN curl -sfSL --retry 3 https://julialang-s3.julialang.org/bin/linux/x64/1.1/ju
 RUN curl -sfSL --retry 3 https://download.oracle.com/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz -o openjdk11.tar.gz
 # Clojure
 RUN curl -sfSL --retry 3 -O https://download.clojure.org/install/linux-install-1.10.1.469.sh && \
-    chmod +x linux-install-1.10.1.469.sh && \
-    ./linux-install-1.10.1.469.sh
+    chmod +x linux-install-1.10.1.469.sh
 
 # trdsql
 RUN curl -sfSLO --retry 3 https://github.com/noborus/trdsql/releases/download/v0.6.1/trdsql_linux_amd64.zip
@@ -380,13 +379,14 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
       /downloads/superunko.deb \
       /downloads/echo-meme.deb
 
-# J, Julia, OpenJDK, trdsql (apply sql to csv), onefetch
+# J, Julia, OpenJDK, trdsql (apply sql to csv), onefetch, clojure
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     tar xf /downloads/j.tar.gz -C /usr/local \
     && tar xf /downloads/julia.tar.gz -C /usr/local \
     && tar xf /downloads/openjdk11.tar.gz -C /usr/local \
     && unzip /downloads/trdsql_linux_amd64.zip -d /usr/local \
-    && unzip /downloads/onefetch_linux_x86-64.zip -d /usr/local/bin onefetch
+    && unzip /downloads/onefetch_linux_x86-64.zip -d /usr/local/bin onefetch \
+    && /downloads/linux-install-1.10.1.469.sh
 # jconsole コマンドが OpenJDK と J で重複するため、J の PATH を優先
 ENV PATH $PATH:/usr/local/j64-807/bin:/usr/local/julia-1.1.1/bin:/usr/local/jdk-11.0.2/bin:/usr/local/trdsql_linux_amd64
 ENV JAVA_HOME /usr/local/jdk-11.0.2
