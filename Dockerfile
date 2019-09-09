@@ -390,6 +390,9 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
 # jconsole コマンドが OpenJDK と J で重複するため、J の PATH を優先
 ENV PATH $PATH:/usr/local/j64-807/bin:/usr/local/julia-1.1.1/bin:/usr/local/jdk-11.0.2/bin:/usr/local/trdsql_linux_amd64
 ENV JAVA_HOME /usr/local/jdk-11.0.2
+# 実行するタイミングで不足するjarを取得するため
+RUN clojure -e '(println "test")'
+
 # V
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     unzip /downloads/v.zip -d /usr/local/vlang -x v_macos -x v.exe \
