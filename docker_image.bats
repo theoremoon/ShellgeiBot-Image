@@ -970,3 +970,12 @@
   run which rb
   [ "$output" = '/usr/local/bin/rb' ]
 }
+
+@test "clojure" {
+  run which clojure
+  [ "$status" -eq 0 ]
+
+  # JAVA_HOME未設定だったりして使える状態でないとここがエラーになる
+  run clojure -h
+  [ "$status" -eq 0 ]
+}

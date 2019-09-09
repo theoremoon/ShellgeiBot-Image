@@ -161,6 +161,11 @@ RUN curl -sfSL --retry 3 http://www.jsoftware.com/download/j807/install/j807_lin
 RUN curl -sfSL --retry 3 https://julialang-s3.julialang.org/bin/linux/x64/1.1/julia-1.1.1-linux-x86_64.tar.gz -o julia.tar.gz
 # OpenJDK
 RUN curl -sfSL --retry 3 https://download.oracle.com/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz -o openjdk11.tar.gz
+# Clojure
+RUN curl -sfSL --retry 3 -O https://download.clojure.org/install/linux-install-1.10.1.469.sh && \
+    chmod +x linux-install-1.10.1.469.sh && \
+    ./linux-install-1.10.1.469.sh
+
 # trdsql
 RUN curl -sfSLO --retry 3 https://github.com/noborus/trdsql/releases/download/v0.6.1/trdsql_linux_amd64.zip
 # onefetch
@@ -384,7 +389,7 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     && unzip /downloads/onefetch_linux_x86-64.zip -d /usr/local/bin onefetch
 # jconsole コマンドが OpenJDK と J で重複するため、J の PATH を優先
 ENV PATH $PATH:/usr/local/j64-807/bin:/usr/local/julia-1.1.1/bin:/usr/local/jdk-11.0.2/bin:/usr/local/trdsql_linux_amd64
-
+ENV JAVA_HOME /usr/local/jdk-11.0.2
 # V
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     unzip /downloads/v.zip -d /usr/local/vlang -x v_macos -x v.exe \
