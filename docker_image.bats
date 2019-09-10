@@ -982,7 +982,7 @@
 }
 
 @test "longcat" {
-  run longcat -i 4 -o /images/a.png
-  [ -f /images/a.png ]
+  run longcat -i 4 -o /a.png
+  [ -f /a.png ]
 }
 
