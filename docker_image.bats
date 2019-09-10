@@ -975,7 +975,8 @@
   run which clojure
   [ "$status" -eq 0 ]
 
-  # JAVA_HOME未設定だったりして使える状態でないとここがエラーになる
-  run clojure -h
+  # JAVA_HOME未設定だったりランタイムがないと動かない
+  run clojure -e '(println "Hello")'
   [ "$status" -eq 0 ]
+  [ "$output" = 'Hello' ]
 }
