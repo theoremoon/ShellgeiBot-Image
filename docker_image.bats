@@ -980,3 +980,9 @@
   [ "$status" -eq 0 ]
   [ "$output" = 'Hello' ]
 }
+
+@test "longcat" {
+  run longcat -i 4 -o /images/a.png
+  [ -f /images/a.png ]
+}
+
