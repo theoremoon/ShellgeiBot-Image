@@ -417,6 +417,7 @@ COPY --from=ubuntu:19.04 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
 # ShellgeiBot-Image information
 RUN mkdir -p /etc/shellgeibot-image
 COPY revision.log /etc/shellgeibot-image
+COPY ci_build.log /etc/shellgeibot-image
 COPY LICENSE /etc/shellgeibot-image
 COPY README.md /etc/shellgeibot-image
 COPY bin/shellgeibot-image /usr/local/bin
