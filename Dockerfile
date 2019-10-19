@@ -1,3 +1,4 @@
+# テストでコメント追加
 # syntax = docker/dockerfile:1.0-experimental
 FROM ubuntu:19.04 AS apt-cache
 
