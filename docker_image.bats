@@ -949,6 +949,16 @@
 @test "shellgeibot-image" {
   run shellgeibot-image help
   [ $status -eq 0 ]
+
+  run shellgeibot-image revision
+  [ $status -eq 0 ]
+
+  run shellgeibot-image build-log
+  [ $status -eq 0 ]
+  [ "${lines[0]}" = '"build_num","vcs_revision","start_time","stop_time"' ]
+  [[ "${lines[1]}" =~ ^.[0-9]+.,.*$ ]]
+  [[ "${lines[2]}" =~ ^.[0-9]+.,.*$ ]]
+  [[ "${lines[3]}" =~ ^.[0-9]+.,.*$ ]]
 }
 
 @test "dotnet" {

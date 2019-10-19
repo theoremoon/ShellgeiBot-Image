@@ -6,6 +6,7 @@ readonly ETC_DIR="${ETC_DIR:-/etc/shellgeibot-image}"
 readonly REVISION_FILE="$ETC_DIR/revision.log"
 readonly LICENSE_FILE="$ETC_DIR/LICENSE"
 readonly README_FILE="$ETC_DIR/README.md"
+readonly CI_BUILD_LOG_FILE="$ETC_DIR/ci_build.log"
 
 SCRIPT_NAME="$(basename "${BASH_SOURCE:-$0}")"
 readonly SCRIPT_NAME
@@ -37,6 +38,10 @@ main() {
         cat "$REVISION_FILE"
         return
         ;;
+      build-log)
+        cat "$CI_BUILD_LOG_FILE"
+        return
+        ;;
       *)
         usage >&2
         return 1
@@ -53,10 +58,11 @@ Usage:
     $SCRIPT_NAME <command>
 
 Available commands:
-    help        Print this help.
-    license     Print license.
-    readme      Print readme.
-    revision    Print commit logs.
+    help         Print this help.
+    license      Print license.
+    readme       Print readme.
+    revision     Print commit logs.
+    build-log    Print building log of ShellgeiBot-Image.
 EOS
 }
 

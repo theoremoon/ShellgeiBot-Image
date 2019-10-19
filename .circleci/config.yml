@@ -18,8 +18,9 @@ jobs:
       - run:
           name: Build Docker image
           command: |
-            apk add --no-progress git
+            apk add --no-progress git jq curl
             git log --pretty="format:%h %cd %s [%an]" --date=iso -n 20 > revision.log
+            ./.circleci/get_build_log.sh > ci_build.log
             docker build -t ${DOCKER_IMAGE} --progress=plain .
       - run:
           name: Test Docker image
