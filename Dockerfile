@@ -30,6 +30,7 @@ RUN --mount=type=cache,target=/root/go/src \
       github.com/ericchiang/pup \
       github.com/sugyan/ttyrec2gif \
       github.com/xztaityozx/owari \
+      github.com/xztaityozx/kakikokera \
       github.com/jiro4989/align \
       github.com/jiro4989/taishoku \
       github.com/jiro4989/textimg \
@@ -81,7 +82,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
     --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y -qq nodejs npm
 RUN --mount=type=cache,target=/root/.npm \
-    npm install -g --silent faker-cli chemi yukichant @amanoese/muscular
+    npm install -g --silent faker-cli chemi yukichant @amanoese/muscular fx
 
 ## .NET
 FROM base AS dotnet-builder
@@ -138,6 +139,9 @@ RUN git clone --depth 1 https://github.com/bartobri/no-more-secrets.git \
 RUN git clone --depth 1 https://github.com/ryuichiueda/ShellGeiData.git
 # imgout
 RUN git clone --depth 1 https://github.com/ryuichiueda/ImageGeneratorForShBot.git
+# csvquote
+RUN git clone --depth 1 https://github.com/dbro/csvquote.git \
+    && (cd csvquote && make)
 
 # unicode data
 RUN curl -sfSLO --retry 3 https://www.unicode.org/Public/UCD/latest/ucd/NormalizationTest.txt
@@ -213,6 +217,10 @@ RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/horo17/saizeriya/mast
 # fujiaire
 RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/msr-i386/fujiaire/master/fujiaire -o /usr/local/bin/fujiaire \
     && chmod u+x /usr/local/bin/fujiaire
+
+# horizon
+RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/msr-i386/horizon/master/horizon -o /usr/local/bin/horizon \
+    && chmod u+x /usr/local/bin/horizon
 
 # opy
 RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/ryuichiueda/opy/master/opy -o /usr/local/bin/opy \
@@ -363,12 +371,13 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     && cp /downloads/NormalizationTest.txt /downloads/NamesList.txt /
 ENV PATH $PATH:/usr/local/imgout:/usr/local/kkcw
 
-# gawk 5.0, Open-usp-Tukubai, edfsay, no more secrets
+# gawk 5.0, Open-usp-Tukubai, edfsay, no more secrets, csvquote
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     (cd /downloads/gawk-5.0.1 && make install) \
     && (cd /downloads/Open-usp-Tukubai && make install) \
     && (cd /downloads/edfsay && ./install.sh) \
-    && (cd /downloads/no-more-secrets && make install)
+    && (cd /downloads/no-more-secrets && make install) \
+    && (cd /downloads/csvquote && make install)
 
 # egison, egzact, bat, osquery, super_unko, echo-meme
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
