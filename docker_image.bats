@@ -996,3 +996,22 @@
   [ -f /a.png ]
 }
 
+@test "kakikokera" {
+  run bash -c "echo 柿杮杮杮柿杮柿杮柿杮杮柿杮杮杮柿柿杮杮柿杮柿杮杮柿杮杮柿杮杮杮杮 | kakikokera -d"
+  [ "$output" = 'unko' ]
+}
+
+@test "horizon" {
+  run bash -c "echo ⁃‐﹘╸―ⲻ━= | horizon -d"
+  [ "$output" = 'unko' ]
+}
+
+@test "fx" {
+  run bash -c "echo '{\"item\": \"unko\"}' | fx 'this.item'"
+  [ "$output" = 'unko' ]
+}
+
+@test "csvquote" {
+  run bash -c 'echo -e "unko,\"un,ko\"" | csvquote | cut -d "," -f 2 | csvquote -u'
+  [ "$output" = '"un,ko"' ]
+}
