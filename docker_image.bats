@@ -362,7 +362,7 @@
 }
 
 @test "chromium" {
-  run chromium-browser --version
+  run chrome --version
   [[ "$output" =~ "Chromium" ]]
 }
 
