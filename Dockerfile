@@ -1,9 +1,9 @@
 # syntax = docker/dockerfile:1.0-experimental
-FROM ubuntu:19.04 AS apt-cache
+FROM ubuntu:19.10 AS apt-cache
 
 RUN apt-get update
 
-FROM ubuntu:19.04 AS base
+FROM ubuntu:19.10 AS base
 ENV DEBIAN_FRONTEND noninteractive
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
@@ -86,15 +86,16 @@ RUN --mount=type=cache,target=/root/.npm \
 
 ## .NET
 FROM base AS dotnet-builder
-RUN curl -sfSLO --retry 3 https://packages.microsoft.com/config/ubuntu/19.04/packages-microsoft-prod.deb
-RUN dpkg -i /packages-microsoft-prod.deb
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq apt-transport-https
-RUN --mount=type=cache,id=dotnet-list,target=/var/lib/apt/lists \
-    --mount=type=cache,id=dotnet-packages,target=/var/cache/apt \
-    apt-get update \
-    && apt-get install -y -qq dotnet-sdk-2.2
+    apt-get install -y -qq libicu63
+# .NET Core SDK 2.2.402 binary
+WORKDIR /downloads
+RUN curl -sfSLO --retry 3 https://download.visualstudio.microsoft.com/download/pr/46411df1-f625-45c8-b5e7-08ab736d3daa/0fbc446088b471b0a483f42eb3cbf7a2/dotnet-sdk-2.2.402-linux-x64.tar.gz \
+    && mkdir /usr/local/dotnet \
+    && tar xf dotnet-sdk-2.2.402-linux-x64.tar.gz -C /usr/local/dotnet
+ENV PATH $PATH:/usr/local/dotnet
+WORKDIR /
 RUN git clone --depth 1 https://github.com/xztaityozx/noc.git
 RUN (cd /noc/noc/noc; dotnet build --configuration Release)
 
@@ -178,6 +179,9 @@ RUN curl -sfSLO --retry 3 https://github.com/o2sh/onefetch/releases/download/v1.
 RUN curl -sfSLO --retry 3 https://github.com/PowerShell/PowerShell/releases/download/v7.0.0-preview.1/powershell-7.0.0-preview.1-linux-x64.tar.gz
 # V
 RUN curl -sfSLO --retry 3 https://github.com/vlang/v/releases/download/v0.1.13/v.zip
+# Chromium ref: https://github.com/scheib/chromium-latest-linux/blob/master/update.sh
+RUN REVISION=$(curl -sS --retry 3 "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2FLAST_CHANGE?alt=media") \
+    && curl -sfSL --retry 3 -o chrome-linux.zip "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F${REVISION}%2Fchrome-linux.zip?alt=media"
 WORKDIR /
 
 
@@ -289,10 +293,10 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       qrencode\
       fonts-nanum fonts-symbola fonts-noto-color-emoji\
       sl\
-      chromium-browser chromium-chromedriver w3m nginx\
+      w3m nginx\
       screenfetch\
       firefox\
-      lua5.3 php7.2 php7.2-cli php7.2-common\
+      lua5.3 php7.3 php7.3-cli php7.3-common\
       nodejs\
       graphviz\
       nim\
@@ -311,7 +315,8 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       ipcalc\
       librsvg2-bin\
       agrep \
-      xvfb xterm x11-apps xdotool
+      xvfb xterm x11-apps xdotool \
+      libnss3 libgdk3.0-cil
 
 # kagome
 COPY --from=ikawaha/kagome /usr/local/bin/kagome /usr/local/bin/kagome
@@ -342,11 +347,10 @@ COPY --from=nodejs-builder /usr/local/bin /usr/local/bin
 COPY --from=nodejs-builder /usr/local/lib/node_modules /usr/local/lib/node_modules
 
 # .NET
-RUN --mount=type=bind,target=/packages-microsoft-prod.deb,from=dotnet-builder,source=/packages-microsoft-prod.deb \
-    dpkg -i /packages-microsoft-prod.deb
-RUN --mount=type=cache,id=dotnet-list,target=/var/lib/apt/lists \
-    --mount=type=cache,id=dotnet-pkg,target=/var/cache/apt \
-    apt-get install -y -qq dotnet-sdk-2.2
+RUN --mount=type=bind,target=/downloads,from=dotnet-builder,source=/downloads \
+    mkdir /usr/local/dotnet \
+    && tar xf /downloads/dotnet-sdk-2.2.402-linux-x64.tar.gz -C /usr/local/dotnet
+ENV PATH $PATH:/usr/local/dotnet
 COPY --from=dotnet-builder /noc/LICENSE /noc/README.md \
     /noc/noc/noc/bin/Release/netcoreapp2.1/noc.dll \
     /noc/noc/noc/bin/Release/netcoreapp2.1/noc.runtimeconfig.json \
@@ -389,16 +393,17 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
       /downloads/superunko.deb \
       /downloads/echo-meme.deb
 
-# J, Julia, OpenJDK, trdsql (apply sql to csv), onefetch, clojure
+# J, Julia, OpenJDK, trdsql (apply sql to csv), onefetch, clojure, chromium
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     tar xf /downloads/j.tar.gz -C /usr/local \
     && tar xf /downloads/julia.tar.gz -C /usr/local \
     && tar xf /downloads/openjdk11.tar.gz -C /usr/local \
     && unzip /downloads/trdsql_linux_amd64.zip -d /usr/local \
     && unzip /downloads/onefetch_linux_x86-64.zip -d /usr/local/bin onefetch \
-    && /downloads/linux-install-1.10.1.469.sh
+    && /downloads/linux-install-1.10.1.469.sh \
+    && unzip /downloads/chrome-linux.zip -d /usr/local
 # jconsole コマンドが OpenJDK と J で重複するため、J の PATH を優先
-ENV PATH $PATH:/usr/local/j64-807/bin:/usr/local/julia-1.1.1/bin:/usr/local/jdk-11.0.2/bin:/usr/local/trdsql_linux_amd64
+ENV PATH $PATH:/usr/local/j64-807/bin:/usr/local/julia-1.1.1/bin:/usr/local/jdk-11.0.2/bin:/usr/local/trdsql_linux_amd64:/usr/local/chrome-linux
 ENV JAVA_HOME /usr/local/jdk-11.0.2
 # 実行するタイミングで不足するjarを取得するため
 RUN clojure -e '(println "test")'
@@ -421,7 +426,7 @@ RUN mv /usr/bin/man.REAL /usr/bin/man
 
 # reset apt config
 RUN rm /etc/apt/apt.conf.d/keep-cache /etc/apt/apt.conf.d/no-install-recommends
-COPY --from=ubuntu:19.04 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
+COPY --from=ubuntu:19.10 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
 
 # ShellgeiBot-Image information
 RUN mkdir -p /etc/shellgeibot-image
