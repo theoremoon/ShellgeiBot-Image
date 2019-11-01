@@ -117,6 +117,9 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
     --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y -qq nim
 RUN nimble install rect -Y
+RUN curl --retry 3 -sfSLO https://github.com/jiro4989/maze/releases/latest/download/maze_linux.tar.gz \
+    && tar xzf maze_linux.tar.gz \
+    && install -m 0755 maze_linux/bin/maze $HOME/.nimble/bin/maze
 
 ## General
 FROM base AS general-builder
