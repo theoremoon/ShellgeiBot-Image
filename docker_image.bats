@@ -1015,3 +1015,14 @@
   run bash -c 'echo -e "unko,\"un,ko\"" | csvquote | cut -d "," -f 2 | csvquote -u'
   [ "$output" = '"un,ko"' ]
 }
+
+@test "maze" {
+  run maze -h
+  [ "$status" -eq 0 ]
+
+  run maze -v
+  [ "$status" -eq 0 ]
+
+  run maze
+  [ "$status" -eq 0 ]
+}
