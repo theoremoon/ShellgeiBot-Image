@@ -25,7 +25,7 @@ ENV GOPATH /root/go
 RUN --mount=type=cache,target=/root/go/src \
     --mount=type=cache,target=/root/.cache/go-build \
     go get -u -ldflags '-w -s' \
-      github.com/YuheiNakasaka/sayhuuzoku \
+      github.com/golang/dep/cmd/dep \
       github.com/tomnomnom/gron \
       github.com/ericchiang/pup \
       github.com/sugyan/ttyrec2gif \
@@ -43,6 +43,8 @@ RUN --mount=type=cache,target=/root/go/src \
       github.com/mattn/longcat \
     && CGO_LDFLAGS="`mecab-config --libs`" CGO_CFLAGS="-I`mecab-config --inc-dir`" \
       go get -u -ldflags '-w -s' github.com/ryuichiueda/ke2daira \
+    && go get -u -d github.com/YuheiNakasaka/sayhuuzoku \
+    && (cd ${GOPATH}/src/github.com/YuheiNakasaka/sayhuuzoku; ${GOPATH}/bin/dep ensure && go build -ldflags '-w -s' -o ${GOPATH}/bin/sayhuuzoku) \
     && find /usr/local/go/src /root/go/src -type f \
       | grep -Ei 'license|readme' \
       | grep -v '.go$' \
@@ -55,6 +57,7 @@ RUN --mount=type=cache,target=/root/go/src \
     && mkdir -p /tmp/root/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping \
               && cp /root/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping/shoplist.txt \
                 /tmp/root/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping/shoplist.txt
+RUN rm ${GOPATH}/bin/dep
 RUN git clone --depth 1 https://github.com/googlefonts/noto-emoji /usr/local/src/noto-emoji
 
 ## Ruby
