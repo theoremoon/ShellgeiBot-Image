@@ -116,6 +116,7 @@ RUN find /root/.rustup /root/.cargo -type f \
 
 ## Nim
 FROM base AS nim-builder
+ENV PATH $PATH:/root/.nimble/bin
 RUN curl https://nim-lang.org/choosenim/init.sh -sSf > init.sh \
     && sh init.sh -y \
     && choosenim update stable
