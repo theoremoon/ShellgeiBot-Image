@@ -116,13 +116,11 @@ RUN find /root/.rustup /root/.cargo -type f \
 
 ## Nim
 FROM base AS nim-builder
-RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
-    --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq nim
-RUN nimble install rect -Y
-RUN curl --retry 3 -sfSLO https://github.com/jiro4989/maze/releases/latest/download/maze_linux.tar.gz \
-    && tar xzf maze_linux.tar.gz \
-    && install -m 0755 maze_linux/bin/maze $HOME/.nimble/bin/maze
+ENV PATH $PATH:/root/.nimble/bin
+RUN curl https://nim-lang.org/choosenim/init.sh -sSf > init.sh \
+    && sh init.sh -y \
+    && choosenim update stable
+RUN nimble install rect edens maze -Y
 
 ## General
 FROM base AS general-builder

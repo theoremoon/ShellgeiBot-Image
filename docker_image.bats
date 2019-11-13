@@ -1026,3 +1026,8 @@
   run maze
   [ "$status" -eq 0 ]
 }
+
+@test "edens" {
+  run edens -h
+  [ "$status" -eq 0 ]
+}
