@@ -1031,3 +1031,8 @@
   run edens -h
   [ "$status" -eq 0 ]
 }
+
+@test "himechat-cli" {
+  run himechat-cli -V
+  [ "$output" = 'https://github.com/gyozabu/himechat-cli' ]
+}

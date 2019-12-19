@@ -37,6 +37,7 @@ RUN --mount=type=cache,target=/root/go/src \
       github.com/jiro4989/textchat \
       github.com/jiro4989/ponpe \
       github.com/greymd/ojichat \
+      github.com/gyozabu/himechat-cli \
       github.com/ikawaha/nise \
       github.com/jmhobbs/terminal-parrot \
       github.com/ryuichiueda/kkcw \
