@@ -86,7 +86,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
     --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y -qq nodejs npm
 RUN --mount=type=cache,target=/root/.npm \
-    npm install -g --silent faker-cli chemi yukichant @amanoese/muscular fx
+    npm install -g --silent faker-cli chemi yukichant @amanoese/muscular fx kana2ipa
 
 ## .NET
 FROM base AS dotnet-builder
@@ -208,6 +208,10 @@ RUN curl -sfSLO --retry 3 https://gist.githubusercontent.com/KeenS/6194e6ef1a151
 # zws
 RUN curl -sfSL --retry 3 https://raintrees.net/attachments/download/486/zws -o /usr/local/bin/zws \
     && chmod +x /usr/local/bin/zws
+
+# ivsteg
+RUN curl -sfSL --retry 3 https://raintrees.net/attachments/download/698/ivsteg -o /usr/local/bin/ivsteg \
+    && chmod +x /usr/local/bin/ivsteg
 
 # sushiro
 RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/redpeacock78/sushiro/master/sushiro -o /usr/local/bin/sushiro \

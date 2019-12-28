@@ -1036,3 +1036,13 @@
   run himechat-cli -V
   [ "$output" = 'https://github.com/gyozabu/himechat-cli' ]
 }
+
+@test "kana2ipa" {
+  run kana2ipa -h
+  [ "${lines[0]}" = 'Usage: kana2ipa [text]' ]
+}
+
+@test "ivsteg" {
+  run ivsteg -h
+  [ "${lines[0]}" = 'IVS steganography encoder or decode from standard input to standard output.' ]
+}
