@@ -1046,3 +1046,8 @@
   run ivsteg -h
   [ "${lines[0]}" = 'IVS steganography encoder or decode from standard input to standard output.' ]
 }
+
+@test "gyaric" {
+  run gyaric -h
+  [ "${lines[0]}" = "gyaric encode/decode a text to unreadable gyaru's text." ]
+}
