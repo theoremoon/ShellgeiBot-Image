@@ -213,6 +213,9 @@ RUN curl -sfSL --retry 3 https://raintrees.net/attachments/download/486/zws -o /
 RUN curl -sfSL --retry 3 https://raintrees.net/attachments/download/698/ivsteg -o /usr/local/bin/ivsteg \
     && chmod +x /usr/local/bin/ivsteg
 
+RUN curl -sfSL --retry 3 https://raintrees.net/attachments/download/712/funnychar -o /usr/local/bin/funnychar \
+    && chmod +x /usr/local/bin/funnychar
+
 # sushiro
 RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/redpeacock78/sushiro/master/sushiro -o /usr/local/bin/sushiro \
     && chmod +x /usr/local/bin/sushiro && sushiro -f

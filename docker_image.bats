@@ -1051,3 +1051,8 @@
   run gyaric -h
   [ "${lines[0]}" = "gyaric encode/decode a text to unreadable gyaru's text." ]
 }
+
+@test "funnychar" {
+  run funnychar -p 3 abcABC
+  [ "$output" = '𝑎𝑏𝑐𝐴𝐵𝐶' ]
+}
