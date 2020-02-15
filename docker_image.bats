@@ -1056,3 +1056,8 @@
   run funnychar -p 3 abcABC
   [ "$output" = '𝑎𝑏𝑐𝐴𝐵𝐶' ]
 }
+
+@test "clisp" {
+  run clisp -q -x '(+ 1 2)'
+  [ "$output" = '3' ]
+}
