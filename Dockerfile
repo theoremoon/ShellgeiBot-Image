@@ -206,14 +206,15 @@ ENV PATH $PATH:/usr/local/home-commands
 RUN curl -sfSLO --retry 3 https://gist.githubusercontent.com/KeenS/6194e6ef1a151c9ea82536d5850b8bc7/raw/85af9ec757308b8ca4effdf24221f642cb34703b/nameko.svg
 
 # zws
-RUN curl -sfSL --retry 3 https://raintrees.net/attachments/download/486/zws -o /usr/local/bin/zws \
+RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/kanata2003/ZeroWidthSpace/master/zws -o /usr/local/bin/zws \
     && chmod +x /usr/local/bin/zws
 
 # ivsteg
 RUN curl -sfSL --retry 3 https://raintrees.net/attachments/download/698/ivsteg -o /usr/local/bin/ivsteg \
     && chmod +x /usr/local/bin/ivsteg
 
-RUN curl -sfSL --retry 3 https://raintrees.net/attachments/download/712/funnychar -o /usr/local/bin/funnychar \
+# funnychar
+RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/kanata2003/funnychar/master/funnychar -o /usr/local/bin/funnychar \
     && chmod +x /usr/local/bin/funnychar
 
 # sushiro
