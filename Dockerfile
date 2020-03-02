@@ -121,7 +121,7 @@ ENV PATH $PATH:/root/.nimble/bin
 RUN curl https://nim-lang.org/choosenim/init.sh -sSf > init.sh \
     && sh init.sh -y \
     && choosenim update stable
-RUN nimble install rect edens maze gyaric -Y
+RUN nimble install rect edens maze gyaric svgo -Y
 
 ## General
 FROM base AS general-builder
