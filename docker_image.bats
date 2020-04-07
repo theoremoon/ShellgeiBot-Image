@@ -534,19 +534,18 @@
 }
 
 @test "J" {
-  run bash -c "echo \"'シェル芸'\" | jconsole"
-  echo "'${lines[0]}'"
-  [ "${lines[0]}" = '   シェル芸' ]
+  run bash -c "echo \"'シェル芸'\" | ijconsole"
+  [ "${lines[0]}" = 'シェル芸' ]
 }
 
 @test "trdsql" {
-  run trdsql -help 2>&1
-  [ "${lines[1]}" = 'Usage: trdsql [OPTIONS] [SQL(SELECT...)]' ]
+  run sh -c "trdsql --version | xxd"
+  [[ "$output" =~ "trdsql version" ]]
 }
 
 @test "openjdk11" {
   run javac -version
-  [[ "${output}" =~ "javac " ]]
+  [[ "$output" =~ "javac " ]]
 }
 
 @test "super unko" {
@@ -669,7 +668,7 @@
 
 @test "onefetch" {
   run bash -c "cd /ShellGeiData && onefetch | sed $'s/\033[^m]*m//g'"
-  [[ "${lines[0]}" =~ 'Project: ShellGeiData' ]]
+  [[ "${lines[2]}" =~ 'Project: ShellGeiData' ]]
 }
 
 @test "sushiro" {
@@ -691,16 +690,6 @@
 @test "echo-meme" {
   run echo-meme シェル芸
   [[ "$output" =~ "シェル芸" ]]
-}
-
-@test "bash 5.0" {
-  run bash --version
-  [[ "${lines[0]}" =~ "GNU bash, バージョン 5.0" ]]
-}
-
-@test "awk 5.0" {
-  run /usr/local/bin/awk --version
-  [[ "${lines[0]}" =~ "GNU Awk 5.0" ]]
 }
 
 @test "reiwa" {
@@ -962,8 +951,8 @@
 }
 
 @test "dotnet" {
-  run dotnet --version
-  [[ "$output" == 2.2.* ]]
+  run dotnet --help
+  [[ "${lines[0]}" =~ ".NET Command Line Tools" ]]
 }
 
 @test "muscular" {
