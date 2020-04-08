@@ -1,9 +1,9 @@
 # syntax = docker/dockerfile:1.0-experimental
-FROM ubuntu:19.10 AS apt-cache
+FROM ubuntu:20.04 AS apt-cache
 
 RUN apt-get update
 
-FROM ubuntu:19.10 AS base
+FROM ubuntu:20.04 AS base
 ENV DEBIAN_FRONTEND noninteractive
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
@@ -17,7 +17,7 @@ FROM base AS go-builder
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y -qq libmecab-dev
-RUN curl -sfSL --retry 3 https://dl.google.com/go/go1.12.linux-amd64.tar.gz -o go.tar.gz \
+RUN curl -sfSL --retry 3 https://dl.google.com/go/go1.14.1.linux-amd64.tar.gz -o go.tar.gz \
     && tar xzf go.tar.gz -C /usr/local \
     && rm go.tar.gz
 ENV PATH $PATH:/usr/local/go/bin
@@ -67,7 +67,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
     --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y -qq ruby-dev
 RUN --mount=type=cache,target=/root/.gem \
-    gem install --quiet --no-ri --no-rdoc cureutils lolcat matsuya takarabako snacknomama rubipara marky_markov zen_to_i
+    gem install --quiet --no-document cureutils lolcat matsuya takarabako snacknomama rubipara marky_markov zen_to_i
 RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/hostilefork/whitespacers/master/ruby/whitespace.rb -o /usr/local/bin/whitespace
 RUN chmod +x /usr/local/bin/whitespace
 RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/thisredone/rb/master/rb -o /usr/local/bin/rb && chmod +x /usr/local/bin/rb
@@ -78,7 +78,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
     --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y -qq python3-dev python3-pip python3-setuptools
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip3 install --progress-bar=off yq faker sympy numpy scipy matplotlib xonsh pillow asciinema
+    pip3 install --progress-bar=off --no-use-pep517 yq faker sympy numpy scipy matplotlib xonsh pillow asciinema
 
 ## Node.js
 FROM base AS nodejs-builder
@@ -92,7 +92,7 @@ RUN --mount=type=cache,target=/root/.npm \
 FROM base AS dotnet-builder
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq libicu63
+    apt-get install -y -qq libicu66
 # .NET Core SDK 2.2.402 binary
 WORKDIR /downloads
 RUN curl -sfSLO --retry 3 https://download.visualstudio.microsoft.com/download/pr/46411df1-f625-45c8-b5e7-08ab736d3daa/0fbc446088b471b0a483f42eb3cbf7a2/dotnet-sdk-2.2.402-linux-x64.tar.gz \
@@ -130,10 +130,6 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
     apt-get install -y -qq lib32ncursesw5-dev
 
 WORKDIR /downloads
-# gawk 5.0
-RUN curl -sfSLO https://ftp.gnu.org/gnu/gawk/gawk-5.0.1.tar.gz \
-    && tar xf gawk-5.0.1.tar.gz \
-    && (cd gawk-5.0.1 && ./configure --program-suffix="-5.0.1" && make)
 # Open-usp-Tukubai
 RUN git clone --depth 1 https://github.com/usp-engineers-community/Open-usp-Tukubai.git
 # edfsay
@@ -158,32 +154,31 @@ RUN curl -sfSLO --retry 3 https://git.io/egison.x86_64.deb
 # egzact
 RUN curl -sfSLO --retry 3 https://git.io/egzact.deb
 # bat
-RUN curl -sfSLO --retry 3 https://github.com/sharkdp/bat/releases/download/v0.11.0/bat_0.11.0_amd64.deb
+RUN curl -sfSL --retry 3 https://github.com/sharkdp/bat/releases/download/v0.13.0/bat_0.13.0_amd64.deb -o bat.deb
 # osquery
-RUN curl -sfSLO --retry 3 https://github.com/osquery/osquery/releases/download/4.0.0/osquery-Linux-4.0.0.deb
+RUN curl -sfSL --retry 3 https://github.com/osquery/osquery/releases/download/4.1.1/osquery_4.1.1_1.linux.amd64.deb -o osquery.deb
 # super_unko
 RUN curl -sfSLO --retry 3 https://git.io/superunko.deb
 # echo-meme
 RUN curl -sfSLO --retry 3 https://git.io/echo-meme.deb
-
 # J
-RUN curl -sfSL --retry 3 http://www.jsoftware.com/download/j807/install/j807_linux64_nonavx.tar.gz -o j.tar.gz
+RUN curl -sfSL --retry 3 http://www.jsoftware.com/download/j901/install/j901_amd64.deb -o j.deb
+
 # Julia
-RUN curl -sfSL --retry 3 https://julialang-s3.julialang.org/bin/linux/x64/1.1/julia-1.1.1-linux-x86_64.tar.gz -o julia.tar.gz
+RUN curl -sfSL --retry 3 https://julialang-s3.julialang.org/bin/linux/x64/1.4/julia-1.4.0-linux-x86_64.tar.gz -o julia.tar.gz
 # OpenJDK
 RUN curl -sfSL --retry 3 https://download.oracle.com/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz -o openjdk11.tar.gz
 # Clojure
-RUN curl -sfSL --retry 3 -O https://download.clojure.org/install/linux-install-1.10.1.469.sh && \
-    chmod +x linux-install-1.10.1.469.sh
+RUN curl -sfSL --retry 3 https://download.clojure.org/install/linux-install-1.10.1.469.sh -o clojure_install.sh
 
 # trdsql
-RUN curl -sfSLO --retry 3 https://github.com/noborus/trdsql/releases/download/v0.6.1/trdsql_linux_amd64.zip
+RUN curl -sfSLO --retry 3 https://github.com/noborus/trdsql/releases/download/v0.7.5/trdsql_v0.7.5_linux_amd64.zip
 # onefetch
-RUN curl -sfSLO --retry 3 https://github.com/o2sh/onefetch/releases/download/v1.5.4/onefetch_linux_x86-64.zip
-# PowerShell 7 (preview)
-RUN curl -sfSLO --retry 3 https://github.com/PowerShell/PowerShell/releases/download/v7.0.0-preview.1/powershell-7.0.0-preview.1-linux-x64.tar.gz
+RUN curl -sfSLO --retry 3 https://github.com/o2sh/onefetch/releases/download/v2.2.0/onefetch_linux_x86-64.zip
+# PowerShell
+RUN curl -sfSL --retry 3 https://github.com/PowerShell/PowerShell/releases/download/v7.0.0/powershell-7.0.0-linux-x64.tar.gz -o powershell.tar.gz
 # V
-RUN curl -sfSLO --retry 3 https://github.com/vlang/v/releases/download/v0.1.13/v.zip
+RUN curl -sfSLO --retry 3 https://github.com/vlang/v/releases/download/0.1.24/v_linux.zip
 # Chromium ref: https://github.com/scheib/chromium-latest-linux/blob/master/update.sh
 RUN REVISION=$(curl -sS --retry 3 "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2FLAST_CHANGE?alt=media") \
     && curl -sfSL --retry 3 -o chrome-linux.zip "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F${REVISION}%2Fchrome-linux.zip?alt=media"
@@ -308,7 +303,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       w3m nginx\
       screenfetch\
       firefox\
-      lua5.3 php7.3 php7.3-cli php7.3-common\
+      lua5.3 php7.4 php7.4-cli php7.4-common\
       nodejs\
       graphviz\
       nim\
@@ -352,7 +347,7 @@ COPY --from=ruby-builder /var/lib/gems /var/lib/gems
 
 # Python
 COPY --from=python-builder /usr/local/bin /usr/local/bin
-COPY --from=python-builder /usr/local/lib/python3.7 /usr/local/lib/python3.7
+COPY --from=python-builder /usr/local/lib/python3.8 /usr/local/lib/python3.8
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Node.js
@@ -388,50 +383,47 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     && cp /downloads/NormalizationTest.txt /downloads/NamesList.txt /
 ENV PATH $PATH:/usr/local/imgout:/usr/local/kkcw
 
-# gawk 5.0, Open-usp-Tukubai, edfsay, no more secrets, csvquote
+# Open-usp-Tukubai, edfsay, no more secrets, csvquote
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
-    (cd /downloads/gawk-5.0.1 && make install) \
-    && (cd /downloads/Open-usp-Tukubai && make install) \
+    (cd /downloads/Open-usp-Tukubai && make install) \
     && (cd /downloads/edfsay && ./install.sh) \
     && (cd /downloads/no-more-secrets && make install) \
     && (cd /downloads/csvquote && make install)
 
-# egison, egzact, bat, osquery, super_unko, echo-meme
+# egison, egzact, bat, osquery, super_unko, echo-meme, J
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     dpkg -i \
       /downloads/egison.x86_64.deb \
       /downloads/egzact.deb \
-      /downloads/bat_0.11.0_amd64.deb \
-      /downloads/osquery-Linux-4.0.0.deb \
+      /downloads/bat.deb \
+      /downloads/osquery.deb \
       /downloads/superunko.deb \
-      /downloads/echo-meme.deb
+      /downloads/echo-meme.deb \
+      /downloads/j.deb
 
-# J, Julia, OpenJDK, trdsql (apply sql to csv), onefetch, clojure, chromium
+# Julia, OpenJDK, trdsql (apply sql to csv), onefetch, Clojure, chromium
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
-    tar xf /downloads/j.tar.gz -C /usr/local \
-    && tar xf /downloads/julia.tar.gz -C /usr/local \
+    tar xf /downloads/julia.tar.gz -C /usr/local \
     && tar xf /downloads/openjdk11.tar.gz -C /usr/local \
-    && unzip /downloads/trdsql_linux_amd64.zip -d /usr/local \
+    && unzip /downloads/trdsql_v0.7.5_linux_amd64.zip -d /usr/local \
+    && ln -s /usr/local/trdsql_v0.7.5_linux_amd64/trdsql /usr/local/bin \
     && unzip /downloads/onefetch_linux_x86-64.zip -d /usr/local/bin onefetch \
-    && /downloads/linux-install-1.10.1.469.sh \
+    && /bin/bash /downloads/clojure_install.sh \
     && unzip /downloads/chrome-linux.zip -d /usr/local
-# jconsole コマンドが OpenJDK と J で重複するため、J の PATH を優先
-ENV PATH $PATH:/usr/local/j64-807/bin:/usr/local/julia-1.1.1/bin:/usr/local/jdk-11.0.2/bin:/usr/local/trdsql_linux_amd64:/usr/local/chrome-linux
+ENV PATH $PATH:/usr/local/julia-1.4.0/bin:/usr/local/jdk-11.0.2/bin:/usr/local/chrome-linux
 ENV JAVA_HOME /usr/local/jdk-11.0.2
-# 実行するタイミングで不足するjarを取得するため
+# Clojure が実行時に必要とするパッケージを取得
 RUN clojure -e '(println "test")'
 
 # V
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
-    unzip /downloads/v.zip -d /usr/local/vlang -x v_macos -x v.exe \
-    && ln -s /usr/local/vlang/v_linux /usr/local/bin/v \
-    && mkdir -p /root/.vlang \
-    && echo /usr/local/vlang > /root/.vlang/VROOT
+    unzip /downloads/v_linux.zip -d /usr/local/vlang \
+    && ln -s /usr/local/vlang/v /usr/local/bin/v
 
 # PowerShell
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     mkdir -p /usr/local/powershell \
-    && tar xf /downloads/powershell-7.0.0-preview.1-linux-x64.tar.gz -C /usr/local/powershell \
+    && tar xf /downloads/powershell.tar.gz -C /usr/local/powershell \
     && ln -s /usr/local/powershell/pwsh /usr/local/bin/
 
 # man
@@ -439,7 +431,7 @@ RUN mv /usr/bin/man.REAL /usr/bin/man
 
 # reset apt config
 RUN rm /etc/apt/apt.conf.d/keep-cache /etc/apt/apt.conf.d/no-install-recommends
-COPY --from=ubuntu:19.10 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
+COPY --from=ubuntu:20.04 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
 
 # ShellgeiBot-Image information
 RUN mkdir -p /etc/shellgeibot-image
@@ -448,5 +440,3 @@ COPY ci_build.log /etc/shellgeibot-image
 COPY LICENSE /etc/shellgeibot-image
 COPY README.md /etc/shellgeibot-image
 COPY bin/shellgeibot-image /usr/local/bin
-
-CMD /bin/bash
