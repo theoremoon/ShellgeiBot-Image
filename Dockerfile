@@ -146,8 +146,8 @@ RUN git clone --depth 1 https://github.com/dbro/csvquote.git \
     && (cd csvquote && make)
 
 # unicode data
-RUN curl -sfSLO --retry 3 https://www.unicode.org/Public/UCD/latest/ucd/NormalizationTest.txt
-RUN curl -sfSLO --retry 3 https://www.unicode.org/Public/UCD/latest/ucd/NamesList.txt
+RUN curl -sfSLO --retry 3 --insecure https://www.unicode.org/Public/UCD/latest/ucd/NormalizationTest.txt
+RUN curl -sfSLO --retry 3 --insecure https://www.unicode.org/Public/UCD/latest/ucd/NamesList.txt
 
 # egison
 RUN curl -sfSLO --retry 3 https://git.io/egison.x86_64.deb
