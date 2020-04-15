@@ -153,9 +153,9 @@ RUN curl -sfSLO --retry 3 --insecure https://www.unicode.org/Public/UCD/latest/u
 RUN curl -sfSLO --retry 3 --insecure https://www.unicode.org/Public/UCD/latest/ucd/NamesList.txt
 
 # egison
-RUN curl -sfSLO --retry 3 https://git.io/egison.x86_64.deb
+RUN curl -sfSLO --retry 3 https://github.com/egison/egison-package-builder/releases/download/3.10.3/egison-3.10.3.x86_64.deb
 # egzact
-RUN curl -sfSLO --retry 3 https://git.io/egzact.deb
+RUN curl -sfSLO --retry 3 https://github.com/greymd/egzact/releases/download/v1.3.2/egzact-1.3.2.deb
 # bat
 RUN curl -sfSL --retry 3 https://github.com/sharkdp/bat/releases/download/v0.13.0/bat_0.13.0_amd64.deb -o bat.deb
 # osquery
