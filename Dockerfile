@@ -86,7 +86,10 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
     --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y -qq nodejs npm
 RUN --mount=type=cache,target=/root/.npm \
-    npm install -g --silent faker-cli chemi yukichant @amanoese/muscular fx kana2ipa
+    npm install -g --silent faker-cli chemi fx
+# core-js-pure, spawn-sync の postinstall が失敗するが、インストールは成功するので無視する
+RUN --mount=type=cache,target=/root/.npm \
+    npm install -g --silent yukichant @amanoese/muscular kana2ipa || true
 
 ## .NET
 FROM base AS dotnet-builder
