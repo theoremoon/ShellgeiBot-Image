@@ -396,8 +396,8 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
 # egison, egzact, bat, osquery, super_unko, echo-meme, J
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     dpkg -i \
-      /downloads/egison.x86_64.deb \
-      /downloads/egzact.deb \
+      /downloads/egison-3.10.3.x86_64.deb \
+      /downloads/egzact-1.3.2.deb \
       /downloads/bat.deb \
       /downloads/osquery.deb \
       /downloads/superunko.deb \
