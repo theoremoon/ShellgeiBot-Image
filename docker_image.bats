@@ -980,6 +980,16 @@
   [ "$output" = 'Hello' ]
 }
 
+@test "babashka" {
+  # コマンドラインではbbコマンド
+  run which bb
+  [ "$status" -eq 0 ]
+
+  run bb -i '(println "Hello")'
+  [ "$status" -eq 0 ]
+}
+
+
 @test "longcat" {
   run longcat -i 4 -o /a.png
   [ -f /a.png ]

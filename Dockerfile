@@ -417,6 +417,8 @@ ENV PATH $PATH:/usr/local/julia-1.4.0/bin:/usr/local/jdk-11.0.2/bin:/usr/local/c
 ENV JAVA_HOME /usr/local/jdk-11.0.2
 # Clojure が実行時に必要とするパッケージを取得
 RUN clojure -e '(println "test")'
+# Clojure ワンライナー
+RUN curl -s --retry 3 https://raw.githubusercontent.com/borkdude/babashka/master/install | bash
 
 # V
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
