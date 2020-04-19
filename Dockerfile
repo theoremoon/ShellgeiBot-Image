@@ -153,9 +153,9 @@ RUN curl -sfSLO --retry 3 --insecure https://www.unicode.org/Public/UCD/latest/u
 RUN curl -sfSLO --retry 3 --insecure https://www.unicode.org/Public/UCD/latest/ucd/NamesList.txt
 
 # egison
-RUN curl -sfSLO --retry 3 https://github.com/egison/egison-package-builder/releases/download/3.10.3/egison-3.10.3.x86_64.deb
+RUN curl -sfSLO --retry 3 https://github.com/egison/egison-package-builder/releases/download/4.0.0/egison-4.0.0.x86_64.deb
 # egzact
-RUN curl -sfSLO --retry 3 https://github.com/greymd/egzact/releases/download/v1.3.2/egzact-1.3.2.deb
+RUN curl -sfSLO --retry 3 https://github.com/greymd/egzact/releases/download/v2.0.0/egzact-2.0.0.deb
 # bat
 RUN curl -sfSL --retry 3 https://github.com/sharkdp/bat/releases/download/v0.13.0/bat_0.13.0_amd64.deb -o bat.deb
 # osquery
@@ -396,8 +396,8 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
 # egison, egzact, bat, osquery, super_unko, echo-meme, J
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     dpkg -i \
-      /downloads/egison-3.10.3.x86_64.deb \
-      /downloads/egzact-1.3.2.deb \
+      /downloads/egison-4.0.0.x86_64.deb \
+      /downloads/egzact-2.0.0.deb \
       /downloads/bat.deb \
       /downloads/osquery.deb \
       /downloads/superunko.deb \
