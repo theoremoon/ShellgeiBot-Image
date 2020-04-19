@@ -488,7 +488,7 @@
 }
 
 @test "egison" {
-  run egison -e '(foldl + 0 (take 10 nats))'
+  run egison -e '(take 10 nats) $ foldl + 0'
   [ "$output" = "55" ]
 }
 
