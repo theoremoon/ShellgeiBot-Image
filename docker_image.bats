@@ -1065,3 +1065,8 @@
   run stat /usr/share/unicode/ReadMe.txt
   [ "${lines[0]}" = "  File: /usr/share/unicode/ReadMe.txt" ]
 }
+
+@test "uniname" {
+  run uniname -h 2>&1
+  [ "${lines[0]}" = "Name the characters in a Unicode file." ]
+}

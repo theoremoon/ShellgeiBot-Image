@@ -324,7 +324,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       xvfb xterm x11-apps xdotool \
       libnss3 libgdk3.0-cil\
       clisp\
-      unicode-data\
+      unicode-data uniutils\
     && bunzip2 /usr/share/unicode/NormalizationTest.txt.bz2
 
 # kagome
@@ -384,8 +384,7 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
 ENV PATH $PATH:/usr/local/imgout:/usr/local/kkcw
 
 # unicode data
-RUN ln -s /usr/share/unicode/UnicodeData.txt \
-    && ln -s /usr/share/unicode/NormalizationTest.txt
+RUN ln -s /usr/share/unicode/UnicodeData.txt /usr/share/unicode/NormalizationTest.txt /
 
 # Open-usp-Tukubai, edfsay, no more secrets, csvquote
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
