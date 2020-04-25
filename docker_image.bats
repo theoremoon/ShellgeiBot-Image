@@ -1061,7 +1061,7 @@
   [ "$output" = '3' ]
 }
 
-@test "unocode-data" {
+@test "unicode-data" {
   run stat /usr/share/unicode/ReadMe.txt
   [ "${lines[0]}" = "  File: /usr/share/unicode/ReadMe.txt" ]
 }
