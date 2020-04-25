@@ -148,10 +148,6 @@ RUN git clone --depth 1 https://github.com/ryuichiueda/ImageGeneratorForShBot.gi
 RUN git clone --depth 1 https://github.com/dbro/csvquote.git \
     && (cd csvquote && make)
 
-# unicode data
-RUN curl -sfSLO --retry 3 --insecure https://www.unicode.org/Public/UCD/latest/ucd/NormalizationTest.txt
-RUN curl -sfSLO --retry 3 --insecure https://www.unicode.org/Public/UCD/latest/ucd/NamesList.txt
-
 # egison
 RUN curl -sfSLO --retry 3 https://github.com/egison/egison-package-builder/releases/download/4.0.0/egison-4.0.0.x86_64.deb
 # egzact
@@ -328,7 +324,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       xvfb xterm x11-apps xdotool \
       libnss3 libgdk3.0-cil\
       clisp\
-      unicode-data
+      unicode-data uniutils
 
 # kagome
 COPY --from=ikawaha/kagome /usr/local/bin/kagome /usr/local/bin/kagome
@@ -381,10 +377,9 @@ ENV PATH $PATH:/root/.nimble/bin
 
 # shellgei data
 COPY --from=general-builder /downloads/ShellGeiData /ShellGeiData
-# imgout, unicode data
+# imgout
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
-    (cd /downloads/ImageGeneratorForShBot && git archive --format=tar --prefix=imgout/ HEAD) | tar xf - -C /usr/local \
-    && cp /downloads/NormalizationTest.txt /downloads/NamesList.txt /
+    (cd /downloads/ImageGeneratorForShBot && git archive --format=tar --prefix=imgout/ HEAD) | tar xf - -C /usr/local
 ENV PATH $PATH:/usr/local/imgout:/usr/local/kkcw
 
 # Open-usp-Tukubai, edfsay, no more secrets, csvquote
