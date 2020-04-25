@@ -697,16 +697,6 @@
   [ "$output" = '令和元年05月01日 00時00分00秒' ]
 }
 
-@test "NormalizationTest.txt" {
-  run stat NormalizationTest.txt
-  [ "${lines[0]}" = '  File: NormalizationTest.txt' ]
-}
-
-@test "NamesList.txt" {
-  run stat NamesList.txt
-  [ "${lines[0]}" = '  File: NamesList.txt' ]
-}
-
 @test "ke2daira" {
   run bash -c "echo シェル 芸 | ke2daira"
   [ "$output" = 'ゲェル シイ' ]

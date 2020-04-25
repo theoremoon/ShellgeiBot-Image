@@ -324,8 +324,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
       xvfb xterm x11-apps xdotool \
       libnss3 libgdk3.0-cil\
       clisp\
-      unicode-data uniutils\
-    && bunzip2 /usr/share/unicode/NormalizationTest.txt.bz2
+      unicode-data uniutils
 
 # kagome
 COPY --from=ikawaha/kagome /usr/local/bin/kagome /usr/local/bin/kagome
@@ -382,9 +381,6 @@ COPY --from=general-builder /downloads/ShellGeiData /ShellGeiData
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     (cd /downloads/ImageGeneratorForShBot && git archive --format=tar --prefix=imgout/ HEAD) | tar xf - -C /usr/local
 ENV PATH $PATH:/usr/local/imgout:/usr/local/kkcw
-
-# unicode data
-RUN ln -s /usr/share/unicode/UnicodeData.txt /usr/share/unicode/NormalizationTest.txt /
 
 # Open-usp-Tukubai, edfsay, no more secrets, csvquote
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
