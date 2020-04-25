@@ -1060,3 +1060,8 @@
   run clisp -q -x '(+ 1 2)'
   [ "$output" = '3' ]
 }
+
+@test "unocode-data" {
+  run stat /usr/share/unicode/ReadMe.txt
+  [ "${lines[0]}" = "  File: /usr/share/unicode/ReadMe.txt" ]
+}
