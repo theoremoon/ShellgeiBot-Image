@@ -10,7 +10,7 @@ RUN rm -f /etc/apt/apt.conf.d/docker-clean; \
 RUN echo 'APT::Install-Recommends "false";' > /etc/apt/apt.conf.d/no-install-recommends
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt \
-    apt-get install -y -qq curl git build-essential unzip ca-certificates
+    apt-get install -y -qq build-essential ca-certificates curl git unzip
 
 ## Go
 FROM base AS go-builder
@@ -25,23 +25,23 @@ ENV GOPATH /root/go
 RUN --mount=type=cache,target=/root/go/src \
     --mount=type=cache,target=/root/.cache/go-build \
     go get -u -ldflags '-w -s' \
-      github.com/golang/dep/cmd/dep \
-      github.com/tomnomnom/gron \
-      github.com/ericchiang/pup \
-      github.com/sugyan/ttyrec2gif \
-      github.com/xztaityozx/owari \
-      github.com/xztaityozx/kakikokera \
-      github.com/jiro4989/align \
-      github.com/jiro4989/taishoku \
-      github.com/jiro4989/textimg \
-      github.com/jiro4989/textchat \
-      github.com/jiro4989/ponpe \
-      github.com/greymd/ojichat \
-      github.com/gyozabu/himechat-cli \
-      github.com/ikawaha/nise \
-      github.com/jmhobbs/terminal-parrot \
-      github.com/ryuichiueda/kkcw \
-      github.com/mattn/longcat \
+    github.com/ericchiang/pup \
+    github.com/golang/dep/cmd/dep \
+    github.com/greymd/ojichat \
+    github.com/gyozabu/himechat-cli \
+    github.com/ikawaha/nise \
+    github.com/jiro4989/align \
+    github.com/jiro4989/ponpe \
+    github.com/jiro4989/taishoku \
+    github.com/jiro4989/textchat \
+    github.com/jiro4989/textimg \
+    github.com/jmhobbs/terminal-parrot \
+    github.com/mattn/longcat \
+    github.com/ryuichiueda/kkcw \
+    github.com/sugyan/ttyrec2gif \
+    github.com/tomnomnom/gron \
+    github.com/xztaityozx/kakikokera \
+    github.com/xztaityozx/owari \
     && CGO_LDFLAGS="`mecab-config --libs`" CGO_CFLAGS="-I`mecab-config --inc-dir`" \
       go get -u -ldflags '-w -s' github.com/ryuichiueda/ke2daira \
     && go get -u -d github.com/YuheiNakasaka/sayhuuzoku \
@@ -67,7 +67,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
     --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y -qq ruby-dev
 RUN --mount=type=cache,target=/root/.gem \
-    gem install --quiet --no-document cureutils lolcat matsuya takarabako snacknomama rubipara marky_markov zen_to_i
+    gem install --quiet --no-document cureutils lolcat marky_markov matsuya rubipara snacknomama takarabako zen_to_i
 RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/hostilefork/whitespacers/master/ruby/whitespace.rb -o /usr/local/bin/whitespace
 RUN chmod +x /usr/local/bin/whitespace
 RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/thisredone/rb/master/rb -o /usr/local/bin/rb && chmod +x /usr/local/bin/rb
@@ -78,7 +78,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
     --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y -qq python3-dev python3-pip python3-setuptools
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip3 install --progress-bar=off --no-use-pep517 yq faker sympy numpy scipy matplotlib xonsh pillow asciinema
+    pip3 install --progress-bar=off --no-use-pep517 asciinema faker matplotlib numpy pillow scipy sympy xonsh yq
 
 ## Node.js
 FROM base AS nodejs-builder
@@ -124,7 +124,7 @@ ENV PATH $PATH:/root/.nimble/bin
 RUN curl https://nim-lang.org/choosenim/init.sh -sSf > init.sh \
     && sh init.sh -y \
     && choosenim update stable
-RUN nimble install rect edens maze gyaric svgo -Y
+RUN nimble install edens gyaric maze rect svgo -Y
 
 ## General
 FROM base AS general-builder
@@ -245,86 +245,85 @@ RUN git clone --depth 1 https://github.com/jiro4989/scripts /tmp/scripts \
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt \
     apt-get install -y -qq \
-      ruby\
-      ccze\
-      screen tmux\
-      ttyrec\
-      timidity abcmidi\
-      r-base\
-      boxes\
-      ash yash\
-      jq\
-      vim emacs\
-      nkf\
-      rs\
-      language-pack-ja\
-      pwgen\
-      bc\
-      perl\
-      toilet\
-      figlet\
-      haskell-platform\
-      mecab mecab-ipadic mecab-ipadic-utf8\
-      bsdgames fortunes cowsay fortunes-off fortune-mod cowsay-off\
-      datamash\
-      gawk\
-      libxml2-utils\
-      zsh\
-      num-utils\
-      apache2-utils\
-      fish\
-      nyancat\
-      imagemagick ghostscript\
-      moreutils\
-      whiptail\
-      pandoc\
-      postgresql-common\
-      postgresql-client-common\
-      icu-devtools\
-      tcsh\
-      libskk-dev\
-      libkkc-utils\
-      morsegen\
-      dc\
-      telnet\
-      busybox\
-      parallel\
-      rename\
-      mt-st\
-      ffmpeg\
-      kakasi\
-      dateutils\
-      fonts-ipafont fonts-vlgothic\
-      gnuplot\
-      qrencode\
-      fonts-nanum fonts-symbola fonts-noto-color-emoji\
-      sl\
-      w3m nginx\
-      screenfetch\
-      firefox\
-      lua5.3 php7.4 php7.4-cli php7.4-common\
-      nodejs\
-      graphviz\
-      nim\
-      bats\
-      libncurses5\
-      faketime\
-      tree\
-      numconv\
-      file\
-      cmatrix\
-      python3-pkg-resources\
-      fonts-droid-fallback fonts-lato fonts-liberation fonts-noto-mono fonts-dejavu-core gsfonts fonts-hanazono\
-      bf\
-      libc++-dev\
-      mono-csharp-shell\
-      ipcalc\
-      librsvg2-bin\
-      agrep \
-      xvfb xterm x11-apps xdotool \
-      libnss3 libgdk3.0-cil\
-      clisp\
-      unicode-data uniutils
+     agrep \
+     apache2-utils \
+     ash yash \
+     bats \
+     bc \
+     bf \
+     boxes \
+     bsdgames fortunes cowsay fortunes-off fortune-mod cowsay-off \
+     busybox \
+     ccze \
+     clisp \
+     cmatrix \
+     datamash \
+     dateutils \
+     dc \
+     faketime \
+     ffmpeg \
+     figlet \
+     file \
+     firefox \
+     fish \
+     fonts-droid-fallback fonts-lato fonts-liberation fonts-noto-mono fonts-dejavu-core gsfonts fonts-hanazono \
+     fonts-ipafont fonts-vlgothic \
+     fonts-nanum fonts-symbola fonts-noto-color-emoji \
+     gawk \
+     gnuplot \
+     graphviz \
+     haskell-platform \
+     icu-devtools \
+     imagemagick ghostscript \
+     ipcalc \
+     jq \
+     kakasi \
+     language-pack-ja \
+     libc++-dev \
+     libkkc-utils \
+     libncurses5 \
+     libnss3 libgdk3.0-cil \
+     librsvg2-bin \
+     libskk-dev \
+     libxml2-utils \
+     lua5.3 php7.4 php7.4-cli php7.4-common \
+     mecab mecab-ipadic mecab-ipadic-utf8 \
+     mono-csharp-shell \
+     moreutils \
+     morsegen \
+     mt-st \
+     nim \
+     nkf \
+     nodejs \
+     num-utils \
+     numconv \
+     nyancat \
+     pandoc \
+     parallel \
+     perl \
+     postgresql-client-common \
+     postgresql-common \
+     pwgen \
+     python3-pkg-resources \
+     qrencode \
+     r-base \
+     rename \
+     rs \
+     ruby \
+     screen tmux \
+     screenfetch \
+     sl \
+     tcsh \
+     telnet \
+     timidity abcmidi \
+     toilet \
+     tree \
+     ttyrec \
+     unicode-data uniutils vim emacs \
+     w3m nginx \
+     whiptail \
+     xvfb xterm x11-apps xdotool \
+     zsh
 
 # kagome
 COPY --from=ikawaha/kagome /usr/local/bin/kagome /usr/local/bin/kagome
