@@ -638,7 +638,7 @@
 @test "rargs" {
   run rargs --help
   [[ "${lines[0]}" =~ "Rargs " ]]
-  [ "${lines[2]}" = 'Xargs with pattern matching' ]
+  [ "${lines[1]}" = 'Xargs with pattern matching' ]
 }
 
 @test "ShellGeiData" {
