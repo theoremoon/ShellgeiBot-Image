@@ -14,7 +14,7 @@ jobs:
       - checkout
       - setup_remote_docker:
           # docker_layer_caching: true  # 有償オプション
-          version: "18.09.3"
+          version: "19.03.8"
       - run:
           name: Build Docker image
           command: |
