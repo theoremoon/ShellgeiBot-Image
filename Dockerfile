@@ -157,7 +157,7 @@ RUN curl -sfSL --retry 3 https://github.com/sharkdp/bat/releases/download/v0.13.
 # osquery
 RUN curl -sfSL --retry 3 https://github.com/osquery/osquery/releases/download/4.1.1/osquery_4.1.1_1.linux.amd64.deb -o osquery.deb
 # super_unko
-RUN curl -sfSLO --retry 3 https://git.io/superunko.deb
+RUN curl -sfSLO --retry 3 https://git.io/superunko.linux.deb
 # echo-meme
 RUN curl -sfSLO --retry 3 https://git.io/echo-meme.deb
 # J
@@ -396,7 +396,7 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
       /downloads/egzact-2.0.0.deb \
       /downloads/bat.deb \
       /downloads/osquery.deb \
-      /downloads/superunko.deb \
+      /downloads/superunko.linux.deb \
       /downloads/echo-meme.deb \
       /downloads/j.deb
 
