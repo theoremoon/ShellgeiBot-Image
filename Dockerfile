@@ -17,7 +17,7 @@ FROM base AS go-builder
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y -qq libmecab-dev
-RUN curl -sfSL --retry 3 https://dl.google.com/go/go1.14.1.linux-amd64.tar.gz -o go.tar.gz \
+RUN curl -sfSL --retry 5 https://dl.google.com/go/go1.14.1.linux-amd64.tar.gz -o go.tar.gz \
     && tar xzf go.tar.gz -C /usr/local \
     && rm go.tar.gz
 ENV PATH $PATH:/usr/local/go/bin
@@ -68,9 +68,9 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
     apt-get install -y -qq ruby-dev
 RUN --mount=type=cache,target=/root/.gem \
     gem install --quiet --no-document cureutils lolcat marky_markov matsuya rubipara snacknomama takarabako zen_to_i
-RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/hostilefork/whitespacers/master/ruby/whitespace.rb -o /usr/local/bin/whitespace
+RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/hostilefork/whitespacers/master/ruby/whitespace.rb -o /usr/local/bin/whitespace
 RUN chmod +x /usr/local/bin/whitespace
-RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/thisredone/rb/master/rb -o /usr/local/bin/rb && chmod +x /usr/local/bin/rb
+RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/thisredone/rb/master/rb -o /usr/local/bin/rb && chmod +x /usr/local/bin/rb
 
 ## Python
 FROM base AS python-builder
@@ -98,7 +98,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
     apt-get install -y -qq libicu66
 # .NET Core SDK 2.2.402 binary
 WORKDIR /downloads
-RUN curl -sfSLO --retry 3 https://download.visualstudio.microsoft.com/download/pr/46411df1-f625-45c8-b5e7-08ab736d3daa/0fbc446088b471b0a483f42eb3cbf7a2/dotnet-sdk-2.2.402-linux-x64.tar.gz \
+RUN curl -sfSLO --retry 5 https://download.visualstudio.microsoft.com/download/pr/46411df1-f625-45c8-b5e7-08ab736d3daa/0fbc446088b471b0a483f42eb3cbf7a2/dotnet-sdk-2.2.402-linux-x64.tar.gz \
     && mkdir /usr/local/dotnet \
     && tar xf dotnet-sdk-2.2.402-linux-x64.tar.gz -C /usr/local/dotnet
 ENV PATH $PATH:/usr/local/dotnet
@@ -108,7 +108,7 @@ RUN (cd /noc/noc/noc; dotnet build --configuration Release)
 
 ## Rust
 FROM base AS rust-builder
-RUN curl -sfSL --retry 3 https://sh.rustup.rs | sh -s -- -y
+RUN curl -sfSL --retry 5 https://sh.rustup.rs | sh -s -- -y
 ENV PATH $PATH:/root/.cargo/bin
 RUN cargo install --git https://github.com/lotabout/rargs.git
 RUN cargo install --git https://github.com/KoharaKazuya/forest.git
@@ -149,38 +149,38 @@ RUN git clone --depth 1 https://github.com/dbro/csvquote.git \
     && (cd csvquote && make)
 
 # egison
-RUN curl -sfSLO --retry 3 https://github.com/egison/egison-package-builder/releases/download/4.0.0/egison-4.0.0.x86_64.deb
+RUN curl -sfSLO --retry 5 https://github.com/egison/egison-package-builder/releases/download/4.0.0/egison-4.0.0.x86_64.deb
 # egzact
-RUN curl -sfSLO --retry 3 https://github.com/greymd/egzact/releases/download/v2.0.0/egzact-2.0.0.deb
+RUN curl -sfSLO --retry 5 https://github.com/greymd/egzact/releases/download/v2.0.0/egzact-2.0.0.deb
 # bat
-RUN curl -sfSL --retry 3 https://github.com/sharkdp/bat/releases/download/v0.13.0/bat_0.13.0_amd64.deb -o bat.deb
+RUN curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.13.0/bat_0.13.0_amd64.deb -o bat.deb
 # osquery
-RUN curl -sfSL --retry 3 https://github.com/osquery/osquery/releases/download/4.1.1/osquery_4.1.1_1.linux.amd64.deb -o osquery.deb
+RUN curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/4.1.1/osquery_4.1.1_1.linux.amd64.deb -o osquery.deb
 # super_unko
-RUN curl -sfSLO --retry 3 https://git.io/superunko.linux.deb
+RUN curl -sfSLO --retry 5 https://git.io/superunko.linux.deb
 # echo-meme
-RUN curl -sfSLO --retry 3 https://git.io/echo-meme.deb
+RUN curl -sfSLO --retry 5 https://git.io/echo-meme.deb
 # J
-RUN curl -sfSL --retry 3 http://www.jsoftware.com/download/j901/install/j901_amd64.deb -o j.deb
+RUN curl -sfSL --retry 5 http://www.jsoftware.com/download/j901/install/j901_amd64.deb -o j.deb
 
 # Julia
-RUN curl -sfSL --retry 3 https://julialang-s3.julialang.org/bin/linux/x64/1.4/julia-1.4.0-linux-x86_64.tar.gz -o julia.tar.gz
+RUN curl -sfSL --retry 5 https://julialang-s3.julialang.org/bin/linux/x64/1.4/julia-1.4.0-linux-x86_64.tar.gz -o julia.tar.gz
 # OpenJDK
-RUN curl -sfSL --retry 3 https://download.oracle.com/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz -o openjdk11.tar.gz
+RUN curl -sfSL --retry 5 https://download.oracle.com/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz -o openjdk11.tar.gz
 # Clojure
-RUN curl -sfSL --retry 3 https://download.clojure.org/install/linux-install-1.10.1.469.sh -o clojure_install.sh
+RUN curl -sfSL --retry 5 https://download.clojure.org/install/linux-install-1.10.1.469.sh -o clojure_install.sh
 
 # trdsql
-RUN curl -sfSLO --retry 3 https://github.com/noborus/trdsql/releases/download/v0.7.5/trdsql_v0.7.5_linux_amd64.zip
+RUN curl -sfSLO --retry 5 https://github.com/noborus/trdsql/releases/download/v0.7.5/trdsql_v0.7.5_linux_amd64.zip
 # onefetch
-RUN curl -sfSLO --retry 3 https://github.com/o2sh/onefetch/releases/download/v2.2.0/onefetch_linux_x86-64.zip
+RUN curl -sfSLO --retry 5 https://github.com/o2sh/onefetch/releases/download/v2.2.0/onefetch_linux_x86-64.zip
 # PowerShell
-RUN curl -sfSL --retry 3 https://github.com/PowerShell/PowerShell/releases/download/v7.0.0/powershell-7.0.0-linux-x64.tar.gz -o powershell.tar.gz
+RUN curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v7.0.0/powershell-7.0.0-linux-x64.tar.gz -o powershell.tar.gz
 # V
-RUN curl -sfSLO --retry 3 https://github.com/vlang/v/releases/download/0.1.24/v_linux.zip
+RUN curl -sfSLO --retry 5 https://github.com/vlang/v/releases/download/0.1.24/v_linux.zip
 # Chromium ref: https://github.com/scheib/chromium-latest-linux/blob/master/update.sh
-RUN REVISION=$(curl -sS --retry 3 "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2FLAST_CHANGE?alt=media") \
-    && curl -sfSL --retry 3 -o chrome-linux.zip "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F${REVISION}%2Fchrome-linux.zip?alt=media"
+RUN REVISION=$(curl -sS --retry 5 "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2FLAST_CHANGE?alt=media") \
+    && curl -sfSL --retry 5 -o chrome-linux.zip "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F${REVISION}%2Fchrome-linux.zip?alt=media"
 WORKDIR /
 
 
@@ -197,22 +197,22 @@ RUN git clone --depth 1 https://github.com/fumiyas/home-commands /usr/local/home
 ENV PATH $PATH:/usr/local/home-commands
 
 # nameko.svg
-RUN curl -sfSLO --retry 3 https://gist.githubusercontent.com/KeenS/6194e6ef1a151c9ea82536d5850b8bc7/raw/85af9ec757308b8ca4effdf24221f642cb34703b/nameko.svg
+RUN curl -sfSLO --retry 5 https://gist.githubusercontent.com/KeenS/6194e6ef1a151c9ea82536d5850b8bc7/raw/85af9ec757308b8ca4effdf24221f642cb34703b/nameko.svg
 
 # zws
-RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/kanata2003/ZeroWidthSpace/master/zws -o /usr/local/bin/zws \
+RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/kanata2003/ZeroWidthSpace/master/zws -o /usr/local/bin/zws \
     && chmod +x /usr/local/bin/zws
 
 # ivsteg
-RUN curl -sfSL --retry 3 https://raintrees.net/attachments/download/698/ivsteg -o /usr/local/bin/ivsteg \
+RUN curl -sfSL --retry 5 https://raintrees.net/attachments/download/698/ivsteg -o /usr/local/bin/ivsteg \
     && chmod +x /usr/local/bin/ivsteg
 
 # funnychar
-RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/kanata2003/funnychar/master/funnychar -o /usr/local/bin/funnychar \
+RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/kanata2003/funnychar/master/funnychar -o /usr/local/bin/funnychar \
     && chmod +x /usr/local/bin/funnychar
 
 # sushiro
-RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/redpeacock78/sushiro/master/sushiro -o /usr/local/bin/sushiro \
+RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/redpeacock78/sushiro/master/sushiro -o /usr/local/bin/sushiro \
     && chmod +x /usr/local/bin/sushiro && sushiro -f
 
 # pokemonsay
@@ -222,19 +222,19 @@ RUN git clone --depth 1 http://github.com/possatti/pokemonsay \
 ENV PATH $PATH:/root/bin
 
 # saizeriya
-RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/horo17/saizeriya/master/saizeriya -o /usr/local/bin/saizeriya \
+RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/horo17/saizeriya/master/saizeriya -o /usr/local/bin/saizeriya \
     && chmod u+x /usr/local/bin/saizeriya
 
 # fujiaire
-RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/msr-i386/fujiaire/master/fujiaire -o /usr/local/bin/fujiaire \
+RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/msr-i386/fujiaire/master/fujiaire -o /usr/local/bin/fujiaire \
     && chmod u+x /usr/local/bin/fujiaire
 
 # horizon
-RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/msr-i386/horizon/master/horizon -o /usr/local/bin/horizon \
+RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/msr-i386/horizon/master/horizon -o /usr/local/bin/horizon \
     && chmod u+x /usr/local/bin/horizon
 
 # opy
-RUN curl -sfSL --retry 3 https://raw.githubusercontent.com/ryuichiueda/opy/master/opy -o /usr/local/bin/opy \
+RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/ryuichiueda/opy/master/opy -o /usr/local/bin/opy \
     && chmod u+x /usr/local/bin/opy
 
 # color, rainbow
@@ -414,7 +414,7 @@ ENV JAVA_HOME /usr/local/jdk-11.0.2
 # Clojure が実行時に必要とするパッケージを取得
 RUN clojure -e '(println "test")'
 # Clojure ワンライナー
-RUN curl -s --retry 3 https://raw.githubusercontent.com/borkdude/babashka/master/install | bash
+RUN curl -s --retry 5 https://raw.githubusercontent.com/borkdude/babashka/master/install | bash
 
 # V
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
