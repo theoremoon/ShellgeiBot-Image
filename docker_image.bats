@@ -1060,3 +1060,8 @@
   run uniname -h 2>&1
   [ "${lines[0]}" = "Name the characters in a Unicode file." ]
 }
+
+@test "teip" {
+  run teip --help
+  [ "${lines[0]}" = "teip: Allow the command handle selected parts of the standard input, and bypass other parts." ]
+}
