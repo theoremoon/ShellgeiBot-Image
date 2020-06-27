@@ -163,7 +163,7 @@ RUN curl -sfSLO --retry 5 https://git.io/echo-meme.deb
 # J
 RUN curl -sfSL --retry 5 http://www.jsoftware.com/download/j901/install/j901_amd64.deb -o j.deb
 # teip
-RUN CURL -sfSL --retry 5 https://git.io/teip-1.2.0.x86_64.deb -o teip.deb
+RUN curl -sfSL --retry 5 https://git.io/teip-1.2.0.x86_64.deb -o teip.deb
 
 # Julia
 RUN curl -sfSL --retry 5 https://julialang-s3.julialang.org/bin/linux/x64/1.4/julia-1.4.0-linux-x86_64.tar.gz -o julia.tar.gz
