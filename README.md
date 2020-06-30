@@ -10,6 +10,7 @@ A docker image for [shellgeibot](https://github.com/theoremoon/ShellgeiBot). Ava
 Docker version 18.09 >= is requried.
 
 ```
+./.circleci/prefetch_files.sh
 DOCKER_BUILDKIT=1 docker build . -t shellgeibot
 ```
 

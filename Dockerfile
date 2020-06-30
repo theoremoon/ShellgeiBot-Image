@@ -17,9 +17,9 @@ FROM base AS go-builder
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y -qq libmecab-dev
-RUN curl -sfSL --retry 5 https://dl.google.com/go/go1.14.1.linux-amd64.tar.gz -o go.tar.gz \
-    && tar xzf go.tar.gz -C /usr/local \
-    && rm go.tar.gz
+## use prefetched file
+COPY go.tar.gz go.tar.gz
+RUN tar xzf go.tar.gz -C /usr/local && rm go.tar.gz
 ENV PATH $PATH:/usr/local/go/bin
 ENV GOPATH /root/go
 RUN --mount=type=cache,target=/root/go/src \
@@ -180,9 +180,8 @@ RUN curl -sfSLO --retry 5 https://github.com/o2sh/onefetch/releases/download/v2.
 RUN curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v7.0.0/powershell-7.0.0-linux-x64.tar.gz -o powershell.tar.gz
 # V
 RUN curl -sfSLO --retry 5 https://github.com/vlang/v/releases/download/0.1.24/v_linux.zip
-# Chromium ref: https://github.com/scheib/chromium-latest-linux/blob/master/update.sh
-RUN REVISION=$(curl -sS --retry 5 "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2FLAST_CHANGE?alt=media") \
-    && curl -sfSL --retry 5 -o chrome-linux.zip "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F${REVISION}%2Fchrome-linux.zip?alt=media"
+## use prefetched file
+COPY chrome-linux.zip chrome-linux.zip
 WORKDIR /
 
 
