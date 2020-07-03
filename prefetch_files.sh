@@ -13,7 +13,5 @@ DOWNLOAD_DIR=$(cd "$(dirname "$0")"; pwd)/prefetched
 
 # chromium
 [ -f "$DOWNLOAD_DIR/chrome-linux.zip" ] || {
-   # Chromium ref: https://github.com/scheib/chromium-latest-linux/blob/master/update.sh
-   REVISION=$(curl -sS --retry 5 "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2FLAST_CHANGE?alt=media") \
-     && curl -sfSL --retry 5 -o "$DOWNLOAD_DIR/chrome-linux.zip" "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F${REVISION}%2Fchrome-linux.zip?alt=media"
+  curl -sfSL --retry 5 "https://download-chromium.appspot.com/dl/Linux_x64?type=snapshots" -o "$DOWNLOAD_DIR/chrome-linux.zip"
 }
