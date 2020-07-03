@@ -18,7 +18,7 @@ jobs:
       - run:
           name: Build Docker image
           command: |
-            apk add --no-progress git jq curl
+            apk add --no-progress git jq curl make
             make build-ci
       - run:
           name: Test Docker image
