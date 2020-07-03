@@ -18,7 +18,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
     --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y -qq libmecab-dev
 ## use prefetched file
-COPY go.tar.gz go.tar.gz
+COPY prefetched/go.tar.gz .
 RUN tar xzf go.tar.gz -C /usr/local && rm go.tar.gz
 ENV PATH $PATH:/usr/local/go/bin
 ENV GOPATH /root/go
@@ -181,7 +181,7 @@ RUN curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/downl
 # V
 RUN curl -sfSLO --retry 5 https://github.com/vlang/v/releases/download/0.1.24/v_linux.zip
 ## use prefetched file
-COPY chrome-linux.zip chrome-linux.zip
+COPY prefetched/chrome-linux.zip .
 WORKDIR /
 
 
