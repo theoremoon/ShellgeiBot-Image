@@ -5,7 +5,7 @@ DOCKER_IMAGE_NAME=theoldmoon0602/shellgeibot
 build: prefetch buildlog revisionlog
 	DOCKER_BUILDKIT=1 docker image build -t ${DOCKER_IMAGE_NAME} .
 
-build-ci:
+build-ci: prefetch buildlog revisionlog
 	DOCKER_BUILDKIT=1 docker image build -t ${DOCKER_IMAGE_NAME} --progress=plain .
 
 prefetch:
