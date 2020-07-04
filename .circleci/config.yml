@@ -18,17 +18,15 @@ jobs:
       - run:
           name: Build Docker image
           command: |
-            apk add --no-progress git jq curl
-            git log --pretty="format:%h %cd %s [%an]" --date=iso -n 20 > revision.log
-            ./.circleci/get_build_log.sh > ci_build.log
-            docker build -t ${DOCKER_IMAGE} --progress=plain .
+            apk add --no-progress git jq curl make
+            make build-ci
       - run:
           name: Test Docker image
           command: |
             apk add --no-progress nodejs npm
             npm_config_unsafe_perm=true npm install --global --silent --no-progress tap-xunit
             mkdir -p ~/reports
-            docker create -v /root/src --name source ubuntu:19.04 /bin/true
+            docker create -v /root/src --name source ubuntu:20.04 /bin/true
             docker cp docker_image.bats source:/root/src
             docker container run --net=none --rm --volumes-from source ${DOCKER_IMAGE} \
               /bin/bash -c "bats --tap /root/src/docker_image.bats || true" | tee result.tap

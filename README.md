@@ -5,24 +5,24 @@
 A docker image for [shellgeibot](https://github.com/theoremoon/ShellgeiBot). Available at [dockerhub](https://hub.docker.com/r/theoldmoon0602/shellgeibot).
 
 
-## Build Docker Image
+## Build Docker image
 
 Docker version 18.09 >= is requried.
 
-```
-DOCKER_BUILDKIT=1 docker build . -t shellgeibot
+```sh
+$ make
 ```
 
 ## Test Docker image
 
 ```
-docker container run --rm \
-  --net=none \
-  --oom-kill-disable \
-  --pids-limit=1024 \
-  -v $(pwd):/root/src \
-  shellgeibot \
-  /bin/bash -c "bats /root/src/docker_image.bats"
+$ make test
+```
+
+## Clean up
+
+```
+$ make clean
 ```
 
 ## Author
