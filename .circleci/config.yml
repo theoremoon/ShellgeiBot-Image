@@ -26,7 +26,7 @@ jobs:
             apk add --no-progress nodejs npm
             npm_config_unsafe_perm=true npm install --global --silent --no-progress tap-xunit
             mkdir -p ~/reports
-            docker create -v /root/src --name source ubuntu:19.04 /bin/true
+            docker create -v /root/src --name source ubuntu:20.04 /bin/true
             docker cp docker_image.bats source:/root/src
             docker container run --net=none --rm --volumes-from source ${DOCKER_IMAGE} \
               /bin/bash -c "bats --tap /root/src/docker_image.bats || true" | tee result.tap
