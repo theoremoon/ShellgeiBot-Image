@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # docker build中のダウンロードに失敗しやすいファイルを事前にダウンロードしておく
 # * curl
 

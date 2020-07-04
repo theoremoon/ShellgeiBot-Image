@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 # get_build_log.sh はCircleCIのビルドログのJSONを取得し、必要な値だけ取り出して
 # CSV形式で標準出力する。
