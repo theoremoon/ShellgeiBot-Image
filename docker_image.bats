@@ -626,7 +626,7 @@
 @test "rustc" {
   run rustc --help
   [ $status -ne 0 ]
-  [ "$output" = 'error: no default toolchain configured' ]
+  [ "$output" = 'error: no override and no default toolchain set' ]
 }
 
 @test "rustup" {
