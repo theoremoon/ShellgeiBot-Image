@@ -166,7 +166,7 @@ RUN curl -sfSL --retry 5 http://www.jsoftware.com/download/j901/install/j901_amd
 RUN curl -sfSL --retry 5 https://git.io/teip-1.2.1.x86_64.deb -o teip.deb
 
 # Julia
-RUN curl -sfSL --retry 5 https://julialang-s3.julialang.org/bin/linux/x64/1.4/julia-1.4.0-linux-x86_64.tar.gz -o julia.tar.gz
+COPY prefetched/julia.tar.gz .
 # OpenJDK
 RUN curl -sfSL --retry 5 https://download.oracle.com/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz -o openjdk11.tar.gz
 # Clojure
