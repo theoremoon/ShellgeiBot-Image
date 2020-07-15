@@ -15,3 +15,8 @@ DOWNLOAD_DIR=$(cd "$(dirname "$0")"; pwd)/prefetched
 [ -f "$DOWNLOAD_DIR/chrome-linux.zip" ] || {
   curl -sfSL --retry 5 "https://download-chromium.appspot.com/dl/Linux_x64?type=snapshots" -o "$DOWNLOAD_DIR/chrome-linux.zip"
 }
+
+# julia
+[ -f "DOWNLOAD_DIR/julia.tar.gz" ] || {
+  curl -sfSL --retry 5 "https://julialang-s3.julialang.org/bin/linux/x64/1.4/julia-1.4.0-linux-x86_64.tar.gz" -o "$DOWNLOAD_DIR/julia.tar.gz"
+}
