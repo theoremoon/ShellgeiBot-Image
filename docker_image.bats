@@ -393,7 +393,7 @@
 
 @test "kagome" {
   run kagome -h
-  [ "${lines[0]}" = 'Japanese Morphological Analyzer -- github.com/ikawaha/kagome' ]
+  [ "${lines[0]}" = 'Japanese Morphological Analyzer -- github.com/ikawaha/kagome/v2' ]
 }
 
 @test "kakasi" {
