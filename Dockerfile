@@ -98,7 +98,8 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
     apt-get install -y -qq apt-transport-https
 RUN curl -sfSLO --retry 5 https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb \
     && dpkg -i packages-microsoft-prod.deb
-RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
+RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists,rw \
+    --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get update && apt-get install -y -qq dotnet-sdk-3.1
 # noc
 RUN git clone --depth 1 https://github.com/xztaityozx/noc.git
@@ -364,7 +365,8 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
 RUN curl -sfSLO --retry 5 https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb \
     && dpkg -i packages-microsoft-prod.deb \
     && rm packages-microsoft-prod.deb
-RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
+RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists,rw \
+    --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get update && apt-get install -y -qq dotnet-runtime-3.1
 COPY --from=dotnet-builder /noc/LICENSE /noc/README.md \
     /noc/noc/noc/bin/Release/netcoreapp3.1/linux-x64/publish/noc \
