@@ -174,7 +174,7 @@
 
 @test "dotnet" {
   run dotnet --help
-  [[ "${lines[0]}" =~ ".NET Command Line Tools" ]]
+  [ "${lines[3]}" = "Usage: dotnet [host-options] [path-to-application]" ]
 }
 
 @test "echo-meme" {

@@ -95,16 +95,14 @@ RUN --mount=type=cache,target=/root/.npm \
 FROM base AS dotnet-builder
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq libicu66
-# .NET Core SDK 2.2.402 binary
-WORKDIR /downloads
-RUN curl -sfSLO --retry 5 https://download.visualstudio.microsoft.com/download/pr/46411df1-f625-45c8-b5e7-08ab736d3daa/0fbc446088b471b0a483f42eb3cbf7a2/dotnet-sdk-2.2.402-linux-x64.tar.gz \
-    && mkdir /usr/local/dotnet \
-    && tar xf dotnet-sdk-2.2.402-linux-x64.tar.gz -C /usr/local/dotnet
-ENV PATH $PATH:/usr/local/dotnet
-WORKDIR /
+    apt-get install -y -qq apt-transport-https
+RUN curl -sfSLO --retry 5 https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb \
+    && dpkg -i packages-microsoft-prod.deb
+RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
+    apt-get update && apt-get install -y -qq dotnet-sdk-3.1
+# noc
 RUN git clone --depth 1 https://github.com/xztaityozx/noc.git
-RUN (cd /noc/noc/noc; dotnet build --configuration Release)
+RUN (cd /noc/noc/noc; dotnet publish --configuration Release -p:PublishSingleFile=true -p:PublishReadyToRun=true -r linux-x64 --self-contained false)
 
 ## Rust
 FROM base AS rust-builder
@@ -356,16 +354,18 @@ COPY --from=nodejs-builder /usr/local/bin /usr/local/bin
 COPY --from=nodejs-builder /usr/local/lib/node_modules /usr/local/lib/node_modules
 
 # .NET
-RUN --mount=type=bind,target=/downloads,from=dotnet-builder,source=/downloads \
-    mkdir /usr/local/dotnet \
-    && tar xf /downloads/dotnet-sdk-2.2.402-linux-x64.tar.gz -C /usr/local/dotnet
-ENV PATH $PATH:/usr/local/dotnet
+RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
+    --mount=type=cache,target=/var/cache/apt,sharing=private \
+    apt-get install -y -qq apt-transport-https
+RUN curl -sfSLO --retry 5 https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb \
+    && dpkg -i packages-microsoft-prod.deb \
+    && rm packages-microsoft-prod.deb
+RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
+    apt-get update && apt-get install -y -qq dotnet-runtime-3.1
 COPY --from=dotnet-builder /noc/LICENSE /noc/README.md \
-    /noc/noc/noc/bin/Release/netcoreapp2.1/noc.dll \
-    /noc/noc/noc/bin/Release/netcoreapp2.1/noc.runtimeconfig.json \
+    /noc/noc/noc/bin/Release/netcoreapp3.1/linux-x64/publish/noc \
     /usr/local/noc/
-RUN echo 'dotnet /usr/local/noc/noc.dll "$@"' > /usr/local/bin/noc \
-    && chmod +x /usr/local/bin/noc
+RUN ln -s /usr/local/noc/noc /usr/local/bin/noc
 
 # Rust
 COPY --from=rust-builder /root/.cargo/bin /root/.cargo/bin
