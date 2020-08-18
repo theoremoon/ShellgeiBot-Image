@@ -574,6 +574,11 @@
   [ "${lines[0]}" = "Terminal Nyancat" ]
 }
 
+@test "ocs" {
+  run sh -c "seq 10 | ocs 'BEGIN{var sum=0}{sum+=int.Parse(F0)}END{Console.WriteLine(sum)}'"
+  [ $output -eq 55 ]
+}
+
 @test "ojichat" {
   run ojichat --version
   [[ "${lines[0]}" =~ 'Ojisan Nanchatte (ojichat) command' ]]

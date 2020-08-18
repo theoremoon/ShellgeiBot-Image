@@ -103,6 +103,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
 # noc
 RUN git clone --depth 1 https://github.com/xztaityozx/noc.git
 RUN (cd /noc/noc/noc; dotnet publish --configuration Release -p:PublishSingleFile=true -p:PublishReadyToRun=true -r linux-x64 --self-contained false)
+# ocs
+RUN git clone --depth 1 https://github.com/xztaityozx/ocs.git
+RUN (cd /ocs/ocs; dotnet publish --configuration Release -p:PublishSingleFile=true -p:PublishReadyToRun=true -r linux-x64 --self-contained false)
+
 
 ## Rust
 FROM base AS rust-builder
@@ -366,6 +370,10 @@ COPY --from=dotnet-builder /noc/LICENSE /noc/README.md \
     /noc/noc/noc/bin/Release/netcoreapp3.1/linux-x64/publish/noc \
     /usr/local/noc/
 RUN ln -s /usr/local/noc/noc /usr/local/bin/noc
+COPY --from=dotnet-builder /ocs/LICENSE /ocs/README.md \
+    /ocs/ocs/bin/Release/netcoreapp3.1/linux-x64/publish/ocs \
+    /usr/local/ocs/
+RUN ln -s /usr/local/ocs/ocs /usr/local/bin/ocs
 
 # Rust
 COPY --from=rust-builder /root/.cargo/bin /root/.cargo/bin
