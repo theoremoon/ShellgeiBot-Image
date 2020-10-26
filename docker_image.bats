@@ -177,6 +177,11 @@
   [ "${lines[3]}" = "Usage: dotnet [host-options] [path-to-application]" ]
 }
 
+@test "eachdo" {
+  run eachdo -v
+  [[ "$output" =~ "eachdo command" ]]
+}
+
 @test "echo-meme" {
   run echo-meme シェル芸
   [[ "$output" =~ "シェル芸" ]]
