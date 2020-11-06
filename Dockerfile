@@ -253,6 +253,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      apache2-utils \
      ash yash \
      bats \
+     bbe \
      bc \
      bf \
      boxes \
