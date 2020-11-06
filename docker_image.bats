@@ -55,6 +55,11 @@
   [[ "$output" =~ "bat " ]]
 }
 
+@test "bbe" {
+  run bbe -?
+  [[ "${lines[0]}" =~ "bbe " ]]
+}
+
 @test "bc" {
   run bash -c "echo 'print \"シェル芸\n\"' | bc"
   [ "$output" = "シェル芸" ]
