@@ -133,7 +133,7 @@ RUN nimble install edens gyaric maze rect svgo eachdo -Y
 FROM base AS general-builder
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq lib32ncursesw5-dev
+    apt-get install -y -qq lib32ncursesw5-dev jq
 
 WORKDIR /downloads
 # Open-usp-Tukubai
@@ -185,6 +185,11 @@ RUN curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/downl
 RUN curl -sfSLO --retry 5 https://github.com/vlang/v/releases/download/0.1.24/v_linux.zip
 ## use prefetched file
 COPY prefetched/chrome-linux.zip .
+# morsed (最新版のreleasesを取得するためjqで最新タグを取得)
+RUN curl -s https://api.github.com/repos/jiro4989/morsed/releases \
+    | jq -r '.[0].assets[] | select(.name | test("morsed_linux.tar.gz")) | .browser_download_url' \
+    | xargs curl -sfSLO --retry 5
+
 WORKDIR /
 
 
@@ -439,6 +444,11 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     mkdir -p /usr/local/powershell \
     && tar xf /downloads/powershell.tar.gz -C /usr/local/powershell \
     && ln -s /usr/local/powershell/pwsh /usr/local/bin/
+
+# morsed
+RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
+    && tar xf /downloads/morsed_linux.tar.gz -C /usr/local/ \
+    && ln -s /usr/local/morsed_linux/morsed /usr/local/bin/
 
 # man
 RUN mv /usr/bin/man.REAL /usr/bin/man
