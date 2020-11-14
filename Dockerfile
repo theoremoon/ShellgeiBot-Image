@@ -447,7 +447,7 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
 
 # morsed
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
-    && tar xf /downloads/morsed_linux.tar.gz -C /usr/local/ \
+    tar xf /downloads/morsed_linux.tar.gz -C /usr/local/ \
     && ln -s /usr/local/morsed_linux/morsed /usr/local/bin/
 
 # man
