@@ -171,7 +171,7 @@ RUN curl -sfSL --retry 5 https://git.io/teip-1.2.1.x86_64.deb -o teip.deb
 # Julia
 COPY prefetched/julia.tar.gz .
 # OpenJDK
-RUN curl -sfSL --retry 5 https://download.oracle.com/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz -o openjdk11.tar.gz
+COPY prefetched/openjdk11.tar.gz .
 # Clojure
 RUN curl -sfSL --retry 5 https://download.clojure.org/install/linux-install-1.10.1.469.sh -o clojure_install.sh
 
