@@ -55,6 +55,11 @@
   [[ "$output" =~ "bat " ]]
 }
 
+@test "bbe" {
+  run bbe -?
+  [[ "${lines[0]}" =~ "bbe " ]]
+}
+
 @test "bc" {
   run bash -c "echo 'print \"シェル芸\n\"' | bc"
   [ "$output" = "シェル芸" ]
@@ -175,6 +180,11 @@
 @test "dotnet" {
   run dotnet --help
   [ "${lines[3]}" = "Usage: dotnet [host-options] [path-to-application]" ]
+}
+
+@test "eachdo" {
+  run eachdo -v
+  [[ "$output" =~ "eachdo command" ]]
 }
 
 @test "echo-meme" {
@@ -1070,3 +1080,9 @@
   run bash -c "echo J+KBouKAjeKAi+KBouKAjeKAi+KAi+KAjeKAjeKBouKAjOKBouKBouKAjeKAi+KBouKAjeKAi+KAi+KAjeKAjeKAjeKAjOKBouKBouKAjeKAi+KBouKAjeKAi+KAi+KBouKAjeKAjeKAjeKBouKBouKAjeKAjeKAi+KAjeKAi+KAjeKAjeKAjeKBouKAjeKAi+KAi+KAi+KAjeKAjScK | base64 -d | zws -d"
   [ "$output" = 'シェル芸' ]
 }
+
+@test "morsed" {
+  run bash -c "morsed -p 名詞 -s 寿司 吾輩は猫である"
+  [ "$output" = "寿司は寿司である" ]
+}
+

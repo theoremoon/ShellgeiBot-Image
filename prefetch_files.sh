@@ -17,6 +17,11 @@ DOWNLOAD_DIR=$(cd "$(dirname "$0")"; pwd)/prefetched
 }
 
 # julia
-[ -f "DOWNLOAD_DIR/julia.tar.gz" ] || {
+[ -f "$DOWNLOAD_DIR/julia.tar.gz" ] || {
   curl -sfSL --retry 5 "https://julialang-s3.julialang.org/bin/linux/x64/1.4/julia-1.4.0-linux-x86_64.tar.gz" -o "$DOWNLOAD_DIR/julia.tar.gz"
+}
+
+# openjdk
+[ -f "$DOWNLOAD_DIR/openjdk11.tar.gz" ] || {
+  curl -sfSL --retry 5 "https://download.oracle.com/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz" -o "$DOWNLOAD_DIR/openjdk11.tar.gz"
 }
