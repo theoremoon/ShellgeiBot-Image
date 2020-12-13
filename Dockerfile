@@ -231,7 +231,7 @@ RUN git clone --depth 1 http://github.com/possatti/pokemonsay \
 ENV PATH $PATH:/root/bin
 
 # saizeriya
-RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/horo17/saizeriya/master/saizeriya -o /usr/local/bin/saizeriya \
+RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/3socha/saizeriya/master/saizeriya -o /usr/local/bin/saizeriya \
     && chmod u+x /usr/local/bin/saizeriya
 
 # fujiaire
