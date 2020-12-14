@@ -1,6 +1,5 @@
 # syntax = docker/dockerfile:1.0-experimental
 FROM ubuntu:20.10 AS apt-cache
-
 RUN apt-get update
 
 FROM ubuntu:20.10 AS base
@@ -82,14 +81,13 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 ## Node.js
 FROM base AS nodejs-builder
-RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
-    --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq nodejs npm
+ARG NODE_VERSION
+RUN curl -sfSO --retry 5 https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64.tar.gz \
+    && tar xf node-${NODE_VERSION}-linux-x64.tar.gz -C /usr/local \
+    && rm node-${NODE_VERSION}-linux-x64.tar.gz
+ENV PATH $PATH:/usr/local/node-${NODE_VERSION}-linux-x64/bin
 RUN --mount=type=cache,target=/root/.npm \
-    npm install -g --silent faker-cli chemi fx
-# core-js-pure, spawn-sync の postinstall が失敗するが、インストールは成功するので無視する
-RUN --mount=type=cache,target=/root/.npm \
-    npm install -g --silent yukichant @amanoese/muscular kana2ipa || true
+    npm install -g --silent faker-cli chemi fx yukichant @amanoese/muscular kana2ipa
 
 ## .NET
 FROM base AS dotnet-builder
@@ -304,7 +302,6 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      mt-st \
      nim \
      nkf \
-     nodejs \
      num-utils \
      numconv \
      nyancat \
@@ -361,8 +358,9 @@ COPY --from=python-builder /usr/local/lib/python3.8 /usr/local/lib/python3.8
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Node.js
-COPY --from=nodejs-builder /usr/local/bin /usr/local/bin
-COPY --from=nodejs-builder /usr/local/lib/node_modules /usr/local/lib/node_modules
+ARG NODE_VERSION
+COPY --from=nodejs-builder /usr/local/node-${NODE_VERSION}-linux-x64 /usr/local/node-${NODE_VERSION}-linux-x64
+ENV PATH $PATH:/usr/local/node-${NODE_VERSION}-linux-x64/bin
 
 # .NET
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
