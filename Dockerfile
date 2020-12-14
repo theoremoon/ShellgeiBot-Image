@@ -1,9 +1,9 @@
 # syntax = docker/dockerfile:1.0-experimental
-FROM ubuntu:20.04 AS apt-cache
+FROM ubuntu:20.10 AS apt-cache
 
 RUN apt-get update
 
-FROM ubuntu:20.04 AS base
+FROM ubuntu:20.10 AS base
 ENV DEBIAN_FRONTEND noninteractive
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
@@ -96,7 +96,7 @@ FROM base AS dotnet-builder
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y -qq apt-transport-https
-RUN curl -sfSLO --retry 5 https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb \
+RUN curl -sfSLO --retry 5 https://packages.microsoft.com/config/ubuntu/20.10/packages-microsoft-prod.deb \
     && dpkg -i packages-microsoft-prod.deb
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists,rw \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
@@ -231,7 +231,7 @@ RUN git clone --depth 1 http://github.com/possatti/pokemonsay \
 ENV PATH $PATH:/root/bin
 
 # saizeriya
-RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/horo17/saizeriya/master/saizeriya -o /usr/local/bin/saizeriya \
+RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/3socha/saizeriya/master/saizeriya -o /usr/local/bin/saizeriya \
     && chmod u+x /usr/local/bin/saizeriya
 
 # fujiaire
@@ -368,7 +368,7 @@ COPY --from=nodejs-builder /usr/local/lib/node_modules /usr/local/lib/node_modul
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y -qq apt-transport-https
-RUN curl -sfSLO --retry 5 https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb \
+RUN curl -sfSLO --retry 5 https://packages.microsoft.com/config/ubuntu/20.10/packages-microsoft-prod.deb \
     && dpkg -i packages-microsoft-prod.deb \
     && rm packages-microsoft-prod.deb
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists,rw \
@@ -455,7 +455,7 @@ RUN mv /usr/bin/man.REAL /usr/bin/man
 
 # reset apt config
 RUN rm /etc/apt/apt.conf.d/keep-cache /etc/apt/apt.conf.d/no-install-recommends
-COPY --from=ubuntu:20.04 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
+COPY --from=ubuntu:20.10 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
 
 # ShellgeiBot-Image information
 RUN mkdir -p /etc/shellgeibot-image
