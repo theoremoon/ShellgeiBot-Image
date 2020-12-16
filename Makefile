@@ -1,12 +1,14 @@
 .PHENY: build prefetch
 
-DOCKER_IMAGE_NAME=theoldmoon0602/shellgeibot
+DOCKER_IMAGE_NAME := theoldmoon0602/shellgeibot
+NODE_VERSION := $(shell curl -s https://nodejs.org/dist/index.json | jq -r '[.[]|select(.lts)][0].version')
+BUILD_COMMAND := DOCKER_BUILDKIT=1 docker image build -t $(DOCKER_IMAGE_NAME) --build-arg NODE_VERSION=$(NODE_VERSION)
 
 build: prefetch buildlog revisionlog
-	DOCKER_BUILDKIT=1 docker image build -t ${DOCKER_IMAGE_NAME} .
+	$(BUILD_COMMAND) .
 
 build-ci: prefetch buildlog revisionlog
-	DOCKER_BUILDKIT=1 docker image build -t ${DOCKER_IMAGE_NAME} --progress=plain .
+	$(BUILD_COMMAND) --progress=plain .
 
 prefetch:
 	./prefetch_files.sh
@@ -23,8 +25,8 @@ test:
 		--net=none \
 		--oom-kill-disable \
 		--pids-limit=1024 \
-		-v ${CURDIR}:/root/src \
-		${DOCKER_IMAGE_NAME} \
+		-v $(CURDIR):/root/src \
+		$(DOCKER_IMAGE_NAME) \
 		/bin/bash -c "bats /root/src/docker_image.bats"
 
 clean:
