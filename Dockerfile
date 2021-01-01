@@ -143,6 +143,8 @@ RUN git clone --depth 1 https://github.com/bartobri/no-more-secrets.git \
     && (cd no-more-secrets && make nms-ncurses && make sneakers-ncurses)
 # shellgei data
 RUN git clone --depth 1 https://github.com/ryuichiueda/ShellGeiData.git
+# eki
+RUN git clone --depth 1 https://github.com/ryuichiueda/eki.git
 # imgout
 RUN git clone --depth 1 https://github.com/ryuichiueda/ImageGeneratorForShBot.git
 # csvquote
