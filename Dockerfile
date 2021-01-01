@@ -143,6 +143,8 @@ RUN git clone --depth 1 https://github.com/bartobri/no-more-secrets.git \
     && (cd no-more-secrets && make nms-ncurses && make sneakers-ncurses)
 # shellgei data
 RUN git clone --depth 1 https://github.com/ryuichiueda/ShellGeiData.git
+# eki
+RUN git clone --depth 1 https://github.com/ryuichiueda/eki.git
 # imgout
 RUN git clone --depth 1 https://github.com/ryuichiueda/ImageGeneratorForShBot.git
 # csvquote
@@ -392,6 +394,9 @@ ENV PATH $PATH:/root/.nimble/bin
 
 # shellgei data
 COPY --from=general-builder /downloads/ShellGeiData /ShellGeiData
+# eki
+COPY --from=general-builder /downloads/eki/eki /eki
+COPY --from=general-builder /downloads/eki/bin/eki /usr/local/bin/
 # imgout
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     (cd /downloads/ImageGeneratorForShBot && git archive --format=tar --prefix=imgout/ HEAD) | tar xf - -C /usr/local
