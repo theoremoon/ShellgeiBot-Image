@@ -213,6 +213,10 @@
   [ "${lines[1]}" = 'シェル芸' ]
 }
 
+@test "eki" {
+  eki | grep -q 京急川崎
+}
+
 @test "Emacs" {
   run bash -c "echo シェル芸 | emacs -Q --batch --insert /dev/stdin --eval='(princ (buffer-string))'"
   [ "$output" = シェル芸 ]

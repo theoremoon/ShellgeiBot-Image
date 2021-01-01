@@ -394,6 +394,9 @@ ENV PATH $PATH:/root/.nimble/bin
 
 # shellgei data
 COPY --from=general-builder /downloads/ShellGeiData /ShellGeiData
+# eki
+COPY --from=general-builder /downloads/eki/eki /eki
+COPY --from=general-builder /downloads/eki/bin/eki /usr/local/bin/
 # imgout
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     (cd /downloads/ImageGeneratorForShBot && git archive --format=tar --prefix=imgout/ HEAD) | tar xf - -C /usr/local
