@@ -214,7 +214,9 @@
 }
 
 @test "eki" {
-  eki | grep -q 京急川崎
+  run bash -c "eki | grep -q 京急川崎"
+  run bash -c "eki line 京急川崎 | grep 大師"
+  [ "$output" = '京急大師線' ]
 }
 
 @test "Emacs" {
