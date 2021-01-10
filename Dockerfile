@@ -65,8 +65,9 @@ FROM base AS ruby-builder
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y -qq ruby-dev
+# TODO: ruby 3.x に対応してmatsuyaのバージョン固定を外す
 RUN --mount=type=cache,target=/root/.gem \
-    gem install --quiet --no-document cureutils lolcat marky_markov matsuya rubipara snacknomama takarabako zen_to_i
+    gem install --quiet --no-document cureutils lolcat marky_markov matsuya:0.3 rubipara snacknomama takarabako zen_to_i
 RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/hostilefork/whitespacers/master/ruby/whitespace.rb -o /usr/local/bin/whitespace
 RUN chmod +x /usr/local/bin/whitespace
 RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/thisredone/rb/master/rb -o /usr/local/bin/rb && chmod +x /usr/local/bin/rb
