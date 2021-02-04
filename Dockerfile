@@ -285,6 +285,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      graphviz \
      haskell-platform \
      icu-devtools \
+     idn \
      imagemagick ghostscript \
      ipcalc \
      jq \

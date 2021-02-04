@@ -372,6 +372,11 @@
   [ "$output" = 'unko' ]
 }
 
+@test "idn" {
+  run idn うんこ.com
+  [ "$output" = 'xn--p8j0a9n.com' ]
+}
+
 @test "ImageMagick" {
   run convert -version
   [[ "${lines[0]}" =~ "Version: ImageMagick" ]]
