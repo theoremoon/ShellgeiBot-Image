@@ -21,43 +21,37 @@ COPY prefetched/go.tar.gz .
 RUN tar xzf go.tar.gz -C /usr/local && rm go.tar.gz
 ENV PATH $PATH:/usr/local/go/bin
 ENV GOPATH /root/go
-RUN --mount=type=cache,target=/root/go/src \
-    --mount=type=cache,target=/root/.cache/go-build \
-    go get -u -ldflags '-w -s' \
-    github.com/ericchiang/pup \
-    github.com/golang/dep/cmd/dep \
-    github.com/greymd/ojichat \
-    github.com/gyozabu/himechat-cli \
-    github.com/ikawaha/nise \
-    github.com/jiro4989/align \
-    github.com/jiro4989/ponpe \
-    github.com/jiro4989/taishoku \
-    github.com/jiro4989/textchat \
-    github.com/jiro4989/textimg \
-    github.com/jmhobbs/terminal-parrot \
-    github.com/mattn/longcat \
-    github.com/ryuichiueda/kkcw \
-    github.com/sugyan/ttyrec2gif \
-    github.com/tomnomnom/gron \
-    github.com/xztaityozx/kakikokera \
-    github.com/xztaityozx/owari \
-    && CGO_LDFLAGS="`mecab-config --libs`" CGO_CFLAGS="-I`mecab-config --inc-dir`" \
-      go get -u -ldflags '-w -s' github.com/ryuichiueda/ke2daira \
-    && go get -u -d github.com/YuheiNakasaka/sayhuuzoku \
-    && (cd ${GOPATH}/src/github.com/YuheiNakasaka/sayhuuzoku; ${GOPATH}/bin/dep ensure && go build -ldflags '-w -s' -o ${GOPATH}/bin/sayhuuzoku) \
-    && find /usr/local/go/src /root/go/src -type f \
-      | grep -Ei 'license|readme' \
-      | grep -v '.go$' \
-      | xargs -I@ echo "mkdir -p /tmp@; cp @ /tmp@" \
-      | sed -e 's!/[^/]*;!;!' \
-      | bash \
-    && mkdir -p /tmp/root/go/src/github.com/YuheiNakasaka/sayhuuzoku/db \
-              && cp /root/go/src/github.com/YuheiNakasaka/sayhuuzoku/db/data.db \
-                /tmp/root/go/src/github.com/YuheiNakasaka/sayhuuzoku/db/data.db \
-    && mkdir -p /tmp/root/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping \
-              && cp /root/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping/shoplist.txt \
-                /tmp/root/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping/shoplist.txt
-RUN rm ${GOPATH}/bin/dep
+RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/ericchiang/pup@latest
+RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/greymd/ojichat@latest
+RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/gyozabu/himechat-cli@latest
+RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/ikawaha/nise@latest
+RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/jiro4989/align@latest
+RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/jiro4989/ponpe@latest
+RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/jiro4989/taishoku@latest
+RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/jiro4989/textchat@latest
+RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/jiro4989/textimg@latest
+RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/jmhobbs/terminal-parrot@latest
+RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/mattn/longcat@latest
+RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build CGO_LDFLAGS="`mecab-config --libs`" CGO_CFLAGS="-I`mecab-config --inc-dir`" go install github.com/ryuichiueda/ke2daira@latest
+RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/ryuichiueda/kkcw@latest
+RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/sugyan/ttyrec2gif@latest
+RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/tomnomnom/gron@latest
+RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/xztaityozx/kakikokera@latest
+RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/xztaityozx/owari@latest
+RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/YuheiNakasaka/sayhuuzoku@latest
+RUN --mount=type=cache,target=/root/go/pkg \
+    find /usr/local/go/src /root/go/pkg/mod -type f \
+    | grep -Ei 'license|readme' \
+    | grep -v '.go$' \
+    | xargs -I@ echo "mkdir -p /tmp@; cp @ /tmp@" \
+    | sed -e 's!/[^/]*;!;!' \
+    | bash
+RUN mkdir -p /tmp/root/go/src/github.com/YuheiNakasaka/sayhuuzoku/db \
+    && curl -sfSL --retry 5 https://raw.githubusercontent.com/YuheiNakasaka/sayhuuzoku/master/db/data.db \
+    -o /tmp/root/go/src/github.com/YuheiNakasaka/sayhuuzoku/db/data.db
+RUN mkdir -p /tmp/root/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping/ \
+    && curl -sfSL --retry 5 https://raw.githubusercontent.com/YuheiNakasaka/sayhuuzoku/master/scraping/shoplist.txt \
+    -o /tmp/root/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping/shoplist.txt
 RUN git clone --depth 1 https://github.com/googlefonts/noto-emoji /usr/local/src/noto-emoji
 
 ## Ruby

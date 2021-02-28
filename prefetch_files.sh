@@ -8,7 +8,7 @@ DOWNLOAD_DIR=$(cd "$(dirname "$0")"; pwd)/prefetched
 
 # go
 [ -f "$DOWNLOAD_DIR/go.tar.gz" ] || {
-  curl -sfSL --retry 5 https://dl.google.com/go/go1.14.1.linux-amd64.tar.gz -o "$DOWNLOAD_DIR/go.tar.gz"
+  curl -sfSL --retry 5 https://dl.google.com/go/go1.16.linux-amd64.tar.gz -o "$DOWNLOAD_DIR/go.tar.gz"
 }
 
 # chromium

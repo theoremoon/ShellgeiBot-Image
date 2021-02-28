@@ -939,7 +939,7 @@
 
 @test "terminal-parrot" {
   run terminal-parrot -h
-  [ $status -eq 2 ]
+  [ $status -eq 0 ]
   [ "${lines[0]}" == 'Usage of terminal-parrot:' ]
 }
 
