@@ -273,6 +273,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      fish \
      fonts-droid-fallback fonts-lato fonts-liberation fonts-noto-mono fonts-dejavu-core gsfonts fonts-hanazono \
      fonts-ipafont fonts-vlgothic \
+     fonts-noto-cjk fonts-noto-cjk-extra \
      fonts-nanum fonts-symbola fonts-noto-color-emoji \
      gawk \
      gnuplot \
