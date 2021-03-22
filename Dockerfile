@@ -346,6 +346,7 @@ ENV GOPATH /root/go
 ENV PATH $PATH:/usr/local/go/bin:/root/go/bin
 RUN ln -s /root/go/src/github.com/YuheiNakasaka/sayhuuzoku/db /
 ENV TEXTIMG_EMOJI_DIR /usr/local/src/noto-emoji
+ENV TEXTIMG_OUTPUT_DIR /images
 
 # Ruby
 COPY --from=ruby-builder /usr/local/bin /usr/local/bin
