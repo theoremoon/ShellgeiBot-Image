@@ -45,13 +45,13 @@ jobs:
               docker push ${DOCKER_IMAGE}:${CIRCLE_BRANCH}
               docker push ${DOCKER_IMAGE}:latest
             fi
-      # - add_ssh_keys:
-      #    fingerprints:
-      #      - "29:cf:20:0a:41:36:28:49:a2:ef:7c:b3:ae:05:5b:47"
-      # - deploy:
-      #     name: Apply New Image to Running
-      #    command: |
-      #      test "${CIRCLE_BRANCH}" = master && apk add openssh && ssh-keyscan ${SSH_HOST} >> ~/.ssh/known_hosts && ssh -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST} "docker pull theoldmoon0602/shellgeibot:master && docker rmi \$(docker images | grep '<none>' | awk '{print $3}')" || :
+      - add_ssh_keys:
+          fingerprints:
+            - "29:cf:20:0a:41:36:28:49:a2:ef:7c:b3:ae:05:5b:47"
+      - deploy:
+          name: Apply New Image to Running
+          command: |
+            test "${CIRCLE_BRANCH}" = master && apk add openssh && ssh-keyscan ${SSH_HOST} >> ~/.ssh/known_hosts && ssh -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST} "docker pull theoldmoon0602/shellgeibot:master && docker rmi \$(docker images | grep '<none>' | awk '{print $3}')" || :
 
 workflows:
   version: 2
