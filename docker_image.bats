@@ -324,6 +324,11 @@
   [[ "$output" =~ "git version" ]]
 }
 
+@test "glue" {
+  run bash -c 'echo echo 10 | glue /dev/stdin'
+  [[ "$output" =~ '10' ]]
+}
+
 @test "gnuplot" {
   run gnuplot -V
   [[ "$output" =~ "gnuplot" ]]
