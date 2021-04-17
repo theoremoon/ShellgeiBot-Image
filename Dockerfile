@@ -149,7 +149,7 @@ RUN git clone --depth 1 https://github.com/dbro/csvquote.git \
 RUN git clone --depth 1 https://github.com/ryuichiueda/GlueLang.git \
     && (cd GlueLang && make)
 RUN git clone --depth 1 https://github.com/ryuichiueda/glueutils.git \
-    && (cd glueutils && mkdir bin && make)
+    && (cd glueutils && mkdir -p bin && make)
 
 # egison
 RUN curl -sfSLO --retry 5 https://github.com/egison/egison-package-builder/releases/download/4.0.0/egison-4.0.0.x86_64.deb
