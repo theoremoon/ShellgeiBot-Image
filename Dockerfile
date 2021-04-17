@@ -149,7 +149,7 @@ RUN git clone --depth 1 https://github.com/dbro/csvquote.git \
 RUN git clone --depth 1 https://github.com/ryuichiueda/GlueLang.git \
     && (cd GlueLang && make)
 RUN git clone --depth 1 https://github.com/ryuichiueda/glueutils.git \
-    && (cd glueutils && make)
+    && (cd glueutils && mkdir bin && make)
 
 # egison
 RUN curl -sfSLO --retry 5 https://github.com/egison/egison-package-builder/releases/download/4.0.0/egison-4.0.0.x86_64.deb
@@ -412,7 +412,7 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     && (cd /downloads/no-more-secrets && make install) \
     && (cd /downloads/csvquote && make install) \
     && (cd /downloads/GlueLang && install -m 755 glue /usr/local/bin) \
-    && (cd /downloads/glueutils && install -m 755 switch12 log2 ignerr /usr/local/bin/)
+    && (cd /downloads/glueutils/bin && install -m 755 * /usr/local/bin/)
 
 # egison, egzact, bat, osquery, super_unko, echo-meme, J
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
