@@ -329,6 +329,11 @@
   [[ "$output" =~ '10' ]]
 }
 
+@test "glueutils" {
+  run bash -c 'switch12 ls aaaaaaaaaaa'
+  [[ "$(wc -l <<< $output)" =~ '1' ]]
+}
+
 @test "gnuplot" {
   run gnuplot -V
   [[ "$output" =~ "gnuplot" ]]
