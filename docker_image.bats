@@ -815,7 +815,7 @@
 @test "rustc" {
   run rustc --help
   [ $status -ne 0 ]
-  [ "$output" = 'error: no override and no default toolchain set' ]
+  [[ "$output" =~ 'error: no override and no default toolchain set' ]]
 }
 
 @test "rustup" {
