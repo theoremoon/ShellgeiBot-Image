@@ -1,4 +1,4 @@
-# syntax = docker/dockerfile:1.0-experimental
+# syntax = docker/dockerfile:1.2
 FROM ubuntu:20.10 AS apt-cache
 RUN apt-get update
 
