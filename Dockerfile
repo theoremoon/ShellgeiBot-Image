@@ -72,7 +72,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
     --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y -qq python3-dev python3-pip python3-setuptools
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip3 install --progress-bar=off --no-use-pep517 asciinema faker matplotlib numpy pillow scipy sympy xonsh yq
+    pip3 install --progress-bar=off --no-use-pep517 asciinema faker i2a matplotlib numpy pillow scipy sympy xonsh yq
 
 ## Node.js
 FROM base AS nodejs-builder

@@ -382,6 +382,11 @@
   [ "$output" = 'unko' ]
 }
 
+@test "i2a" {
+  run i2a ./ShellGeiData/vol.18/Q6/chess.png
+  [ ${#lines[@]} -eq 37 ]
+}
+
 @test "idn" {
   run idn うんこ.com
   [ "$output" = 'xn--p8j0a9n.com' ]
