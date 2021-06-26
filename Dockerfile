@@ -151,7 +151,7 @@ RUN git clone --depth 1 https://github.com/ryuichiueda/glueutils.git \
     && (cd glueutils && mkdir -p bin && make)
 # mecab-ipadic-NEologd
 RUN git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd \
-    && (cd mecab-ipadic-neologd && ./bin/install-mecab-ipadic-neologd -u -y -p $PWD/mecab-ipadic-neologd)
+    && (cd mecab-ipadic-neologd && ./bin/install-mecab-ipadic-neologd -u -y -p $PWD/debian)
 
 # egison
 RUN curl -sfSLO --retry 5 https://github.com/egison/egison-package-builder/releases/download/4.0.0/egison-4.0.0.x86_64.deb
@@ -416,8 +416,7 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     && (cd /downloads/csvquote && make install) \
     && (cd /downloads/GlueLang && install -m 755 glue /usr/local/bin) \
     && (cd /downloads/glueutils/bin && install -m 755 * /usr/local/bin/) \
-    && (cp -r /downloads/mecab-ipadic-neologd/mecab-ipadic-neologd /var/lib/mecab/dic \
-        && sed -i 's_^dicdir.*_; &\'$'\ndicdir = /var/lib/mecab/dic/mecab-ipadic-neologd_' /etc/mecabrc)
+    && (cp -rf /downloads/mecab-ipadic-neologd/debian /var/lib/mecab/dic)
 
 # egison, egzact, bat, osquery, super_unko, echo-meme, J
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
