@@ -151,8 +151,7 @@ RUN git clone --depth 1 https://github.com/ryuichiueda/glueutils.git \
     && (cd glueutils && mkdir -p bin && make)
 # mecab-ipadic-NEologd
 RUN git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd \
-    && (cd mecab-ipadic-neologd && sed -i '76s/sudo //' libexec/install-mecab-ipadic-neologd.sh \
-        && ./bin/install-mecab-ipadic-neologd -y -p $PWD/mecab-ipadic-neologd)
+    && (cd mecab-ipadic-neologd && ./bin/install-mecab-ipadic-neologd -u -y -p $PWD/mecab-ipadic-neologd)
 
 # egison
 RUN curl -sfSLO --retry 5 https://github.com/egison/egison-package-builder/releases/download/4.0.0/egison-4.0.0.x86_64.deb
