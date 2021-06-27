@@ -101,7 +101,6 @@ RUN (cd /noc/noc/noc; dotnet publish --configuration Release -p:PublishSingleFil
 RUN git clone --depth 1 https://github.com/xztaityozx/ocs.git
 RUN (cd /ocs/ocs; dotnet publish --configuration Release -p:PublishSingleFile=true -p:PublishReadyToRun=true -r linux-x64 --self-contained false)
 
-
 ## Rust
 FROM base AS rust-builder
 RUN curl -sfSL --retry 5 https://sh.rustup.rs | sh -s -- -y
@@ -126,7 +125,7 @@ RUN nimble install edens gyaric maze rect svgo eachdo -Y
 FROM base AS general-builder
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq lib32ncursesw5-dev jq
+    apt-get install -y -qq file jq lib32ncursesw5-dev libmecab-dev mecab
 
 WORKDIR /downloads
 # Open-usp-Tukubai
@@ -150,6 +149,9 @@ RUN git clone --depth 1 https://github.com/ryuichiueda/GlueLang.git \
     && (cd GlueLang && make)
 RUN git clone --depth 1 https://github.com/ryuichiueda/glueutils.git \
     && (cd glueutils && mkdir -p bin && make)
+# mecab-ipadic-NEologd
+RUN git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd \
+    && (cd mecab-ipadic-neologd && ./bin/install-mecab-ipadic-neologd -u -y -p $PWD/ipadic-utf8)
 
 # egison
 RUN curl -sfSLO --retry 5 https://github.com/egison/egison-package-builder/releases/download/4.0.0/egison-4.0.0.x86_64.deb
@@ -295,6 +297,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      libkkc-utils \
      libncurses5 \
      libnss3 libgdk3.0-cil \
+     libmecab-dev \
      librsvg2-bin \
      libskk-dev \
      libxml2-utils \
@@ -405,14 +408,15 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     (cd /downloads/ImageGeneratorForShBot && git archive --format=tar --prefix=imgout/ HEAD) | tar xf - -C /usr/local
 ENV PATH $PATH:/usr/local/imgout:/usr/local/kkcw
 
-# Open-usp-Tukubai, edfsay, no more secrets, csvquote, GlueLang
+# Open-usp-Tukubai, edfsay, no more secrets, csvquote, GlueLang, NEologd
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     (cd /downloads/Open-usp-Tukubai && make install) \
     && (cd /downloads/edfsay && ./install.sh) \
     && (cd /downloads/no-more-secrets && make install) \
     && (cd /downloads/csvquote && make install) \
     && (cd /downloads/GlueLang && install -m 755 glue /usr/local/bin) \
-    && (cd /downloads/glueutils/bin && install -m 755 * /usr/local/bin/)
+    && (cd /downloads/glueutils/bin && install -m 755 * /usr/local/bin/) \
+    && (cp -rf /downloads/mecab-ipadic-neologd/ipadic-utf8 /var/lib/mecab/dic)
 
 # egison, egzact, bat, osquery, super_unko, echo-meme, J
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \

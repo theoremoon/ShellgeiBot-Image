@@ -514,9 +514,9 @@
   [ "$status" -eq 0 ]
 }
 
-@test "mecab" {
+@test "mecab with NEologd" {
   run bash -c "echo シェル芸 | mecab -Owakati"
-  [ "$output" = "シェル 芸 " ]
+  [ "$output" = "シェル芸 " ]
 }
 
 @test "mono-runtime" {
