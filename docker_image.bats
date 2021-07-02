@@ -1059,7 +1059,7 @@
 
 @test "wordcloud_cli" {
   run wordcloud_cli --version
-  [ "$output" =~ "wordcloud_cli" ]
+  [[ "$output" =~ "wordcloud_cli" ]]
 }
 
 @test "x11-apps" {
