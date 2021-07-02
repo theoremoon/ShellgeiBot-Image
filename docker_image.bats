@@ -529,6 +529,11 @@
   [ "$output" = "EPERM 1 許可されていない操作です" ]
 }
 
+@test "morsed" {
+  run bash -c "morsed -p 名詞 -s 寿司 吾輩は猫である"
+  [ "$output" = "寿司は寿司である" ]
+}
+
 @test "morsegen" {
   run morsegen
   [ $status -eq 1 ]
@@ -598,6 +603,11 @@
 @test "numpy" {
   run python3 -c 'import numpy; print(numpy.__name__)'
   [ "$output" = "numpy" ]
+}
+
+@test "num2words" {
+  run num2words 10001
+  [ "$output" = "ten thousand and one" ]
 }
 
 @test "nyancat" {
@@ -1047,6 +1057,11 @@
   [ "$output" = 'ShellGei' ]
 }
 
+@test "wordcloud_cli" {
+  run wordcloud_cli --version
+  [ "$output" =~ "wordcloud_cli" ]
+}
+
 @test "x11-apps" {
   run which xwd
   [ "$output" = '/usr/bin/xwd' ]
@@ -1101,9 +1116,3 @@
   run bash -c "echo J+KBouKAjeKAi+KBouKAjeKAi+KAi+KAjeKAjeKBouKAjOKBouKBouKAjeKAi+KBouKAjeKAi+KAi+KAjeKAjeKAjeKAjOKBouKBouKAjeKAi+KBouKAjeKAi+KAi+KBouKAjeKAjeKAjeKBouKBouKAjeKAjeKAi+KAjeKAi+KAjeKAjeKAjeKBouKAjeKAi+KAi+KAi+KAjeKAjScK | base64 -d | zws -d"
   [ "$output" = 'シェル芸' ]
 }
-
-@test "morsed" {
-  run bash -c "morsed -p 名詞 -s 寿司 吾輩は猫である"
-  [ "$output" = "寿司は寿司である" ]
-}
-
