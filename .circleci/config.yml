@@ -14,7 +14,7 @@ jobs:
       - checkout
       - setup_remote_docker:
           # docker_layer_caching: true  # 有償オプション
-          version: "20.10.2"
+          version: "20.10.6"  # https://circleci.com/docs/2.0/building-docker-images/#docker-version
       - run:
           name: Build Docker image
           command: |
@@ -26,7 +26,7 @@ jobs:
             apk add --no-progress nodejs npm
             npm_config_unsafe_perm=true npm install --global --silent --no-progress tap-xunit
             mkdir -p ~/reports
-            docker create -v /root/src --name source ubuntu:20.10 /bin/true
+            docker create -v /root/src --name source ubuntu:21.04 /bin/true
             docker cp docker_image.bats source:/root/src
             docker container run --net=none --rm --volumes-from source ${DOCKER_IMAGE} \
               /bin/bash -c "bats --tap /root/src/docker_image.bats || true" | tee result.tap

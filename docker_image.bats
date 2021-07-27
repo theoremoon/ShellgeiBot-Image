@@ -115,7 +115,7 @@
   [ "$status" -eq 0 ]
 
   # JAVA_HOME未設定だったりランタイムがないと動かない
-  run clojure -e '(println "Hello")'
+  run clojure -M -e '(println "Hello")'
   [ "$status" -eq 0 ]
   [ "$output" = 'Hello' ]
 }
