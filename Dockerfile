@@ -1,8 +1,8 @@
 # syntax = docker/dockerfile:1.2
-FROM ubuntu:20.10 AS apt-cache
+FROM ubuntu:21.04 AS apt-cache
 RUN apt-get update
 
-FROM ubuntu:20.10 AS base
+FROM ubuntu:21.04 AS base
 ENV DEBIAN_FRONTEND noninteractive
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
@@ -89,7 +89,7 @@ FROM base AS dotnet-builder
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y -qq apt-transport-https
-RUN curl -sfSLO --retry 5 https://packages.microsoft.com/config/ubuntu/20.10/packages-microsoft-prod.deb \
+RUN curl -sfSLO --retry 5 https://packages.microsoft.com/config/ubuntu/21.04/packages-microsoft-prod.deb \
     && dpkg -i packages-microsoft-prod.deb
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists,rw \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
@@ -131,7 +131,9 @@ WORKDIR /downloads
 # Open-usp-Tukubai
 RUN git clone --depth 1 https://github.com/usp-engineers-community/Open-usp-Tukubai.git
 # edfsay
-RUN git clone --depth 1 https://github.com/jiro4989/edfsay
+RUN git clone --depth 1 https://github.com/jiro4989/edfsay.git
+# color, rainbow
+RUN git clone --depth 1 https://github.com/jiro4989/scripts.git
 # no more secrets
 RUN git clone --depth 1 https://github.com/bartobri/no-more-secrets.git \
     && (cd no-more-secrets && make nms-ncurses && make sneakers-ncurses)
@@ -154,37 +156,37 @@ RUN git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd \
     && (cd mecab-ipadic-neologd && ./bin/install-mecab-ipadic-neologd -u -y -p $PWD/ipadic-utf8)
 
 # egison
-RUN curl -sfSLO --retry 5 https://github.com/egison/egison-package-builder/releases/download/4.0.0/egison-4.0.0.x86_64.deb
+RUN curl -sfSLO --retry 5 https://github.com/egison/egison-package-builder/releases/download/4.1.2/egison-4.1.2.x86_64.deb
 # egzact
-RUN curl -sfSLO --retry 5 https://github.com/greymd/egzact/releases/download/v2.0.0/egzact-2.0.0.deb
+RUN curl -sfSLO --retry 5 https://github.com/greymd/egzact/releases/download/v2.1.1/egzact-2.1.1.deb
 # bat
-RUN curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.13.0/bat_0.13.0_amd64.deb -o bat.deb
+RUN curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.18.2/bat_0.18.2_amd64.deb -o bat.deb
 # osquery
-RUN curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/4.1.1/osquery_4.1.1_1.linux.amd64.deb -o osquery.deb
+RUN curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/4.9.0/osquery_4.9.0-1.linux_amd64.deb -o osquery.deb
 # super_unko
 RUN curl -sfSLO --retry 5 https://git.io/superunko.linux.deb
 # echo-meme
 RUN curl -sfSLO --retry 5 https://git.io/echo-meme.deb
 # J
-RUN curl -sfSL --retry 5 http://www.jsoftware.com/download/j901/install/j901_amd64.deb -o j.deb
+RUN curl -sfSL --retry 5 http://www.jsoftware.com/download/j902/install/j902_amd64.deb -o j.deb
 # teip
 RUN curl -sfSL --retry 5 https://git.io/teip-1.2.1.x86_64.deb -o teip.deb
 
 # Julia
 COPY prefetched/julia.tar.gz .
 # OpenJDK
-COPY prefetched/openjdk11.tar.gz .
+COPY prefetched/openjdk16.tar.gz .
 # Clojure
-RUN curl -sfSL --retry 5 https://download.clojure.org/install/linux-install-1.10.1.469.sh -o clojure_install.sh
+RUN curl -sfSL --retry 5 https://download.clojure.org/install/linux-install-1.10.3.855.sh -o clojure_install.sh
 
 # trdsql
-RUN curl -sfSLO --retry 5 https://github.com/noborus/trdsql/releases/download/v0.7.5/trdsql_v0.7.5_linux_amd64.zip
+RUN curl -sfSLO --retry 5 https://github.com/noborus/trdsql/releases/download/v0.9.0/trdsql_v0.9.0_linux_amd64.zip
 # onefetch
-RUN curl -sfSLO --retry 5 https://github.com/o2sh/onefetch/releases/download/v2.2.0/onefetch_linux_x86-64.zip
+RUN curl -sfSLO --retry 5 https://github.com/o2sh/onefetch/releases/download/v2.10.2/onefetch-linux.tar.gz
 # PowerShell
-RUN curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v7.0.0/powershell-7.0.0-linux-x64.tar.gz -o powershell.tar.gz
+RUN curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v7.1.3/powershell-7.1.3-linux-x64.tar.gz -o powershell.tar.gz
 # V
-RUN curl -sfSLO --retry 5 https://github.com/vlang/v/releases/download/0.1.24/v_linux.zip
+RUN curl -sfSLO --retry 5 https://github.com/vlang/v/releases/download/0.2.2/v_linux.zip
 ## use prefetched file
 COPY prefetched/chrome-linux.zip .
 # morsed (最新版のreleasesを取得するためjqで最新タグを取得)
@@ -248,10 +250,6 @@ RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/msr-i386/horizon/mast
 RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/ryuichiueda/opy/master/opy -o /usr/local/bin/opy \
     && chmod u+x /usr/local/bin/opy
 
-# color, rainbow
-RUN git clone --depth 1 https://github.com/jiro4989/scripts /tmp/scripts \
-    && (cd /tmp/scripts && ./install.sh)
-
 # apt
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt \
@@ -301,7 +299,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      librsvg2-bin \
      libskk-dev \
      libxml2-utils \
-     lua5.3 php7.4 php7.4-cli php7.4-common \
+     lua5.4 php7.4 php7.4-cli php7.4-common \
      mecab mecab-ipadic mecab-ipadic-utf8 \
      mono-csharp-shell \
      moreutils \
@@ -362,7 +360,7 @@ COPY --from=ruby-builder /var/lib/gems /var/lib/gems
 
 # Python
 COPY --from=python-builder /usr/local/bin /usr/local/bin
-COPY --from=python-builder /usr/local/lib/python3.8 /usr/local/lib/python3.8
+COPY --from=python-builder /usr/local/lib/python3.9 /usr/local/lib/python3.9
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Node.js
@@ -374,7 +372,7 @@ ENV PATH $PATH:/usr/local/node-${NODE_VERSION}-linux-x64/bin
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y -qq apt-transport-https
-RUN curl -sfSLO --retry 5 https://packages.microsoft.com/config/ubuntu/20.10/packages-microsoft-prod.deb \
+RUN curl -sfSLO --retry 5 https://packages.microsoft.com/config/ubuntu/21.04/packages-microsoft-prod.deb \
     && dpkg -i packages-microsoft-prod.deb \
     && rm packages-microsoft-prod.deb
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists,rw \
@@ -408,10 +406,11 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     (cd /downloads/ImageGeneratorForShBot && git archive --format=tar --prefix=imgout/ HEAD) | tar xf - -C /usr/local
 ENV PATH $PATH:/usr/local/imgout:/usr/local/kkcw
 
-# Open-usp-Tukubai, edfsay, no more secrets, csvquote, GlueLang, NEologd
+# Open-usp-Tukubai, edfsay, color, rainbow, no more secrets, csvquote, GlueLang, NEologd
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     (cd /downloads/Open-usp-Tukubai && make install) \
     && (cd /downloads/edfsay && ./install.sh) \
+    && (cd /downloads/scripts && ./install.sh) \
     && (cd /downloads/no-more-secrets && make install) \
     && (cd /downloads/csvquote && make install) \
     && (cd /downloads/GlueLang && install -m 755 glue /usr/local/bin) \
@@ -421,8 +420,8 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
 # egison, egzact, bat, osquery, super_unko, echo-meme, J
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     dpkg -i \
-      /downloads/egison-4.0.0.x86_64.deb \
-      /downloads/egzact-2.0.0.deb \
+      /downloads/egison-4.1.2.x86_64.deb \
+      /downloads/egzact-2.1.1.deb \
       /downloads/bat.deb \
       /downloads/osquery.deb \
       /downloads/superunko.linux.deb \
@@ -433,14 +432,14 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
 # Julia, OpenJDK, trdsql (apply sql to csv), onefetch, Clojure, chromium
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     tar xf /downloads/julia.tar.gz -C /usr/local \
-    && tar xf /downloads/openjdk11.tar.gz -C /usr/local \
-    && unzip /downloads/trdsql_v0.7.5_linux_amd64.zip -d /usr/local \
-    && ln -s /usr/local/trdsql_v0.7.5_linux_amd64/trdsql /usr/local/bin \
-    && unzip /downloads/onefetch_linux_x86-64.zip -d /usr/local/bin onefetch \
+    && tar xf /downloads/openjdk16.tar.gz -C /usr/local \
+    && unzip /downloads/trdsql_v0.9.0_linux_amd64.zip -d /usr/local \
+    && ln -s /usr/local/trdsql_v0.9.0_linux_amd64/trdsql /usr/local/bin \
+    && tar xf /downloads/onefetch-linux.tar.gz -C /usr/local/bin \
     && /bin/bash /downloads/clojure_install.sh \
     && unzip /downloads/chrome-linux.zip -d /usr/local
-ENV PATH $PATH:/usr/local/julia-1.4.0/bin:/usr/local/jdk-11.0.2/bin:/usr/local/chrome-linux
-ENV JAVA_HOME /usr/local/jdk-11.0.2
+ENV PATH $PATH:/usr/local/julia-1.6.2/bin:/usr/local/jdk-16.0.2/bin:/usr/local/chrome-linux
+ENV JAVA_HOME /usr/local/jdk-16.0.2
 # Clojure が実行時に必要とするパッケージを取得
 RUN clojure -e '(println "test")'
 # Clojure ワンライナー
@@ -448,8 +447,8 @@ RUN curl -s --retry 5 https://raw.githubusercontent.com/borkdude/babashka/master
 
 # V
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
-    unzip /downloads/v_linux.zip -d /usr/local/vlang \
-    && ln -s /usr/local/vlang/v /usr/local/bin/v
+    unzip /downloads/v_linux.zip -d /usr/local \
+    && ln -s /usr/local/v/v /usr/local/bin/v
 
 # PowerShell
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
@@ -467,7 +466,7 @@ RUN mv /usr/bin/man.REAL /usr/bin/man
 
 # reset apt config
 RUN rm /etc/apt/apt.conf.d/keep-cache /etc/apt/apt.conf.d/no-install-recommends
-COPY --from=ubuntu:20.10 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
+COPY --from=ubuntu:21.04 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
 
 # ShellgeiBot-Image information
 RUN mkdir -p /etc/shellgeibot-image
