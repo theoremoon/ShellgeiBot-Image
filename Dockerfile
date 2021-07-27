@@ -438,7 +438,7 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     && tar xf /downloads/onefetch-linux.tar.gz -C /usr/local/bin \
     && /bin/bash /downloads/clojure_install.sh \
     && unzip /downloads/chrome-linux.zip -d /usr/local
-ENV PATH $PATH:/usr/local/julia-1.4.0/bin:/usr/local/jdk-16.0.2/bin:/usr/local/chrome-linux
+ENV PATH $PATH:/usr/local/julia-1.6.2/bin:/usr/local/jdk-16.0.2/bin:/usr/local/chrome-linux
 ENV JAVA_HOME /usr/local/jdk-16.0.2
 # Clojure が実行時に必要とするパッケージを取得
 RUN clojure -e '(println "test")'
