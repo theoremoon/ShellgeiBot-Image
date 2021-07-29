@@ -41,6 +41,11 @@
   [ "$output" = シェル芸 ]
 }
 
+@test "ayashii-cli" {
+  run ayashii これは正しい日本語です！
+  [ "$output" = これは正レい日本语てず！ ]
+}
+
 @test "babashka" {
   # コマンドラインではbbコマンド
   run which bb

@@ -250,6 +250,10 @@ RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/msr-i386/horizon/mast
 RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/ryuichiueda/opy/master/opy -o /usr/local/bin/opy \
     && chmod u+x /usr/local/bin/opy
 
+# ayashii-cli
+RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/sheepla/ayashii-cli/master/ayashii -o /usr/local/bin/ayashii \
+    && chmod +x /usr/local/bin/ayashii
+
 # apt
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt \
