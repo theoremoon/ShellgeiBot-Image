@@ -336,7 +336,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      tree \
      ttyrec \
      unicode-data uniutils \
-     vim emacs \
+     vim emacs-nox \
      w3m nginx \
      whiptail \
      xvfb xterm x11-apps xdotool \
