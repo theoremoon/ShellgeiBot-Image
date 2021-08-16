@@ -651,8 +651,8 @@
 }
 
 @test "owari" {
-  run owari -w 20
-  [ "${lines[0]}" = '        糸冬' ]
+  run owari
+  [[ "$output" =~ '糸冬' ]]
 }
 
 @test "pandoc" {
