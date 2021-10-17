@@ -1,8 +1,8 @@
 # syntax = docker/dockerfile:1.2
-FROM ubuntu:21.04 AS apt-cache
+FROM ubuntu:21.10 AS apt-cache
 RUN apt-get update
 
-FROM ubuntu:21.04 AS base
+FROM ubuntu:21.10 AS base
 ENV DEBIAN_FRONTEND noninteractive
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
@@ -160,9 +160,9 @@ RUN curl -sfSLO --retry 5 https://github.com/egison/egison-package-builder/relea
 # egzact
 RUN curl -sfSLO --retry 5 https://github.com/greymd/egzact/releases/download/v2.1.1/egzact-2.1.1.deb
 # bat
-RUN curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.18.2/bat_0.18.2_amd64.deb -o bat.deb
+RUN curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.18.3/bat_0.18.3_amd64.deb -o bat.deb
 # osquery
-RUN curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/4.9.0/osquery_4.9.0-1.linux_amd64.deb -o osquery.deb
+RUN curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.0.1/osquery_5.0.1-1.linux_amd64.deb -o osquery.deb
 # super_unko
 RUN curl -sfSLO --retry 5 https://git.io/superunko.linux.deb
 # echo-meme
@@ -175,7 +175,7 @@ RUN curl -sfSL --retry 5 https://git.io/teip-1.2.1.x86_64.deb -o teip.deb
 # Julia
 COPY prefetched/julia.tar.gz .
 # OpenJDK
-COPY prefetched/openjdk16.tar.gz .
+COPY prefetched/openjdk17.tar.gz .
 # Clojure
 RUN curl -sfSL --retry 5 https://download.clojure.org/install/linux-install-1.10.3.855.sh -o clojure_install.sh
 
@@ -184,9 +184,9 @@ RUN curl -sfSLO --retry 5 https://github.com/noborus/trdsql/releases/download/v0
 # onefetch
 RUN curl -sfSLO --retry 5 https://github.com/o2sh/onefetch/releases/download/v2.10.2/onefetch-linux.tar.gz
 # PowerShell
-RUN curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v7.1.3/powershell-7.1.3-linux-x64.tar.gz -o powershell.tar.gz
+RUN curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v7.1.5/powershell-7.1.5-linux-x64.tar.gz -o powershell.tar.gz
 # V
-RUN curl -sfSLO --retry 5 https://github.com/vlang/v/releases/download/0.2.2/v_linux.zip
+RUN curl -sfSLO --retry 5 https://github.com/vlang/v/releases/download/0.2.4/v_linux.zip
 ## use prefetched file
 COPY prefetched/chrome-linux.zip .
 # morsed (最新版のreleasesを取得するためjqで最新タグを取得)
@@ -299,7 +299,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      librsvg2-bin \
      libskk-dev \
      libxml2-utils \
-     lua5.4 php7.4 php7.4-cli php7.4-common \
+     lua5.4 php8.0 php8.0-cli php8.0-common \
      mecab mecab-ipadic mecab-ipadic-utf8 \
      mono-csharp-shell \
      moreutils \
@@ -432,14 +432,14 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
 # Julia, OpenJDK, trdsql (apply sql to csv), onefetch, Clojure, chromium
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     tar xf /downloads/julia.tar.gz -C /usr/local \
-    && tar xf /downloads/openjdk16.tar.gz -C /usr/local \
+    && tar xf /downloads/openjdk17.tar.gz -C /usr/local \
     && unzip /downloads/trdsql_v0.9.0_linux_amd64.zip -d /usr/local \
     && ln -s /usr/local/trdsql_v0.9.0_linux_amd64/trdsql /usr/local/bin \
     && tar xf /downloads/onefetch-linux.tar.gz -C /usr/local/bin \
     && /bin/bash /downloads/clojure_install.sh \
     && unzip /downloads/chrome-linux.zip -d /usr/local
-ENV PATH $PATH:/usr/local/julia-1.6.2/bin:/usr/local/jdk-16.0.2/bin:/usr/local/chrome-linux
-ENV JAVA_HOME /usr/local/jdk-16.0.2
+ENV PATH $PATH:/usr/local/julia-1.6.3/bin:/usr/local/jdk-17/bin:/usr/local/chrome-linux
+ENV JAVA_HOME /usr/local/jdk-17
 # Clojure が実行時に必要とするパッケージを取得
 RUN clojure -e '(println "test")'
 # Clojure ワンライナー
@@ -466,7 +466,7 @@ RUN mv /usr/bin/man.REAL /usr/bin/man
 
 # reset apt config
 RUN rm /etc/apt/apt.conf.d/keep-cache /etc/apt/apt.conf.d/no-install-recommends
-COPY --from=ubuntu:21.04 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
+COPY --from=ubuntu:21.10 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
 
 # ShellgeiBot-Image information
 RUN mkdir -p /etc/shellgeibot-image
