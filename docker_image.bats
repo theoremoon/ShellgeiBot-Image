@@ -90,6 +90,11 @@
   [ "$output" = "シェル芸" ]
 }
 
+@test "cal" {
+  run cal -h
+  [[ "${lines[0]}" =~ "Usage: cal" ]]
+}
+
 @test "ccze" {
   run bash -c "echo シェル芸 | ccze -A"
   [[ "$output" =~ シェル芸 ]]

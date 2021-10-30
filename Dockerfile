@@ -305,6 +305,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      moreutils \
      morsegen \
      mt-st \
+     ncal \
      nim \
      nkf \
      num-utils \
