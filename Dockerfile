@@ -250,6 +250,10 @@ RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/msr-i386/horizon/mast
 RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/ryuichiueda/opy/master/opy -o /usr/local/bin/opy \
     && chmod u+x /usr/local/bin/opy
 
+# base85
+RUN curl -sfSL --retry 5 https://github.com/redpeacock78/base85/releases/download/v0.0.11/base85-linux-x86 -o /usr/local/bin/base85 \
+    && chmod u+x /usr/local/bin/base85
+
 # apt
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt \

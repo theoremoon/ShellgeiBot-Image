@@ -50,6 +50,11 @@
   [ "$status" -eq 0 ]
 }
 
+@test "base85" {
+  run bash -c 'echo "<~j+=c#Ju@X]X6>GN~>" | base85 -d'
+  [ "$output" = "シェル芸" ]
+}
+
 @test "bat" {
   run bat --version
   [[ "$output" =~ "bat " ]]
