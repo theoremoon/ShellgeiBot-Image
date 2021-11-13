@@ -251,7 +251,7 @@ RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/ryuichiueda/opy/maste
     && chmod u+x /usr/local/bin/opy
 
 # base85
-RUN curl -sfSL --retry 5 https://github.com/redpeacock78/base85/releases/download/v0.0.8/base85-linux-x86 -o /usr/local/bin/base85 \
+RUN curl -sfSL --retry 5 https://github.com/redpeacock78/base85/releases/download/v0.0.11/base85-linux-x86 -o /usr/local/bin/base85 \
     && chmod u+x /usr/local/bin/base85
 
 # apt
