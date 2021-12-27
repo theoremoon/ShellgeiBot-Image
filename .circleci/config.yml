@@ -1,57 +1,81 @@
-# Golang CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-go/ for more details
-version: 2
+version: 2.1
 jobs:
   image-build:
-    environment:
-      DOCKER_IMAGE: theoldmoon0602/shellgeibot
     docker:
-      - image: docker:stable
+      - image: cimg/base:2021.12-20.04  # CircleCI Convenience Images: https://circleci.com/docs/2.0/next-gen-migration-guide/
         environment:
-          DOCKER_BUILDKIT: "1"  # Enable Docker BuildKit
+          DOCKER_BUILDKIT: "1"
+          DOCKER_IMAGE: theoldmoon0602/shellgeibot
     steps:
       - checkout
       - setup_remote_docker:
-          # docker_layer_caching: true  # 有償オプション
-          version: "20.10.7"  # https://circleci.com/docs/2.0/building-docker-images/#docker-version
+          version: "20.10.11"  # https://circleci.com/docs/2.0/building-docker-images/#docker-version
       - run:
-          name: Build Docker image
+          name: Install Docker Buildx  # https://docs.docker.com/buildx/working-with-buildx/
           command: |
-            apk add --no-progress git jq curl make
-            make build-ci
+            mkdir -p ~/.docker/cli-plugins/
+            curl -sfSL --retry 3 https://github.com/docker/buildx/releases/download/v0.7.1/buildx-v0.7.1.linux-amd64 -o ~/.docker/cli-plugins/docker-buildx
+            chmod a+x ~/.docker/cli-plugins/docker-buildx
+            docker buildx version
+            docker run --privileged --rm tonistiigi/binfmt --install arm64
+            docker context create buildcontext
+            docker buildx create buildcontext --use
+      - run:
+          name: Build Docker images
+          command: |
+            ./prefetch_files.sh amd64
+            ./prefetch_files.sh arm64
+            make buildlog
+            make revisionlog
+            docker buildx build --platform linux/amd64,linux/arm64 --tag $DOCKER_IMAGE --progress plain .
+      - run:
+          name: Load Docker images (use cache)
+          command: |
+            docker buildx build --platform linux/amd64 --tag $DOCKER_IMAGE:amd64 --progress plain --load .
+            docker buildx build --platform linux/arm64 --tag $DOCKER_IMAGE:arm64 --progress plain --load .
+      - run:
+          name: Install test tools
+          command: |
+            sudo apt update -qq
+            sudo apt install -y -qq moreutils
+            mkdir ~/opt
+            # curl -sfSL --retry 3 https://nodejs.org/dist/v16.13.1/node-v16.13.1-linux-x64.tar.gz -o nodejs.tar.gz
+            # re-use prefetched
+            tar xf ./prefetched/amd64/nodejs.tar.gz -C ~/opt --strip-components 1
+            PATH=$PATH:~/opt/bin npm install --global --silent --no-progress tap-xunit
+            echo "export PATH=$PATH:~/opt/bin" >> $BASH_ENV
       - run:
           name: Test Docker image
           command: |
-            apk add --no-progress nodejs npm
-            npm_config_unsafe_perm=true npm install --global --silent --no-progress tap-xunit
-            mkdir -p ~/reports
-            docker create -v /root/src --name source ubuntu:21.10 /bin/true
+            mkdir ~/reports
+            docker create -v /root/src --name source ubuntu:20.04 /bin/true
             docker cp docker_image.bats source:/root/src
-            docker container run --net=none --rm --volumes-from source ${DOCKER_IMAGE} \
-              /bin/bash -c "bats --tap /root/src/docker_image.bats || true" | tee result.tap
-            cat result.tap | tap-xunit > ~/reports/result.xml
+            docker container run --rm --net=none --volumes-from source $DOCKER_IMAGE:amd64 \
+              /bin/bash -c "bats --tap /root/src/docker_image.bats" | pee cat "tap-xunit > ~/reports/amd64.xml"
+            docker container run --rm --net=none --volumes-from source $DOCKER_IMAGE:arm64 \
+              /bin/bash -c "bats --tap /root/src/docker_image.bats" | pee cat "tap-xunit > ~/reports/arm64.xml"
       - store_test_results:
           path: ~/reports
+      - run: |
+          if [ "$CIRCLE_BRANCH" != "master" ]; then
+            circleci-agent step halt
+          fi
       - run:
-          name: Push Docker image to Docker Hub
+          name: Login to Docker Hub
           command: |
-            if [ "${CIRCLE_BRANCH}" = "master" ]; then
-              DATE_TAG=$(date +%Y%m%d)
-              echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin
-              docker tag ${DOCKER_IMAGE}:latest ${DOCKER_IMAGE}:${DATE_TAG}
-              docker tag ${DOCKER_IMAGE}:latest ${DOCKER_IMAGE}:${CIRCLE_BRANCH}
-              docker push ${DOCKER_IMAGE}:${DATE_TAG}
-              docker push ${DOCKER_IMAGE}:${CIRCLE_BRANCH}
-              docker push ${DOCKER_IMAGE}:latest
-            fi
-      - add_ssh_keys:
-          fingerprints:
-            - "29:cf:20:0a:41:36:28:49:a2:ef:7c:b3:ae:05:5b:47"
-      - deploy:
-          name: Apply New Image to Running
+            echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin
+      - run:
+          name: Push Docker images (use cache)
           command: |
-            test "${CIRCLE_BRANCH}" = master && apk add openssh && ssh-keyscan ${SSH_HOST} >> ~/.ssh/known_hosts && ssh -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST} "docker pull theoldmoon0602/shellgeibot:master && docker rmi \$(docker images | grep '<none>' | awk '{print $3}')" || :
+            docker buildx build --platform linux/amd64,linux/arm64 --tag $DOCKER_IMAGE:$(date +%Y%m%d) --progress plain --push .
+            docker buildx build --platform linux/amd64,linux/arm64 --tag $DOCKER_IMAGE:latest          --progress plain --push .
+      # - add_ssh_keys:
+      #     fingerprints:
+      #       - "29:cf:20:0a:41:36:28:49:a2:ef:7c:b3:ae:05:5b:47"
+      # - deploy:
+      #     name: Apply New Image to Running
+      #     command: |
+      #       test "${CIRCLE_BRANCH}" = master && apk add openssh && ssh-keyscan ${SSH_HOST} >> ~/.ssh/known_hosts && ssh -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST} "docker pull theoldmoon0602/shellgeibot:master && docker rmi \$(docker images | grep '<none>' | awk '{print $3}')" || :
 
 workflows:
   version: 2
