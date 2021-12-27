@@ -1,12 +1,18 @@
-.PHENY: build prefetch
-
-# DOCKER_IMAGE_NAME := theoldmoon0602/shellgeibot
-DOCKER_IMAGE_NAME := 3socha/shellgeibot
+DOCKER_IMAGE_NAME := theoldmoon0602/shellgeibot
+BUILD_COMMAND := DOCKER_BUILDKIT=1 docker image build -t $(DOCKER_IMAGE_NAME)
+subdirs := egison
 
 all: build
 
-build: prefetch buildlog revisionlog
-	DOCKER_BUILDKIT=1 docker image build --tag $(DOCKER_IMAGE_NAME) .
+.PHONY: $(subdirs)
+$(subdirs):
+	make -C $@ $(MAKECMDGOALS)
+
+build: prefetch buildlog revisionlog $(subdirs)
+	$(BUILD_COMMAND) .
+
+build-ci: prefetch buildlog revisionlog
+	$(BUILD_COMMAND) --progress=plain .
 
 prefetch:
 	./prefetch_files.sh
@@ -27,6 +33,14 @@ test:
 		$(DOCKER_IMAGE_NAME) \
 		/bin/bash -c "bats /root/src/docker_image.bats"
 
-clean:
+test-ci:
+	@docker container run \
+		--rm \
+		--net none \
+		-v $(CURDIR):/root/src \
+		$(DOCKER_IMAGE_NAME) \
+		/bin/bash -c "bats --tap /root/src/docker_image.bats"
+
+clean: $(subdirs)
 	rm -f *.log
 	rm -f prefetched/*/*.gz prefetched/*/*.zip

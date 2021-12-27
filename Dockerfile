@@ -126,32 +126,6 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
 RUN --mount=type=cache,target=/root/.cache \
     nimble install edens gyaric maze rect svgo eachdo -Y
 
-## Haskell
-FROM base AS haskell-builder
-RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
-    --mount=type=cache,target=/var/cache/apt,sharing=private \
-    if [ "$(uname -m)" = "aarch64" ]; then apt-get install -y -qq haskell-platform; fi
-# Egison (for aarch64); https://github.com/egison/egison-package-builder/blob/master/dockerfiles/tarball-builder/build.sh
-COPY <<EOL build-egison.sh
-  cabal update
-  git clone --depth 1 --branch \"\$1\" https://github.com/egison/egison.git
-  cd /egison
-  sed -i \'/Executable egison-translate/,//d\' egison.cabal
-  cabal configure --enable-executable-static --jobs
-  cabal build
-  _pathsfile=\"$(find dist-newstyle/ -type f -name Paths_egison.hs | head -n 1)\"
-  perl -i -pe \'s@datadir[ ]*=[ ]*.*\$@datadir = \"/usr/lib/egison\"@\' \"\$_pathsfile\"
-  cp \"\$_pathsfile\" ./hs-src
-  cabal build
-  mkdir bin
-  cp \"$(find dist-newstyle/build -type f -name egison)\" bin/
-EOL
-RUN --mount=type=cache,target=/root/.cabal \
-    case $(uname -m) in \
-      x86_64)  mkdir /egison; curl -sfSL --retry 5 https://github.com/egison/egison-package-builder/releases/download/4.1.3/egison-4.1.3.x86_64.deb -o /egison/egison.deb ;; \
-      aarch64) bash -eux build-egison.sh 4.1.3 ;; \
-    esac
-
 ## General
 FROM base AS general-builder
 ARG TARGETARCH
@@ -192,9 +166,10 @@ RUN git clone --depth 1 https://github.com/greymd/echo-meme.git
 RUN git clone --branch weekly.2021.51 --depth 1 https://github.com/vlang/v \
     && (cd v && make)
 # mecab-ipadic-NEologd
-RUN --mount=type=cache,target=/downloads/mecab-ipadic-neologd \
-    [ -d mecab-ipadic-neologd/.git/ ] || git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd \
-    && mecab-ipadic-neologd/bin/install-mecab-ipadic-neologd -u -y -p /downloads/mecab-ipadic-neologd-utf8
+RUN git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd
+COPY prefetched/mecab-ipadic/mecab-ipadic-2.7.0-20070801.tar.gz mecab-ipadic-neologd/build/
+RUN mkdir mecab-ipadic-neologd-utf8
+RUN mecab-ipadic-neologd/bin/install-mecab-ipadic-neologd -u -y -p /downloads/mecab-ipadic-neologd-utf8
 # bat
 RUN case $(uname -m) in \
       x86_64)  curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.18.3/bat_0.18.3_amd64.deb -o bat.deb ;; \
@@ -209,6 +184,9 @@ RUN case $(uname -m) in \
 RUN case $(uname -m) in \
       x86_64)  curl -sfSL --retry 5 https://www.jsoftware.com/download/j902/install/j902_amd64.deb -o j.deb ;; \
     esac
+# Egison
+COPY egison/egison-linux-${TARGETARCH}.tar.gz .
+RUN if [ "${TARGETARCH}" = "amd64" ]; then curl -sfSL https://github.com/egison/egison-package-builder/releases/download/4.1.3/egison-4.1.3.x86_64.deb -o egison.deb; fi
 # Julia
 COPY prefetched/$TARGETARCH/julia.tar.gz .
 # OpenJDK
@@ -229,9 +207,11 @@ RUN case $(uname -m) in \
 # Chromium
 COPY prefetched/$TARGETARCH/chrome-linux.zip .
 # morsed (最新版のreleasesを取得するためjqで最新タグを取得)
-RUN curl -s https://api.github.com/repos/jiro4989/morsed/releases \
-    | jq -r '.[0].assets[] | select(.name | test("morsed_linux.tar.gz")) | .browser_download_url' \
-    | xargs curl -sfSLO --retry 5
+RUN if [ "$(uname -m)" = "x86_64" ]; then \
+      curl -s https://api.github.com/repos/jiro4989/morsed/releases \
+      | jq -r '.[0].assets[] | select(.name | test("morsed_linux.tar.gz")) | .browser_download_url' \
+      | xargs curl -sfSLO --retry 5; \
+    fi
 WORKDIR /
 
 
@@ -287,6 +267,10 @@ RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/msr-i386/horizon/mast
 # opy
 RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/ryuichiueda/opy/master/opy -o /usr/local/bin/opy \
     && chmod u+x /usr/local/bin/opy
+
+# base85
+RUN curl -sfSL --retry 5 https://github.com/redpeacock78/base85/releases/download/v0.0.11/base85-linux-x86 -o /usr/local/bin/base85 \
+    && chmod u+x /usr/local/bin/base85
 
 # apt
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
@@ -403,7 +387,6 @@ COPY --from=python-builder /usr/local/lib/python3.9 /usr/local/lib/python3.9
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Node.js
-ARG NODE_VERSION
 COPY --from=nodejs-builder /usr/local/nodejs /usr/local/nodejs
 ENV PATH $PATH:/usr/local/nodejs/bin
 
@@ -425,19 +408,21 @@ ENV PATH $PATH:/root/.cargo/bin
 COPY --from=nim-builder /root/.nimble /root/.nimble
 ENV PATH $PATH:/root/.nimble/bin
 
-# Haskell (egison)
-RUN --mount=type=bind,target=/egison,from=haskell-builder,source=/egison \
-    case $(uname -m) in \
-      x86_64) dpkg -i /egison/egison.deb ;; \
-      aarch64) mkdir /usr/lib/egison; cp -r /egison/lib /egison/LICENSE /egison/bin /usr/lib/egison/ ;; \
-    esac
-ENV PATH $PATH:/usr/lib/egison/bin
-
 # shellgei data
 COPY --from=general-builder /downloads/ShellGeiData /ShellGeiData
+
 # eki
 COPY --from=general-builder /downloads/eki/eki /eki
 COPY --from=general-builder /downloads/eki/bin /usr/local/bin
+
+# Egison
+RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
+    case $(uname -m) in \
+      x86_64) dpkg -i /downloads/egison.deb ;; \
+      aarch64) mkdir /usr/lib/egison; tar xf /downloads/egison-*.tar.gz -C /usr/lib/egison --strip-components 1 ;; \
+    esac
+ENV PATH $PATH:/usr/lib/egison/bin
+
 # imgout
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     (cd /downloads/ImageGeneratorForShBot && git archive --format=tar --prefix=imgout/ HEAD) | tar xf - -C /usr/local
@@ -493,8 +478,10 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
 
 # morsed
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
-    tar xf /downloads/morsed_linux.tar.gz -C /usr/local/ \
-    && ln -s /usr/local/morsed_linux/morsed /usr/local/bin/
+    if [ "$(uname -m)" = "x86_64" ]; then \
+      tar xf /downloads/morsed_linux.tar.gz -C /usr/local/ \
+      && ln -s /usr/local/morsed_linux/morsed /usr/local/bin/; \
+    fi
 
 # man
 RUN mv /usr/bin/man.REAL /usr/bin/man

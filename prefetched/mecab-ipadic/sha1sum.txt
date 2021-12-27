@@ -1,0 +1,1 @@
+0d9d021853ba4bb4adfa782ea450e55bfe1a229b  mecab-ipadic-2.7.0-20070801.tar.gz
