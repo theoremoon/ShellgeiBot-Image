@@ -874,6 +874,11 @@
   [[ "${lines[0]}" =~ "screenFetch - Version" ]]
 }
 
+@test "sel" {
+  run bash -c "sel --version"
+  [[ "${lines[0]}" =~ "sel version" ]]
+}
+
 @test "shellgeibot-image" {
   run shellgeibot-image help
   [ $status -eq 0 ]
