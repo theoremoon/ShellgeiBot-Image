@@ -876,7 +876,7 @@
 
 @test "sel" {
   run bash -c "sel --version"
-  [[ "${lines[0]}" =~ "sel version" ]]
+  [[ "${output}" =~ "sel version" ]]
 }
 
 @test "shellgeibot-image" {
