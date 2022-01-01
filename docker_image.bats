@@ -51,6 +51,9 @@
 }
 
 @test "base85" {
+  if [ "$(uname -m)" == "aarch64" ]; then
+    skip "don't install base85 on aarch64"
+  fi
   run bash -c 'echo "<~j+=c#Ju@X]X6>GN~>" | base85 -d'
   [ "$output" = "シェル芸" ]
 }
@@ -882,6 +885,11 @@
 @test "screenfetch" {
   run bash -c "screenfetch -V | sed $'s/\033\[[0-9]m//g'"
   [[ "${lines[0]}" =~ "screenFetch - Version" ]]
+}
+
+@test "sel" {
+  run bash -c "sel --version"
+  [[ "${output}" =~ "sel version" ]]
 }
 
 @test "shellgeibot-image" {

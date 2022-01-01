@@ -39,6 +39,7 @@ RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cach
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/tomnomnom/gron@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/xztaityozx/kakikokera@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/xztaityozx/owari@latest
+RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/xztaityozx/sel@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/YuheiNakasaka/sayhuuzoku@latest
 RUN --mount=type=cache,target=/root/go/pkg \
     find /usr/local/go/src /root/go/pkg/mod -type f \
@@ -269,8 +270,10 @@ RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/ryuichiueda/opy/maste
     && chmod u+x /usr/local/bin/opy
 
 # base85
-RUN curl -sfSL --retry 5 https://github.com/redpeacock78/base85/releases/download/v0.0.11/base85-linux-x86 -o /usr/local/bin/base85 \
-    && chmod u+x /usr/local/bin/base85
+RUN if [ "$(uname -m)" = "x86_64" ]; then \
+      curl -sfSL --retry 5 https://github.com/redpeacock78/base85/releases/download/v0.0.11/base85-linux-x86 -o /usr/local/bin/base85 \
+      && chmod u+x /usr/local/bin/base85 ; \
+    fi
 
 # apt
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
