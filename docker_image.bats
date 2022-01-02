@@ -168,11 +168,10 @@
   [ "$output" = '"un,ko"' ]
 }
 
-# FIXME: 2022.1.1 テストが落ちるため一時的に無効化
-# @test "cureutils" {
-#   run bash -c "cure girls | head -1"
-#   [ "$output" = "美墨なぎさ" ]
-# }
+@test "cureutils" {
+  run bash -c "cure girls | head -1"
+  [ "$output" = "美墨なぎさ" ]
+}
 
 @test "curl" {
   run curl --help

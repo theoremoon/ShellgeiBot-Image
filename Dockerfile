@@ -1,4 +1,4 @@
-# syntax = docker/dockerfile:1.3-labs
+# syntax = docker/dockerfile:1.2
 FROM ubuntu:21.10 AS apt-cache
 RUN apt-get update
 
@@ -277,7 +277,7 @@ RUN if [ "$(uname -m)" = "x86_64" ]; then \
 
 # apt
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
-    --mount=type=cache,target=/var/cache/apt,sharing=private \
+    --mount=type=cache,target=/var/cache/apt \
     apt-get install -y -qq \
      agrep \
      apache2-utils \

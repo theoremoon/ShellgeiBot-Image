@@ -99,6 +99,8 @@ jobs:
             date_tag=$(date +%Y%m%d)
             docker manifest create ${DOCKER_IMAGE_NAME}:latest ${DOCKER_IMAGE_NAME}:amd64 ${DOCKER_IMAGE_NAME}:arm64 --amend
             docker manifest push ${DOCKER_IMAGE_NAME}:latest
+            docker manifest create ${DOCKER_IMAGE_NAME}:${CIRCLE_BRANCH} ${DOCKER_IMAGE_NAME}:amd64 ${DOCKER_IMAGE_NAME}:arm64 --amend
+            docker manifest push ${DOCKER_IMAGE_NAME}:${CIRCLE_BRANCH}
             docker manifest create ${DOCKER_IMAGE_NAME}:${date_tag} ${DOCKER_IMAGE_NAME}:amd64 ${DOCKER_IMAGE_NAME}:arm64 --amend
             docker manifest push ${DOCKER_IMAGE_NAME}:${date_tag}
 
@@ -115,9 +117,9 @@ jobs:
           name: Apply New Image to Running
           command: |
             if [ "${CIRCLE_BRANCH}" = "master" ]; then
-              apk add openssh
+              mkdir -pm 700 ~/.ssh
               ssh-keyscan ${SSH_HOST} >> ~/.ssh/known_hosts
-              ssh -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST} "docker pull ${DOCKER_IMAGE_NAME}:latest && docker rmi \$(docker images | grep '<none>' | awk '{print $3}')" || :
+              ssh -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST} "docker pull ${DOCKER_IMAGE_NAME}:master && docker images -qf dangling=true | xargs docker rmi"
             fi
 
 workflows:
