@@ -3,7 +3,10 @@ version: 2.1
 executors:
   builder:
     machine:
-      image: ubuntu-2004:202111-01  # https://circleci.com/developer/machine/image/ubuntu-2004
+      image: ubuntu-2004:202111-02  # https://circleci.com/docs/2.0/configuration-reference/#available-machine-images
+  deployer:
+    docker:
+      - image: cimg/base:2021.12-20.04  # https://circleci.com/docs/2.0/next-gen-migration-guide/
 
 commands:
   build-image:
@@ -84,8 +87,7 @@ jobs:
           arch: arm64
 
   push-manifest:
-    docker:
-      - image: cimg/base:2021.12-20.04  # CircleCI Convenience Images: https://circleci.com/docs/2.0/next-gen-migration-guide/; https://hub.docker.com/r/cimg/base
+    executor: deployer
     environment:
       DOCKER_IMAGE_NAME: theoldmoon0602/shellgeibot
     steps:
@@ -105,8 +107,7 @@ jobs:
             docker manifest push ${DOCKER_IMAGE_NAME}:${date_tag}
 
   deploy:
-    docker:
-      - image: cimg/base:2021.12-20.04
+    executor: deployer
     environment:
       DOCKER_IMAGE_NAME: theoldmoon0602/shellgeibot
     steps:
