@@ -120,7 +120,7 @@ jobs:
             if [ "${CIRCLE_BRANCH}" = "master" ]; then
               mkdir -pm 700 ~/.ssh
               ssh-keyscan ${SSH_HOST} >> ~/.ssh/known_hosts
-              ssh -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST} "docker pull ${DOCKER_IMAGE_NAME}:master && docker images -qf dangling=true | xargs docker rmi"
+              ssh -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST} "docker pull ${DOCKER_IMAGE_NAME}:master && docker images -qf dangling=true | xargs docker rmi || :"
             fi
 
 workflows:
