@@ -13,11 +13,12 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
 
 ## Go
 FROM base AS go-builder
+ARG TARGETARCH
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y -qq libmecab-dev
 ## use prefetched file
-COPY prefetched/go.tar.gz .
+COPY prefetched/$TARGETARCH/go.tar.gz .
 RUN tar xzf go.tar.gz -C /usr/local && rm go.tar.gz
 ENV PATH $PATH:/usr/local/go/bin
 ENV GOPATH /root/go
@@ -32,7 +33,7 @@ RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cach
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/jiro4989/textimg/v3@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/jmhobbs/terminal-parrot@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/mattn/longcat@latest
-RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build CGO_LDFLAGS="`mecab-config --libs`" CGO_CFLAGS="-I`mecab-config --inc-dir`" go install github.com/ryuichiueda/ke2daira@latest
+RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build CGO_LDFLAGS="$(mecab-config --libs)" CGO_CFLAGS="-I$(mecab-config --inc-dir)" go install github.com/ryuichiueda/ke2daira@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/ryuichiueda/kkcw@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/sugyan/ttyrec2gif@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/tomnomnom/gron@latest
@@ -77,30 +78,32 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 ## Node.js
 FROM base AS nodejs-builder
-ARG NODE_VERSION
-RUN curl -sfSO --retry 5 https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64.tar.gz \
-    && tar xf node-${NODE_VERSION}-linux-x64.tar.gz -C /usr/local \
-    && rm node-${NODE_VERSION}-linux-x64.tar.gz
-ENV PATH $PATH:/usr/local/node-${NODE_VERSION}-linux-x64/bin
+ARG TARGETARCH
+COPY prefetched/$TARGETARCH/nodejs.tar.gz .
+RUN tar xf nodejs.tar.gz \
+    && mv node-* /usr/local/nodejs
+ENV PATH $PATH:/usr/local/nodejs/bin
 RUN --mount=type=cache,target=/root/.npm \
     npm install -g --silent faker-cli chemi fx yukichant @amanoese/muscular kana2ipa
 
 ## .NET
 FROM base AS dotnet-builder
+ARG TARGETARCH
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq apt-transport-https
-RUN curl -sfSLO --retry 5 https://packages.microsoft.com/config/ubuntu/21.04/packages-microsoft-prod.deb \
-    && dpkg -i packages-microsoft-prod.deb
-RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists,rw \
-    --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get update && apt-get install -y -qq dotnet-sdk-3.1
+    apt-get install -y -qq libc6 libgcc-s1 libgssapi-krb5-2 libicu67 libssl1.1 libstdc++6 zlib1g
+# https://docs.microsoft.com/ja-jp/dotnet/core/tools/dotnet-install-script
+ADD https://dot.net/v1/dotnet-install.sh dotnet-install.sh
+# Runtime: 3.1.22, SDK: 3.1.416; https://dotnet.microsoft.com/en-us/download/dotnet/3.1
+RUN bash dotnet-install.sh --version 3.1.22 --runtime dotnet --install-dir /usr/local/dotnet
+RUN bash dotnet-install.sh --version 3.1.416
+ENV PATH $PATH:/root/.dotnet
 # noc
 RUN git clone --depth 1 https://github.com/xztaityozx/noc.git
-RUN (cd /noc/noc/noc; dotnet publish --configuration Release -p:PublishSingleFile=true -p:PublishReadyToRun=true -r linux-x64 --self-contained false)
+RUN (cd /noc/noc/noc; dotnet publish --configuration Release -p:PublishSingleFile=true -p:PublishReadyToRun=true --runtime linux-$(echo $TARGETARCH | sed 's/amd64/x64/') --self-contained false)
 # ocs
 RUN git clone --depth 1 https://github.com/xztaityozx/ocs.git
-RUN (cd /ocs/ocs; dotnet publish --configuration Release -p:PublishSingleFile=true -p:PublishReadyToRun=true -r linux-x64 --self-contained false)
+RUN (cd /ocs/ocs; dotnet publish --configuration Release -p:PublishSingleFile=true -p:PublishReadyToRun=true --runtime linux-$(echo $TARGETARCH | sed 's/amd64/x64/') --self-contained false)
 
 ## Rust
 FROM base AS rust-builder
@@ -108,6 +111,8 @@ RUN curl -sfSL --retry 5 https://sh.rustup.rs | sh -s -- -y
 ENV PATH $PATH:/root/.cargo/bin
 RUN cargo install --git https://github.com/lotabout/rargs.git
 RUN cargo install --git https://github.com/KoharaKazuya/forest.git
+RUN cargo install --git https://github.com/o2sh/onefetch.git
+RUN cargo install --git https://github.com/greymd/teip.git
 RUN find /root/.rustup /root/.cargo -type f \
     | grep -Ei 'license|readme' \
     | xargs -I@ echo "mkdir -p /tmp@; cp @ /tmp@" \
@@ -116,18 +121,18 @@ RUN find /root/.rustup /root/.cargo -type f \
 
 ## Nim
 FROM base AS nim-builder
-ENV PATH $PATH:/root/.nimble/bin
-RUN curl -sfSLO --retry 5 https://nim-lang.org/choosenim/init.sh
-RUN bash init.sh -y
-RUN choosenim update stable
-RUN nimble install edens gyaric maze rect svgo eachdo -Y
+RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
+    --mount=type=cache,target=/var/cache/apt,sharing=private \
+    apt-get install -y -qq nim
+RUN --mount=type=cache,target=/root/.cache \
+    nimble install edens gyaric maze rect svgo eachdo -Y
 
 ## General
 FROM base AS general-builder
+ARG TARGETARCH
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq file jq lib32ncursesw5-dev libmecab-dev mecab
-
+    apt-get install -y -qq file jq libncursesw5-dev libmecab-dev mecab
 WORKDIR /downloads
 # Open-usp-Tukubai
 RUN git clone --depth 1 https://github.com/usp-engineers-community/Open-usp-Tukubai.git
@@ -152,49 +157,62 @@ RUN git clone --depth 1 https://github.com/ryuichiueda/GlueLang.git \
     && (cd GlueLang && make)
 RUN git clone --depth 1 https://github.com/ryuichiueda/glueutils.git \
     && (cd glueutils && mkdir -p bin && make)
-# mecab-ipadic-NEologd
-RUN git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd \
-    && (cd mecab-ipadic-neologd && ./bin/install-mecab-ipadic-neologd -u -y -p $PWD/ipadic-utf8)
-
-# egison
-RUN curl -sfSLO --retry 5 https://github.com/egison/egison-package-builder/releases/download/4.1.2/egison-4.1.2.x86_64.deb
 # egzact
-RUN curl -sfSLO --retry 5 https://github.com/greymd/egzact/releases/download/v2.1.1/egzact-2.1.1.deb
-# bat
-RUN curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.18.3/bat_0.18.3_amd64.deb -o bat.deb
-# osquery
-RUN curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.0.1/osquery_5.0.1-1.linux_amd64.deb -o osquery.deb
+RUN git clone --depth 1 https://github.com/greymd/egzact.git
 # super_unko
-RUN curl -sfSLO --retry 5 https://git.io/superunko.linux.deb
+RUN git clone --depth 1 https://github.com/unkontributors/super_unko.git
 # echo-meme
-RUN curl -sfSLO --retry 5 https://git.io/echo-meme.deb
+RUN git clone --depth 1 https://github.com/greymd/echo-meme.git
+# V
+RUN git clone --branch weekly.2021.51 --depth 1 https://github.com/vlang/v \
+    && (cd v && make)
+# mecab-ipadic-NEologd
+RUN git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd
+COPY prefetched/mecab-ipadic/mecab-ipadic-2.7.0-20070801.tar.gz mecab-ipadic-neologd/build/
+RUN mkdir mecab-ipadic-neologd-utf8
+RUN mecab-ipadic-neologd/bin/install-mecab-ipadic-neologd -u -y -p /downloads/mecab-ipadic-neologd-utf8
+# bat
+RUN case $(uname -m) in \
+      x86_64)  curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.18.3/bat_0.18.3_amd64.deb -o bat.deb ;; \
+      aarch64) curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.18.3/bat_0.18.3_arm64.deb -o bat.deb ;; \
+    esac
+# osquery
+RUN case $(uname -m) in \
+      x86_64)  curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.0.1/osquery_5.0.1-1.linux_amd64.deb -o osquery.deb ;; \
+      aarch64) curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.0.1/osquery_5.0.1-1.linux_arm64.deb -o osquery.deb ;; \
+    esac
 # J
-RUN curl -sfSL --retry 5 http://www.jsoftware.com/download/j902/install/j902_amd64.deb -o j.deb
-# teip
-RUN curl -sfSL --retry 5 https://git.io/teip-1.2.1.x86_64.deb -o teip.deb
-
+RUN case $(uname -m) in \
+      x86_64)  curl -sfSL --retry 5 https://www.jsoftware.com/download/j902/install/j902_amd64.deb -o j.deb ;; \
+    esac
+# Egison
+COPY egison/egison-linux-${TARGETARCH}.tar.gz .
+RUN if [ "${TARGETARCH}" = "amd64" ]; then curl -sfSL https://github.com/egison/egison-package-builder/releases/download/4.1.3/egison-4.1.3.x86_64.deb -o egison.deb; fi
 # Julia
-COPY prefetched/julia.tar.gz .
+COPY prefetched/$TARGETARCH/julia.tar.gz .
 # OpenJDK
-COPY prefetched/openjdk17.tar.gz .
+COPY prefetched/$TARGETARCH/openjdk.tar.gz .
 # Clojure
 RUN curl -sfSL --retry 5 https://download.clojure.org/install/linux-install-1.10.3.855.sh -o clojure_install.sh
-
 # trdsql
-RUN curl -sfSLO --retry 5 https://github.com/noborus/trdsql/releases/download/v0.9.0/trdsql_v0.9.0_linux_amd64.zip
-# onefetch
-RUN curl -sfSLO --retry 5 https://github.com/o2sh/onefetch/releases/download/v2.10.2/onefetch-linux.tar.gz
+RUN case $(uname -m) in \
+      x86_64)  curl -sfSL --retry 5 https://github.com/noborus/trdsql/releases/download/v0.9.0/trdsql_v0.9.0_linux_amd64.zip -o trdsql.zip ;; \
+      aarch64) curl -sfSL --retry 5 https://github.com/noborus/trdsql/releases/download/v0.9.0/trdsql_v0.9.0_linux_arm64.zip -o trdsql.zip ;; \
+    esac
 # PowerShell
-RUN curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v7.1.5/powershell-7.1.5-linux-x64.tar.gz -o powershell.tar.gz
-# V
-RUN curl -sfSLO --retry 5 https://github.com/vlang/v/releases/download/0.2.4/v_linux.zip
-## use prefetched file
-COPY prefetched/chrome-linux.zip .
+ENV POWERSHELL_VERSION 7.1.5
+RUN case $(uname -m) in \
+      x86_64)  curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v$POWERSHELL_VERSION/powershell-$POWERSHELL_VERSION-linux-x64.tar.gz   -o powershell.tar.gz ;; \
+      aarch64) curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v$POWERSHELL_VERSION/powershell-$POWERSHELL_VERSION-linux-arm64.tar.gz -o powershell.tar.gz ;; \
+    esac
+# Chromium
+COPY prefetched/$TARGETARCH/chrome-linux.zip .
 # morsed (最新版のreleasesを取得するためjqで最新タグを取得)
-RUN curl -s https://api.github.com/repos/jiro4989/morsed/releases \
-    | jq -r '.[0].assets[] | select(.name | test("morsed_linux.tar.gz")) | .browser_download_url' \
-    | xargs curl -sfSLO --retry 5
-
+RUN if [ "$(uname -m)" = "x86_64" ]; then \
+      curl -s https://api.github.com/repos/jiro4989/morsed/releases \
+      | jq -r '.[0].assets[] | select(.name | test("morsed_linux.tar.gz")) | .browser_download_url' \
+      | xargs curl -sfSLO --retry 5; \
+    fi
 WORKDIR /
 
 
@@ -252,8 +270,10 @@ RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/ryuichiueda/opy/maste
     && chmod u+x /usr/local/bin/opy
 
 # base85
-RUN curl -sfSL --retry 5 https://github.com/redpeacock78/base85/releases/download/v0.0.11/base85-linux-x86 -o /usr/local/bin/base85 \
-    && chmod u+x /usr/local/bin/base85
+RUN if [ "$(uname -m)" = "x86_64" ]; then \
+      curl -sfSL --retry 5 https://github.com/redpeacock78/base85/releases/download/v0.0.11/base85-linux-x86 -o /usr/local/bin/base85 \
+      && chmod u+x /usr/local/bin/base85 ; \
+    fi
 
 # apt
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
@@ -370,27 +390,16 @@ COPY --from=python-builder /usr/local/lib/python3.9 /usr/local/lib/python3.9
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Node.js
-ARG NODE_VERSION
-COPY --from=nodejs-builder /usr/local/node-${NODE_VERSION}-linux-x64 /usr/local/node-${NODE_VERSION}-linux-x64
-ENV PATH $PATH:/usr/local/node-${NODE_VERSION}-linux-x64/bin
+COPY --from=nodejs-builder /usr/local/nodejs /usr/local/nodejs
+ENV PATH $PATH:/usr/local/nodejs/bin
 
 # .NET
-RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
-    --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq apt-transport-https
-RUN curl -sfSLO --retry 5 https://packages.microsoft.com/config/ubuntu/21.04/packages-microsoft-prod.deb \
-    && dpkg -i packages-microsoft-prod.deb \
-    && rm packages-microsoft-prod.deb
-RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists,rw \
-    --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get update && apt-get install -y -qq dotnet-runtime-3.1
-COPY --from=dotnet-builder /noc/LICENSE /noc/README.md \
-    /noc/noc/noc/bin/Release/netcoreapp3.1/linux-x64/publish/noc \
-    /usr/local/noc/
+COPY --from=dotnet-builder /usr/local/dotnet /usr/local/dotnet
+ENV DOTNET_ROOT=/usr/local/dotnet
+ENV PATH=$PATH:$DOTNET_ROOT
+COPY --from=dotnet-builder /noc/LICENSE /noc/README.md /noc/noc/noc/bin/Release/netcoreapp3.1/linux-*/publish/noc /usr/local/noc/
 RUN ln -s /usr/local/noc/noc /usr/local/bin/noc
-COPY --from=dotnet-builder /ocs/LICENSE /ocs/README.md \
-    /ocs/ocs/bin/Release/netcoreapp3.1/linux-x64/publish/ocs \
-    /usr/local/ocs/
+COPY --from=dotnet-builder /ocs/LICENSE /ocs/README.md /ocs/ocs/bin/Release/netcoreapp3.1/linux-*/publish/ocs /usr/local/ocs/
 RUN ln -s /usr/local/ocs/ocs /usr/local/bin/ocs
 
 # Rust
@@ -404,15 +413,25 @@ ENV PATH $PATH:/root/.nimble/bin
 
 # shellgei data
 COPY --from=general-builder /downloads/ShellGeiData /ShellGeiData
+
 # eki
 COPY --from=general-builder /downloads/eki/eki /eki
 COPY --from=general-builder /downloads/eki/bin /usr/local/bin
+
+# Egison
+RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
+    case $(uname -m) in \
+      x86_64) dpkg -i /downloads/egison.deb ;; \
+      aarch64) mkdir /usr/lib/egison; tar xf /downloads/egison-*.tar.gz -C /usr/lib/egison --strip-components 1 ;; \
+    esac
+ENV PATH $PATH:/usr/lib/egison/bin
+
 # imgout
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     (cd /downloads/ImageGeneratorForShBot && git archive --format=tar --prefix=imgout/ HEAD) | tar xf - -C /usr/local
 ENV PATH $PATH:/usr/local/imgout:/usr/local/kkcw
 
-# Open-usp-Tukubai, edfsay, color, rainbow, no more secrets, csvquote, GlueLang, NEologd
+# Open-usp-Tukubai, edfsay, color, rainbow, no more secrets, csvquote, GlueLang, NEologd, egzact, super_unko, echo-meme
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     (cd /downloads/Open-usp-Tukubai && make install) \
     && (cd /downloads/edfsay && ./install.sh) \
@@ -421,29 +440,25 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     && (cd /downloads/csvquote && make install) \
     && (cd /downloads/GlueLang && install -m 755 glue /usr/local/bin) \
     && (cd /downloads/glueutils/bin && install -m 755 * /usr/local/bin/) \
-    && (cp -rf /downloads/mecab-ipadic-neologd/ipadic-utf8 /var/lib/mecab/dic)
+    && cp -r /downloads/mecab-ipadic-neologd-utf8/* /var/lib/mecab/dic/ipadic-utf8/ \
+    && /downloads/egzact/install.sh \
+    && /downloads/super_unko/install.sh \
+    && /downloads/echo-meme/install.sh
 
-# egison, egzact, bat, osquery, super_unko, echo-meme, J
+# bat, osquery, J
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
-    dpkg -i \
-      /downloads/egison-4.1.2.x86_64.deb \
-      /downloads/egzact-2.1.1.deb \
-      /downloads/bat.deb \
-      /downloads/osquery.deb \
-      /downloads/superunko.linux.deb \
-      /downloads/echo-meme.deb \
-      /downloads/j.deb \
-      /downloads/teip.deb
+    dpkg --install /downloads/bat.deb /downloads/osquery.deb \
+    && if [ "$(uname -m)" = "x86_64" ]; then dpkg --install /downloads/j.deb; fi
 
-# Julia, OpenJDK, trdsql (apply sql to csv), onefetch, Clojure, chromium
+# Julia, OpenJDK, trdsql (apply sql to csv), Clojure, chromium
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     tar xf /downloads/julia.tar.gz -C /usr/local \
-    && tar xf /downloads/openjdk17.tar.gz -C /usr/local \
-    && unzip /downloads/trdsql_v0.9.0_linux_amd64.zip -d /usr/local \
-    && ln -s /usr/local/trdsql_v0.9.0_linux_amd64/trdsql /usr/local/bin \
-    && tar xf /downloads/onefetch-linux.tar.gz -C /usr/local/bin \
+    && tar xf /downloads/openjdk.tar.gz -C /usr/local \
+    && unzip /downloads/trdsql.zip -d /usr/local \
+    && ln -s /usr/local/trdsql_v0.9.0_linux_*/trdsql /usr/local/bin \
     && /bin/bash /downloads/clojure_install.sh \
-    && unzip /downloads/chrome-linux.zip -d /usr/local
+    && if [ "$(uname -m)" = "x86_64" ]; then unzip /downloads/chrome-linux.zip -d /usr/local; fi
+
 ENV PATH $PATH:/usr/local/julia-1.6.3/bin:/usr/local/jdk-17/bin:/usr/local/chrome-linux
 ENV JAVA_HOME /usr/local/jdk-17
 # Clojure が実行時に必要とするパッケージを取得
@@ -453,8 +468,10 @@ RUN curl -s --retry 5 https://raw.githubusercontent.com/borkdude/babashka/master
 
 # V
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
-    unzip /downloads/v_linux.zip -d /usr/local \
-    && ln -s /usr/local/v/v /usr/local/bin/v
+    install -d /usr/local/v/bin \
+    && install /downloads/v/v /usr/local/v/bin/v \
+    && install /downloads/v/LICENSE /usr/local/v/LICENSE
+ENV PATH $PATH:/usr/local/v/bin
 
 # PowerShell
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
@@ -464,8 +481,10 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
 
 # morsed
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
-    tar xf /downloads/morsed_linux.tar.gz -C /usr/local/ \
-    && ln -s /usr/local/morsed_linux/morsed /usr/local/bin/
+    if [ "$(uname -m)" = "x86_64" ]; then \
+      tar xf /downloads/morsed_linux.tar.gz -C /usr/local/ \
+      && ln -s /usr/local/morsed_linux/morsed /usr/local/bin/; \
+    fi
 
 # man
 RUN mv /usr/bin/man.REAL /usr/bin/man

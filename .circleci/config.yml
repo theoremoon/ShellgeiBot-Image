@@ -1,70 +1,168 @@
-# Golang CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-go/ for more details
-version: 2
-jobs:
-  image-build:
-    environment:
-      DOCKER_IMAGE: theoldmoon0602/shellgeibot
+version: 2.1
+
+executors:
+  builder:
+    machine:
+      image: ubuntu-2004:202111-02  # https://circleci.com/docs/2.0/configuration-reference/#available-machine-images
+  deployer:
     docker:
-      - image: docker:stable
-        environment:
-          DOCKER_BUILDKIT: "1"  # Enable Docker BuildKit
+      - image: cimg/base:2021.12-20.04  # https://circleci.com/docs/2.0/next-gen-migration-guide/
+
+commands:
+  build-image:
+    parameters:
+      arch:
+        type: string
     steps:
       - checkout
-      - setup_remote_docker:
-          # docker_layer_caching: true  # 有償オプション
-          version: "20.10.7"  # https://circleci.com/docs/2.0/building-docker-images/#docker-version
+      - restore_cache:
+          keys:
+            - egison-<< parameters.arch >>-{{ checksum "egison/Makefile" }}-{{ checksum "egison/build.sh" }}-{{ checksum "egison/Dockerfile" }}
       - run:
-          name: Build Docker image
+          name: Pre-build egison
           command: |
-            apk add --no-progress git jq curl make
+            make -C egison build
+      - save_cache:
+          key: egison-<< parameters.arch >>-{{ checksum "egison/Makefile" }}-{{ checksum "egison/build.sh" }}-{{ checksum "egison/Dockerfile" }}
+          paths: egison/egison-linux-<< parameters.arch>>.tar.gz
+      - restore_cache:
+          keys:
+            - mecab-ipadic-{{ checksum "prefetched/mecab-ipadic/sha1sum.txt" }}
+      - run:
+          name: Build a docker image
+          command: |
             make build-ci
+      - save_cache:
+          key: mecab-ipadic-{{ checksum "prefetched/mecab-ipadic/sha1sum.txt" }}
+          paths: prefetched/mecab-ipadic/
       - run:
-          name: Test Docker image
+          name: Install test tools
           command: |
-            apk add --no-progress nodejs npm
-            npm_config_unsafe_perm=true npm install --global --silent --no-progress tap-xunit
-            mkdir -p ~/reports
-            docker create -v /root/src --name source ubuntu:21.10 /bin/true
-            docker cp docker_image.bats source:/root/src
-            docker container run --net=none --rm --volumes-from source ${DOCKER_IMAGE} \
-              /bin/bash -c "bats --tap /root/src/docker_image.bats || true" | tee result.tap
-            cat result.tap | tap-xunit > ~/reports/result.xml
+            sudo apt update -qq
+            sudo apt install -y -qq moreutils
+            mkdir ~/opt
+            tar xf prefetched/*/nodejs.tar.gz -C ~/opt --strip-components 1
+            PATH=${PATH}:~/opt/bin npm install --global --silent --no-progress tap-xunit
+            echo "export PATH=${PATH}:~/opt/bin" >> ${BASH_ENV}
+      - run:
+          name: Test a docker image
+          command: |
+            mkdir ~/reports
+            make test-ci | pee cat "tap-xunit > ~/reports/result.xml"
       - store_test_results:
           path: ~/reports
+      - run: |
+          if [ "${CIRCLE_BRANCH}" != "master" ]; then
+            circleci-agent step halt
+          fi
       - run:
-          name: Push Docker image to Docker Hub
+          name: Login to Docker Hub
           command: |
-            if [ "${CIRCLE_BRANCH}" = "master" ]; then
-              DATE_TAG=$(date +%Y%m%d)
-              echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin
-              docker tag ${DOCKER_IMAGE}:latest ${DOCKER_IMAGE}:${DATE_TAG}
-              docker tag ${DOCKER_IMAGE}:latest ${DOCKER_IMAGE}:${CIRCLE_BRANCH}
-              docker push ${DOCKER_IMAGE}:${DATE_TAG}
-              docker push ${DOCKER_IMAGE}:${CIRCLE_BRANCH}
-              docker push ${DOCKER_IMAGE}:latest
-            fi
+            echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin
+      - run:
+          name: Push a docker image
+          command: |
+            docker tag ${DOCKER_IMAGE_NAME}:latest ${DOCKER_IMAGE_NAME}:<< parameters.arch >>
+            docker push ${DOCKER_IMAGE_NAME}:<< parameters.arch >>
+
+jobs:
+  build-x64:
+    executor: builder
+    environment:
+      DOCKER_BUILDKIT: '1'
+      DOCKER_IMAGE_NAME: theoldmoon0602/shellgeibot
+    resource_class: large  # 4vCPU, 8GB RAM; https://circleci.com/docs/ja/2.0/configuration-reference/#resourceclass
+    steps:
+      - build-image:
+          arch: amd64
+
+  build-arm64:
+    executor: builder
+    resource_class: arm.medium  # 2vCPU, 8GB RAM; https://circleci.com/docs/ja/2.0/arm-resources/
+    environment:
+      DOCKER_BUILDKIT: '1'
+      DOCKER_IMAGE_NAME: theoldmoon0602/shellgeibot
+    steps:
+      - build-image:
+          arch: arm64
+
+  push-manifest:
+    executor: deployer
+    environment:
+      DOCKER_IMAGE_NAME: theoldmoon0602/shellgeibot
+    steps:
+      - run:
+          name: Login to Docker Hub
+          command: |
+            echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin
+      - run:
+          name: update manifest
+          command: |
+            date_tag=$(date +%Y%m%d)
+            docker manifest create ${DOCKER_IMAGE_NAME}:latest ${DOCKER_IMAGE_NAME}:amd64 ${DOCKER_IMAGE_NAME}:arm64 --amend
+            docker manifest push ${DOCKER_IMAGE_NAME}:latest
+            docker manifest create ${DOCKER_IMAGE_NAME}:${CIRCLE_BRANCH} ${DOCKER_IMAGE_NAME}:amd64 ${DOCKER_IMAGE_NAME}:arm64 --amend
+            docker manifest push ${DOCKER_IMAGE_NAME}:${CIRCLE_BRANCH}
+            docker manifest create ${DOCKER_IMAGE_NAME}:${date_tag} ${DOCKER_IMAGE_NAME}:amd64 ${DOCKER_IMAGE_NAME}:arm64 --amend
+            docker manifest push ${DOCKER_IMAGE_NAME}:${date_tag}
+
+  deploy:
+    executor: deployer
+    environment:
+      DOCKER_IMAGE_NAME: theoldmoon0602/shellgeibot
+    steps:
       - add_ssh_keys:
           fingerprints:
             - "29:cf:20:0a:41:36:28:49:a2:ef:7c:b3:ae:05:5b:47"
       - deploy:
           name: Apply New Image to Running
           command: |
-            test "${CIRCLE_BRANCH}" = master && apk add openssh && ssh-keyscan ${SSH_HOST} >> ~/.ssh/known_hosts && ssh -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST} "docker pull theoldmoon0602/shellgeibot:master && docker rmi \$(docker images | grep '<none>' | awk '{print $3}')" || :
+            if [ "${CIRCLE_BRANCH}" = "master" ]; then
+              mkdir -pm 700 ~/.ssh
+              ssh-keyscan ${SSH_HOST} >> ~/.ssh/known_hosts
+              ssh -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST} "docker pull ${DOCKER_IMAGE_NAME}:master && docker images -qf dangling=true | xargs docker rmi || :"
+            fi
 
 workflows:
-  version: 2
+  version: 2.1
   commit-workflow:
     jobs:
-      - image-build
+      - build-x64
+      - build-arm64
+      - push-manifest:
+          filters:
+            branches:
+              only: master
+          requires:
+            - build-x64
+            - build-arm64
+      - deploy:
+          filters:
+            branches:
+              only: master
+          requires:
+            - push-manifest
+
   scheduled-workflow:
     triggers:
       - schedule:
           cron: "0 2 * * *"
           filters:
             branches:
-              only:
-                - master
+              only: master
     jobs:
-      - image-build
+      - build-x64
+      - build-arm64
+      - push-manifest:
+          filters:
+            branches:
+              only: master
+          requires:
+            - build-x64
+            - build-arm64
+      - deploy:
+          filters:
+            branches:
+              only: master
+          requires:
+            - push-manifest

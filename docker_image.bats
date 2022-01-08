@@ -51,6 +51,9 @@
 }
 
 @test "base85" {
+  if [ "$(uname -m)" == "aarch64" ]; then
+    skip "don't install base85 on aarch64"
+  fi
   run bash -c 'echo "<~j+=c#Ju@X]X6>GN~>" | base85 -d'
   [ "$output" = "シェル芸" ]
 }
@@ -111,6 +114,9 @@
 }
 
 @test "chromium" {
+  if [ "$(uname -m)" == "aarch64" ]; then
+    skip "don't install chromium on aarch64"
+  fi
   run chrome --version
   [[ "$output" =~ "Chromium" ]]
 }
@@ -418,6 +424,9 @@
 }
 
 @test "J" {
+  if [ "$(uname -m)" = "aarch64" ]; then
+    skip "don't install Jlang on aarch64"
+  fi
   run bash -c "echo \"'シェル芸'\" | ijconsole"
   [ "${lines[0]}" = 'シェル芸' ]
 }
@@ -469,8 +478,8 @@
 
 # 不要?
 @test "libskk-dev" {
-  run stat /usr/lib/x86_64-linux-gnu/libskk.so
-  [ "${lines[0]}" = "  File: /usr/lib/x86_64-linux-gnu/libskk.so -> libskk.so.0.0.0" ]
+  run stat /usr/lib/$(uname -m)-linux-gnu/libskk.so
+  [ "${lines[0]}" = "  File: /usr/lib/$(uname -m)-linux-gnu/libskk.so -> libskk.so.0.0.0" ]
 }
 
 @test "libxml2-utils" {
@@ -540,6 +549,9 @@
 }
 
 @test "morsed" {
+  if [ "$(uname -m)" == "aarch64" ]; then
+    skip "don't install morsed on aarch64"
+  fi
   run bash -c "morsed -p 名詞 -s 寿司 吾輩は猫である"
   [ "$output" = "寿司は寿司である" ]
 }
@@ -962,9 +974,8 @@
 
 @test "teip" {
   run teip --help
-  [ "${lines[0]}" = "teip: Allow the command handle selected parts of the standard input, and bypass other parts." ]
+  [ "${lines[1]}" = "Allow the command handle selected parts of the standard input, and bypass other parts." ]
 }
-
 
 @test "telnet" {
   run telnet -h
