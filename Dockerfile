@@ -33,7 +33,6 @@ RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cach
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/jiro4989/textimg/v3@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/jmhobbs/terminal-parrot@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/mattn/longcat@latest
-RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build CGO_LDFLAGS="$(mecab-config --libs)" CGO_CFLAGS="-I$(mecab-config --inc-dir)" go install github.com/ryuichiueda/ke2daira@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/ryuichiueda/kkcw@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/sugyan/ttyrec2gif@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/tomnomnom/gron@latest
@@ -118,6 +117,10 @@ RUN find /root/.rustup /root/.cargo -type f \
     | xargs -I@ echo "mkdir -p /tmp@; cp @ /tmp@" \
     | sed -e 's!/[^/]*;!;!' \
     | bash
+RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
+    --mount=type=cache,target=/var/cache/apt,sharing=private \
+    apt-get install -y -qq libmecab-dev mecab
+RUN cargo install --git https://github.com/ryuichiueda/ke2daira.git
 
 ## Nim
 FROM base AS nim-builder
