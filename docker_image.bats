@@ -462,7 +462,7 @@
 }
 
 @test "ke2daira" {
-  run bash -c "echo シェル 芸 | ke2daira"
+  run bash -c "echo シェル 芸 | ke2daira -m"
   [ "$output" = 'ゲェル シイ' ]
 }
 

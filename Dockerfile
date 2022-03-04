@@ -14,10 +14,6 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
 ## Go
 FROM base AS go-builder
 ARG TARGETARCH
-RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
-    --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq libmecab-dev
-## use prefetched file
 COPY prefetched/$TARGETARCH/go.tar.gz .
 RUN tar xzf go.tar.gz -C /usr/local && rm go.tar.gz
 ENV PATH $PATH:/usr/local/go/bin
@@ -33,7 +29,6 @@ RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cach
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/jiro4989/textimg/v3@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/jmhobbs/terminal-parrot@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/mattn/longcat@latest
-RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build CGO_LDFLAGS="$(mecab-config --libs)" CGO_CFLAGS="-I$(mecab-config --inc-dir)" go install github.com/ryuichiueda/ke2daira@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/ryuichiueda/kkcw@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/sugyan/ttyrec2gif@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/tomnomnom/gron@latest
@@ -107,12 +102,16 @@ RUN (cd /ocs/ocs; dotnet publish --configuration Release -p:PublishSingleFile=tr
 
 ## Rust
 FROM base AS rust-builder
+RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
+    --mount=type=cache,target=/var/cache/apt,sharing=private \
+    apt-get install -y -qq libmecab-dev mecab
 RUN curl -sfSL --retry 5 https://sh.rustup.rs | sh -s -- -y
 ENV PATH $PATH:/root/.cargo/bin
 RUN cargo install --git https://github.com/lotabout/rargs.git
 RUN cargo install --git https://github.com/KoharaKazuya/forest.git
 RUN cargo install --git https://github.com/o2sh/onefetch.git
 RUN cargo install --git https://github.com/greymd/teip.git
+RUN cargo install --git https://github.com/ryuichiueda/ke2daira.git
 RUN find /root/.rustup /root/.cargo -type f \
     | grep -Ei 'license|readme' \
     | xargs -I@ echo "mkdir -p /tmp@; cp @ /tmp@" \
