@@ -14,10 +14,6 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
 ## Go
 FROM base AS go-builder
 ARG TARGETARCH
-#RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
-#    --mount=type=cache,target=/var/cache/apt,sharing=private \
-#    apt-get install -y -qq libmecab-dev
-## use prefetched file
 COPY prefetched/$TARGETARCH/go.tar.gz .
 RUN tar xzf go.tar.gz -C /usr/local && rm go.tar.gz
 ENV PATH $PATH:/usr/local/go/bin
