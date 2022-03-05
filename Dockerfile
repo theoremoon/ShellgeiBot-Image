@@ -102,6 +102,7 @@ RUN (cd /ocs/ocs; dotnet publish --configuration Release -p:PublishSingleFile=tr
 
 ## Rust
 FROM base AS rust-builder
+ARG TARGETARCH
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y -qq libmecab-dev mecab
@@ -111,7 +112,7 @@ RUN cargo install --git https://github.com/lotabout/rargs.git
 RUN cargo install --git https://github.com/KoharaKazuya/forest.git
 RUN cargo install --git https://github.com/o2sh/onefetch.git
 RUN cargo install --git https://github.com/greymd/teip.git
-RUN cargo install --git https://github.com/ryuichiueda/ke2daira.git
+RUN if [ "${TARGETARCH}" = "amd64" ]; then cargo install --git https://github.com/ryuichiueda/ke2daira.git; fi
 RUN find /root/.rustup /root/.cargo -type f \
     | grep -Ei 'license|readme' \
     | xargs -I@ echo "mkdir -p /tmp@; cp @ /tmp@" \
