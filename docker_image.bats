@@ -462,6 +462,9 @@
 }
 
 @test "ke2daira" {
+  if [ "$(uname -m)" == "aarch64" ]; then
+    skip "ke2daira is not installed on aarch64"
+  fi
   run bash -c "echo シェル 芸 | ke2daira -m"
   [ "$output" = 'ゲェル シイ' ]
 }
