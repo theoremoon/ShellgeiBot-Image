@@ -195,7 +195,7 @@
 
 @test "dotnet" {
   run dotnet --help
-  [[ "${lines[1]}" =~ "Usage: dotnet" ]]
+  [[ "${lines[0]}" =~ "Usage: dotnet" ]]
 }
 
 @test "eachdo" {
