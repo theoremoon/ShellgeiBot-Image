@@ -89,16 +89,16 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
     apt-get install -y -qq libc6 libgcc-s1 libgssapi-krb5-2 libicu67 libssl1.1 libstdc++6 zlib1g
 # https://docs.microsoft.com/ja-jp/dotnet/core/tools/dotnet-install-script
 ADD https://dot.net/v1/dotnet-install.sh dotnet-install.sh
-# Runtime: 3.1.22, SDK: 3.1.416; https://dotnet.microsoft.com/en-us/download/dotnet/3.1
-RUN bash dotnet-install.sh --version 3.1.22 --runtime dotnet --install-dir /usr/local/dotnet
-RUN bash dotnet-install.sh --version 3.1.416
+# Runtime: 6.0.2, SDK: 6.0.200; https://dotnet.microsoft.com/en-us/download/dotnet/6.0
+RUN bash dotnet-install.sh --version 6.0.2 --runtime dotnet --install-dir /usr/local/dotnet
+RUN bash dotnet-install.sh --version 6.0.200
 ENV PATH $PATH:/root/.dotnet
 # noc
 RUN git clone --depth 1 https://github.com/xztaityozx/noc.git
 RUN (cd /noc/noc/noc; dotnet publish --configuration Release -p:PublishSingleFile=true -p:PublishReadyToRun=true --runtime linux-$(echo $TARGETARCH | sed 's/amd64/x64/') --self-contained false)
 # ocs
 RUN git clone --depth 1 https://github.com/xztaityozx/ocs.git
-RUN (cd /ocs/ocs; dotnet publish --configuration Release -p:PublishSingleFile=true -p:PublishReadyToRun=true --runtime linux-$(echo $TARGETARCH | sed 's/amd64/x64/') --self-contained false)
+RUN (cd /ocs/ocs; dotnet publish --configuration Release --runtime linux-$(echo $TARGETARCH | sed 's/amd64/x64/') --self-contained false ocs.csproj)
 
 ## Rust
 FROM base AS rust-builder
@@ -397,9 +397,9 @@ ENV PATH $PATH:/usr/local/nodejs/bin
 COPY --from=dotnet-builder /usr/local/dotnet /usr/local/dotnet
 ENV DOTNET_ROOT=/usr/local/dotnet
 ENV PATH=$PATH:$DOTNET_ROOT
-COPY --from=dotnet-builder /noc/LICENSE /noc/README.md /noc/noc/noc/bin/Release/netcoreapp3.1/linux-*/publish/noc /usr/local/noc/
+COPY --from=dotnet-builder /noc/LICENSE /noc/README.md /noc/noc/noc/bin/Release/net6.0/linux-*/publish/noc /usr/local/noc/
 RUN ln -s /usr/local/noc/noc /usr/local/bin/noc
-COPY --from=dotnet-builder /ocs/LICENSE /ocs/README.md /ocs/ocs/bin/Release/netcoreapp3.1/linux-*/publish/ocs /usr/local/ocs/
+COPY --from=dotnet-builder /ocs/LICENSE /ocs/README.md /ocs/ocs/bin/Release/net6.0/linux-*/publish/ /usr/local/ocs/
 RUN ln -s /usr/local/ocs/ocs /usr/local/bin/ocs
 
 # Rust
