@@ -195,7 +195,7 @@
 
 @test "dotnet" {
   run dotnet --help
-  [ "${lines[3]}" = "Usage: dotnet [host-options] [path-to-application]" ]
+  [[ "${lines[1]}" =~ "Usage: dotnet" ]]
 }
 
 @test "eachdo" {
