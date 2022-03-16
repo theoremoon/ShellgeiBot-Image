@@ -164,7 +164,7 @@ RUN git clone --depth 1 https://github.com/unkontributors/super_unko.git
 # echo-meme
 RUN git clone --depth 1 https://github.com/greymd/echo-meme.git
 # V
-RUN git clone --branch weekly.2021.51 --depth 1 https://github.com/vlang/v \
+RUN git clone --branch weekly.2022.11 --depth 1 https://github.com/vlang/v \
     && (cd v && make)
 # mecab-ipadic-NEologd
 RUN git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd
