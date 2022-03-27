@@ -1061,11 +1061,6 @@
   [ "${lines[0]}" = "Name the characters in a Unicode file." ]
 }
 
-@test "V" {
-  run v version
-  [[ "$output" =~ 'V ' ]]
-}
-
 @test "Vim" {
   run bash -c "echo シェル芸 | vim -es +%p +q! /dev/stdin"
   [ "$output" = シェル芸 ]
