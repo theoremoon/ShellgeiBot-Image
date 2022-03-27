@@ -463,13 +463,6 @@ RUN clojure -e '(println "test")'
 # Clojure ワンライナー
 RUN curl -s --retry 5 https://raw.githubusercontent.com/borkdude/babashka/master/install | bash
 
-# V
-RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
-    install -d /usr/local/v/bin \
-    && install /downloads/v/v /usr/local/v/bin/v \
-    && install /downloads/v/LICENSE /usr/local/v/LICENSE
-ENV PATH $PATH:/usr/local/v/bin
-
 # PowerShell
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     mkdir -p /usr/local/powershell \
