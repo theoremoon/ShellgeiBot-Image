@@ -163,9 +163,6 @@ RUN git clone --depth 1 https://github.com/greymd/egzact.git
 RUN git clone --depth 1 https://github.com/unkontributors/super_unko.git
 # echo-meme
 RUN git clone --depth 1 https://github.com/greymd/echo-meme.git
-# V
-RUN git clone --branch weekly.2022.11 --depth 1 https://github.com/vlang/v \
-    && (cd v && make)
 # mecab-ipadic-NEologd
 RUN git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd
 COPY prefetched/mecab-ipadic/mecab-ipadic-2.7.0-20070801.tar.gz mecab-ipadic-neologd/build/
@@ -465,13 +462,6 @@ ENV JAVA_HOME /usr/local/jdk-17
 RUN clojure -e '(println "test")'
 # Clojure ワンライナー
 RUN curl -s --retry 5 https://raw.githubusercontent.com/borkdude/babashka/master/install | bash
-
-# V
-RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
-    install -d /usr/local/v/bin \
-    && install /downloads/v/v /usr/local/v/bin/v \
-    && install /downloads/v/LICENSE /usr/local/v/LICENSE
-ENV PATH $PATH:/usr/local/v/bin
 
 # PowerShell
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
