@@ -80,6 +80,10 @@ RUN tar xf nodejs.tar.gz \
 ENV PATH $PATH:/usr/local/nodejs/bin
 RUN --mount=type=cache,target=/root/.npm \
     npm install -g --silent faker-cli chemi fx yukichant @amanoese/muscular kana2ipa receiptio
+# enable png output on receiptio
+RUN --mount=type=cache,target=/root/.npm \
+    if [ "${TARGETARCH}" = "amd64" ]; then npm install -g --silent puppeteer; fi \
+    && sed "s/puppeteer.launch({/& args: ['--no-sandbox'],/" -i /usr/local/nodejs/lib/node_modules/receiptio/lib/receiptio.js 
 
 ## .NET
 FROM base AS dotnet-builder
