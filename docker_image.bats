@@ -801,6 +801,11 @@
   [ "$output" = '/usr/local/bin/rb' ]
 }
 
+@test "receiptio" {
+  run receiptio -h
+  [ "${lines[0]}" = "usage: receiptio [options] [source]" ]
+}
+
 @test "rect" {
   run rect --help
   [ "${lines[0]}" = 'rect is a command to crop/paste rectangle text' ]
