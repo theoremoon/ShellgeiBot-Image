@@ -188,9 +188,9 @@ RUN case $(uname -m) in \
       aarch64) curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.2.2/osquery_5.2.2-1.linux_arm64.deb -o osquery.deb ;; \
     esac
 # J
-RUN case $(uname -m) in \
-      x86_64)  curl -sfSL --retry 5 https://www.jsoftware.com/download/j903/install/j903_amd64.deb -o j.deb ;; \
-    esac
+RUN if [ "$(uname -m)" = "x86_64" ]; then \
+      curl -sfSL --retry 5 http://www.jsoftware.com/download/j903/install/j903_linux64.tar.gz -o j.tar.gz; \
+    fi
 
 # Egison
 COPY egison/egison-linux-${TARGETARCH}.tar.gz .
@@ -454,10 +454,17 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     && /downloads/super_unko/install.sh \
     && /downloads/echo-meme/install.sh
 
-# bat, osquery, J
+# J
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
-    dpkg --install /downloads/bat.deb /downloads/osquery.deb \
-    && if [ "$(uname -m)" = "x86_64" ]; then dpkg --install /downloads/j.deb; fi
+    if [ "$(uname -m)" = "x86_64" ]; then \
+      mkdir /usr/local/jsoftware \
+      && tar xf /downloads/j.tar.gz -C /usr/local/jsoftware --strip-components 1; \
+    fi
+ENV PATH $PATH:/usr/local/jsoftware/bin
+
+# bat, osquery
+RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
+    dpkg --install /downloads/bat.deb /downloads/osquery.deb
 
 # Julia, OpenJDK, trdsql (apply sql to csv), Clojure, chromium
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
