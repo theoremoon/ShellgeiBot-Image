@@ -1,8 +1,8 @@
-# syntax = docker/dockerfile:1.2
-FROM ubuntu:21.10 AS apt-cache
+# syntax = docker/dockerfile:latest
+FROM ubuntu:22.04 AS apt-cache
 RUN apt-get update
 
-FROM ubuntu:21.10 AS base
+FROM ubuntu:22.04 AS base
 ENV DEBIAN_FRONTEND noninteractive
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
@@ -56,9 +56,8 @@ FROM base AS ruby-builder
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y -qq ruby-dev
-# TODO: ruby 3.x に対応してmatsuyaのバージョン固定を外す
 RUN --mount=type=cache,target=/root/.gem \
-    gem install --quiet --no-document cureutils lolcat marky_markov matsuya:0.3 rubipara snacknomama takarabako zen_to_i
+    gem install --quiet --no-document cureutils lolcat marky_markov matsuya rubipara snacknomama takarabako zen_to_i
 RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/hostilefork/whitespacers/master/ruby/whitespace.rb -o /usr/local/bin/whitespace
 RUN chmod +x /usr/local/bin/whitespace
 RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/thisredone/rb/master/rb -o /usr/local/bin/rb && chmod +x /usr/local/bin/rb
@@ -90,12 +89,13 @@ FROM base AS dotnet-builder
 ARG TARGETARCH
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq libc6 libgcc-s1 libgssapi-krb5-2 libicu67 libssl1.1 libstdc++6 zlib1g
+    apt-get install -y -qq libc6 libgcc-s1 libgssapi-krb5-2 libicu70 libssl3 libstdc++6 zlib1g
+
 # https://docs.microsoft.com/ja-jp/dotnet/core/tools/dotnet-install-script
 ADD https://dot.net/v1/dotnet-install.sh dotnet-install.sh
-# Runtime: 6.0.2, SDK: 6.0.200; https://dotnet.microsoft.com/en-us/download/dotnet/6.0
-RUN bash dotnet-install.sh --version 6.0.2 --runtime dotnet --install-dir /usr/local/dotnet
-RUN bash dotnet-install.sh --version 6.0.200
+# Runtime: 6.0.4, SDK: 6.0.202; https://dotnet.microsoft.com/en-us/download/dotnet/6.0
+RUN bash dotnet-install.sh --version 6.0.4 --runtime dotnet --install-dir /usr/local/dotnet
+RUN bash dotnet-install.sh --version 6.0.202
 ENV PATH $PATH:/root/.dotnet
 # noc
 RUN git clone --depth 1 https://github.com/xztaityozx/noc.git
@@ -125,11 +125,16 @@ RUN find /root/.rustup /root/.cargo -type f \
 
 ## Nim
 FROM base AS nim-builder
-RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
-    --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq nim
-RUN --mount=type=cache,target=/root/.cache \
-    nimble install edens gyaric maze rect svgo eachdo -Y
+RUN <<EOF
+    curl -sfSL --retry 5 https://nim-lang.org/download/nim-1.6.4-linux_x64.tar.xz -o nim.tar.xz
+    mkdir nim
+    tar xf nim.tar.xz --strip-components 1 -C nim
+    cd nim/
+    ./install.sh /usr/local/bin
+    cp ./bin/nimble /usr/local/bin/
+    cd /root
+EOF
+RUN nimble install edens gyaric maze rect svgo eachdo -Y
 
 ## General
 FROM base AS general-builder
@@ -174,18 +179,19 @@ RUN mkdir mecab-ipadic-neologd-utf8
 RUN mecab-ipadic-neologd/bin/install-mecab-ipadic-neologd -u -y -p /downloads/mecab-ipadic-neologd-utf8
 # bat
 RUN case $(uname -m) in \
-      x86_64)  curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.18.3/bat_0.18.3_amd64.deb -o bat.deb ;; \
-      aarch64) curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.18.3/bat_0.18.3_arm64.deb -o bat.deb ;; \
+      x86_64)  curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.20.0/bat_0.20.0_amd64.deb -o bat.deb ;; \
+      aarch64) curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.20.0/bat_0.20.0_arm64.deb -o bat.deb ;; \
     esac
 # osquery
 RUN case $(uname -m) in \
-      x86_64)  curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.0.1/osquery_5.0.1-1.linux_amd64.deb -o osquery.deb ;; \
-      aarch64) curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.0.1/osquery_5.0.1-1.linux_arm64.deb -o osquery.deb ;; \
+      x86_64)  curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.2.2/osquery_5.2.2-1.linux_amd64.deb -o osquery.deb ;; \
+      aarch64) curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.2.2/osquery_5.2.2-1.linux_arm64.deb -o osquery.deb ;; \
     esac
 # J
 RUN case $(uname -m) in \
-      x86_64)  curl -sfSL --retry 5 https://www.jsoftware.com/download/j902/install/j902_amd64.deb -o j.deb ;; \
+      x86_64)  curl -sfSL --retry 5 https://www.jsoftware.com/download/j903/install/j903_amd64.deb -o j.deb ;; \
     esac
+
 # Egison
 COPY egison/egison-linux-${TARGETARCH}.tar.gz .
 RUN if [ "${TARGETARCH}" = "amd64" ]; then curl -sfSL https://github.com/egison/egison-package-builder/releases/download/4.1.3/egison-4.1.3.x86_64.deb -o egison.deb; fi
@@ -194,14 +200,14 @@ COPY prefetched/$TARGETARCH/julia.tar.gz .
 # OpenJDK
 COPY prefetched/$TARGETARCH/openjdk.tar.gz .
 # Clojure
-RUN curl -sfSL --retry 5 https://download.clojure.org/install/linux-install-1.10.3.855.sh -o clojure_install.sh
+RUN curl -sfSL --retry 5 https://download.clojure.org/install/linux-install-1.11.1.1105.sh -o clojure_install.sh
 # trdsql
 RUN case $(uname -m) in \
-      x86_64)  curl -sfSL --retry 5 https://github.com/noborus/trdsql/releases/download/v0.9.0/trdsql_v0.9.0_linux_amd64.zip -o trdsql.zip ;; \
-      aarch64) curl -sfSL --retry 5 https://github.com/noborus/trdsql/releases/download/v0.9.0/trdsql_v0.9.0_linux_arm64.zip -o trdsql.zip ;; \
+      x86_64)  curl -sfSL --retry 5 https://github.com/noborus/trdsql/releases/download/v0.9.1/trdsql_v0.9.1_linux_amd64.zip -o trdsql.zip ;; \
+      aarch64) curl -sfSL --retry 5 https://github.com/noborus/trdsql/releases/download/v0.9.1/trdsql_v0.9.1_linux_arm64.zip -o trdsql.zip ;; \
     esac
 # PowerShell
-ENV POWERSHELL_VERSION 7.1.5
+ENV POWERSHELL_VERSION 7.2.2
 RUN case $(uname -m) in \
       x86_64)  curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v$POWERSHELL_VERSION/powershell-$POWERSHELL_VERSION-linux-x64.tar.gz   -o powershell.tar.gz ;; \
       aarch64) curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v$POWERSHELL_VERSION/powershell-$POWERSHELL_VERSION-linux-arm64.tar.gz -o powershell.tar.gz ;; \
@@ -224,6 +230,8 @@ FROM base AS runtime
 ENV LANG ja_JP.UTF-8
 ENV TZ JST-9
 ENV PATH /usr/games:$PATH
+# for idn command
+ENV CHARSET UTF-8
 
 # home-commands (echo-sd)
 RUN git clone --depth 1 https://github.com/fumiyas/home-commands /usr/local/home-commands && sed -i 's/殺す/うんこ/' /usr/local/home-commands/tate
@@ -300,7 +308,6 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      ffmpeg \
      figlet \
      file \
-     firefox \
      fish \
      fonts-droid-fallback fonts-lato fonts-liberation fonts-noto-mono fonts-dejavu-core gsfonts fonts-hanazono \
      fonts-ipafont fonts-vlgothic \
@@ -325,14 +332,13 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      librsvg2-bin \
      libskk-dev \
      libxml2-utils \
-     lua5.4 php8.0 php8.0-cli php8.0-common \
+     lua5.4 php8.1 php8.1-cli php8.1-common \
      mecab mecab-ipadic mecab-ipadic-utf8 \
      mono-csharp-shell \
      moreutils \
      morsegen \
      mt-st \
      ncal \
-     nim \
      nkf \
      num-utils \
      numconv \
@@ -387,7 +393,7 @@ COPY --from=ruby-builder /var/lib/gems /var/lib/gems
 
 # Python
 COPY --from=python-builder /usr/local/bin /usr/local/bin
-COPY --from=python-builder /usr/local/lib/python3.9 /usr/local/lib/python3.9
+COPY --from=python-builder /usr/local/lib/python3.10 /usr/local/lib/python3.10
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # Node.js
@@ -409,6 +415,8 @@ COPY --from=rust-builder /tmp/root /root
 ENV PATH $PATH:/root/.cargo/bin
 
 # Nim
+RUN --mount=type=bind,target=/nim,from=nim-builder,source=/nim \
+    (cd nim && ./install.sh /usr/local/bin)
 COPY --from=nim-builder /root/.nimble /root/.nimble
 ENV PATH $PATH:/root/.nimble/bin
 
@@ -456,12 +464,12 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     tar xf /downloads/julia.tar.gz -C /usr/local \
     && tar xf /downloads/openjdk.tar.gz -C /usr/local \
     && unzip /downloads/trdsql.zip -d /usr/local \
-    && ln -s /usr/local/trdsql_v0.9.0_linux_*/trdsql /usr/local/bin \
+    && ln -s /usr/local/trdsql_v0.9.1_linux_*/trdsql /usr/local/bin \
     && /bin/bash /downloads/clojure_install.sh \
     && if [ "$(uname -m)" = "x86_64" ]; then unzip /downloads/chrome-linux.zip -d /usr/local; fi
 
-ENV PATH $PATH:/usr/local/julia-1.6.3/bin:/usr/local/jdk-17/bin:/usr/local/chrome-linux
-ENV JAVA_HOME /usr/local/jdk-17
+ENV JAVA_HOME /usr/local/jdk-18.0.1
+ENV PATH $PATH:/usr/local/julia-1.6.6/bin:$JAVA_HOME/bin:/usr/local/chrome-linux
 # Clojure が実行時に必要とするパッケージを取得
 RUN clojure -e '(println "test")'
 # Clojure ワンライナー
@@ -485,7 +493,7 @@ RUN mv /usr/bin/man.REAL /usr/bin/man
 
 # reset apt config
 RUN rm /etc/apt/apt.conf.d/keep-cache /etc/apt/apt.conf.d/no-install-recommends
-COPY --from=ubuntu:21.10 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
+COPY --from=ubuntu:22.04 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
 
 # ShellgeiBot-Image information
 RUN mkdir -p /etc/shellgeibot-image

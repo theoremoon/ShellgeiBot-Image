@@ -270,11 +270,6 @@
   [ "${lines[4]}" = "|____/|_| |_|\___|_|_|\____|\___|_|" ]
 }
 
-@test "firefox" {
-  run firefox --version
-  [[ "$output" =~ "Mozilla Firefox" ]]
-}
-
 @test "fish" {
   run fish -c "echo シェル芸"
   [ "$output" = "シェル芸" ]
@@ -660,7 +655,7 @@
   [ "$output" = 'シ ェ ル 芸' ]
 }
 
-@test "openjdk11" {
+@test "openjdk" {
   run javac -version
   [[ "$output" =~ "javac " ]]
 }

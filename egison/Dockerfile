@@ -1,7 +1,7 @@
-FROM ubuntu:21.10 AS apt-cache
+FROM ubuntu:22.04 AS apt-cache
 RUN apt-get update
 
-FROM ubuntu:21.10 AS base
+FROM ubuntu:22.04 AS base
 ENV DEBIAN_FRONTEND noninteractive
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
