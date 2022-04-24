@@ -936,6 +936,11 @@
   [ "${lines[2]}" = '　（　　　　　）' ]
 }
 
+@test "surge" {
+  run surge --version
+  [[ "$output" =~ "surge" ]]
+}
+
 @test "sushiro" {
   run sushiro -l
   [ $status -eq 0 ]
