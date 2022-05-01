@@ -177,17 +177,17 @@ COPY prefetched/mecab-ipadic/mecab-ipadic-2.7.0-20070801.tar.gz mecab-ipadic-neo
 RUN mkdir mecab-ipadic-neologd-utf8
 RUN mecab-ipadic-neologd/bin/install-mecab-ipadic-neologd -u -y -p /downloads/mecab-ipadic-neologd-utf8
 # bat
-RUN case $(uname -m) in \
-      x86_64)  curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.20.0/bat_0.20.0_amd64.deb -o bat.deb ;; \
-      aarch64) curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.20.0/bat_0.20.0_arm64.deb -o bat.deb ;; \
+RUN case ${TARGETARCH} in \
+      amd64) curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.20.0/bat_0.20.0_amd64.deb -o bat.deb ;; \
+      arm64) curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.20.0/bat_0.20.0_arm64.deb -o bat.deb ;; \
     esac
 # osquery
-RUN case $(uname -m) in \
-      x86_64)  curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.2.2/osquery_5.2.2-1.linux_amd64.deb -o osquery.deb ;; \
-      aarch64) curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.2.2/osquery_5.2.2-1.linux_arm64.deb -o osquery.deb ;; \
+RUN case ${TARGETARCH} in \
+      amd64) curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.2.2/osquery_5.2.2-1.linux_amd64.deb -o osquery.deb ;; \
+      arm64) curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.2.2/osquery_5.2.2-1.linux_arm64.deb -o osquery.deb ;; \
     esac
 # J
-RUN if [ "$(uname -m)" = "x86_64" ]; then \
+RUN if [ "${TARGETARCH}" = "amd64" ]; then \
       curl -sfSL --retry 5 http://www.jsoftware.com/download/j903/install/j903_linux64.tar.gz -o j.tar.gz; \
     fi
 
@@ -201,20 +201,20 @@ COPY prefetched/$TARGETARCH/openjdk.tar.gz .
 # Clojure
 RUN curl -sfSL --retry 5 https://download.clojure.org/install/linux-install-1.11.1.1105.sh -o clojure_install.sh
 # trdsql
-RUN case $(uname -m) in \
-      x86_64)  curl -sfSL --retry 5 https://github.com/noborus/trdsql/releases/download/v0.9.1/trdsql_v0.9.1_linux_amd64.zip -o trdsql.zip ;; \
-      aarch64) curl -sfSL --retry 5 https://github.com/noborus/trdsql/releases/download/v0.9.1/trdsql_v0.9.1_linux_arm64.zip -o trdsql.zip ;; \
+RUN case ${TARGETARCH} in \
+      amd64) curl -sfSL --retry 5 https://github.com/noborus/trdsql/releases/download/v0.9.1/trdsql_v0.9.1_linux_amd64.zip -o trdsql.zip ;; \
+      arm64) curl -sfSL --retry 5 https://github.com/noborus/trdsql/releases/download/v0.9.1/trdsql_v0.9.1_linux_arm64.zip -o trdsql.zip ;; \
     esac
 # PowerShell
 ENV POWERSHELL_VERSION 7.2.2
-RUN case $(uname -m) in \
-      x86_64)  curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v$POWERSHELL_VERSION/powershell-$POWERSHELL_VERSION-linux-x64.tar.gz   -o powershell.tar.gz ;; \
-      aarch64) curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v$POWERSHELL_VERSION/powershell-$POWERSHELL_VERSION-linux-arm64.tar.gz -o powershell.tar.gz ;; \
+RUN case ${TARGETARCH} in \
+      amd64) curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v$POWERSHELL_VERSION/powershell-$POWERSHELL_VERSION-linux-x64.tar.gz   -o powershell.tar.gz ;; \
+      arm64) curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v$POWERSHELL_VERSION/powershell-$POWERSHELL_VERSION-linux-arm64.tar.gz -o powershell.tar.gz ;; \
     esac
 # Chromium
 COPY prefetched/$TARGETARCH/chrome-linux.zip .
 # morsed (最新版のreleasesを取得するためjqで最新タグを取得)
-RUN if [ "$(uname -m)" = "x86_64" ]; then \
+RUN if [ "${TARGETARCH}" = "amd64" ]; then \
       curl -s https://api.github.com/repos/jiro4989/morsed/releases \
       | jq -r '.[0].assets[] | select(.name | test("morsed_linux.tar.gz")) | .browser_download_url' \
       | xargs curl -sfSLO --retry 5; \
@@ -224,6 +224,7 @@ WORKDIR /
 
 ## Runtime
 FROM base AS runtime
+ARG TARGETARCH
 
 # Set environments
 ENV LANG ja_JP.UTF-8
@@ -278,7 +279,7 @@ RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/ryuichiueda/opy/maste
     && chmod u+x /usr/local/bin/opy
 
 # base85
-RUN if [ "$(uname -m)" = "x86_64" ]; then \
+RUN if [ "${TARGETARCH}" = "amd64" ]; then \
       curl -sfSL --retry 5 https://github.com/redpeacock78/base85/releases/download/v0.0.11/base85-linux-x86 -o /usr/local/bin/base85 \
       && chmod u+x /usr/local/bin/base85 ; \
     fi
@@ -429,9 +430,9 @@ COPY --from=general-builder /downloads/eki/bin /usr/local/bin
 
 # Egison
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
-    case $(uname -m) in \
-      x86_64) dpkg -i /downloads/egison.deb ;; \
-      aarch64) mkdir /usr/lib/egison; tar xf /downloads/egison-*.tar.gz -C /usr/lib/egison --strip-components 1 ;; \
+    case ${TARGETARCH} in \
+      amd64) dpkg -i /downloads/egison.deb ;; \
+      arm64) mkdir /usr/lib/egison; tar xf /downloads/egison-*.tar.gz -C /usr/lib/egison --strip-components 1 ;; \
     esac
 ENV PATH $PATH:/usr/lib/egison/bin
 
@@ -456,7 +457,7 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
 
 # J
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
-    if [ "$(uname -m)" = "x86_64" ]; then \
+    if [ "${TARGETARCH}" = "amd64" ]; then \
       mkdir /usr/local/jsoftware \
       && tar xf /downloads/j.tar.gz -C /usr/local/jsoftware --strip-components 1; \
     fi
@@ -473,7 +474,7 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     && unzip /downloads/trdsql.zip -d /usr/local \
     && ln -s /usr/local/trdsql_v0.9.1_linux_*/trdsql /usr/local/bin \
     && /bin/bash /downloads/clojure_install.sh \
-    && if [ "$(uname -m)" = "x86_64" ]; then unzip /downloads/chrome-linux.zip -d /usr/local; fi
+    && if [ "${TARGETARCH}" = "amd64" ]; then unzip /downloads/chrome-linux.zip -d /usr/local; fi
 
 ENV JAVA_HOME /usr/local/jdk-18.0.1
 ENV PATH $PATH:/usr/local/julia-1.6.6/bin:$JAVA_HOME/bin:/usr/local/chrome-linux
@@ -490,7 +491,7 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
 
 # morsed
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
-    if [ "$(uname -m)" = "x86_64" ]; then \
+    if [ "${TARGETARCH}" = "amd64" ]; then \
       tar xf /downloads/morsed_linux.tar.gz -C /usr/local/ \
       && ln -s /usr/local/morsed_linux/morsed /usr/local/bin/; \
     fi
