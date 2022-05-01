@@ -931,6 +931,11 @@
   [ "${lines[2]}" = '　（　　　　　）' ]
 }
 
+@test "surge" {
+  run surge --version
+  [[ "$output" =~ "surge" ]]
+}
+
 @test "sushiro" {
   run sushiro -l
   [ $status -eq 0 ]
@@ -976,8 +981,8 @@
 }
 
 @test "teip" {
-  run teip --help
-  [ "${lines[1]}" = "Allow the command handle selected parts of the standard input, and bypass other parts." ]
+  run teip -f2 -- sed 's/.*/芸/' <<< "シェル ゲイ"
+  [ "$output" = "シェル 芸" ]
 }
 
 @test "telnet" {
