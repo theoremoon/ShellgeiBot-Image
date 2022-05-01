@@ -124,18 +124,16 @@ RUN find /root/.rustup /root/.cargo -type f \
     | sed -e 's!/[^/]*;!;!' \
     | bash
 
-## Nim
+## Nim (x86_64 only)
 FROM base AS nim-builder
-RUN <<EOF
-    curl -sfSL --retry 5 https://nim-lang.org/download/nim-1.6.4-linux_x64.tar.xz -o nim.tar.xz
-    mkdir nim
-    tar xf nim.tar.xz --strip-components 1 -C nim
-    cd nim/
-    ./install.sh /usr/local/bin
-    cp ./bin/nimble /usr/local/bin/
-    cd /root
-EOF
-RUN nimble install edens gyaric maze rect svgo eachdo -Y
+ARG TARGETARCH
+RUN mkdir nim \
+    && if [ "${TARGETARCH}" = "amd64" ]; then \
+      curl -sfSL --retry 5 https://nim-lang.org/download/nim-1.6.4-linux_x64.tar.xz -o nim.tar.xz \
+      && tar xf nim.tar.xz --strip-components 1 -C nim \
+      && (cd nim/; ./install.sh /usr/local/bin && cp ./bin/nimble /usr/local/bin/) \
+    fi
+RUN if [ "${TARGETARCH}" = "amd64" ]; then nimble install edens gyaric maze rect svgo eachdo -Y; fi
 
 ## General
 FROM base AS general-builder
@@ -415,10 +413,11 @@ COPY --from=rust-builder /root/.cargo/bin /root/.cargo/bin
 COPY --from=rust-builder /tmp/root /root
 ENV PATH $PATH:/root/.cargo/bin
 
-# Nim
-RUN --mount=type=bind,target=/nim,from=nim-builder,source=/nim \
-    (cd nim && ./install.sh /usr/local/bin)
-COPY --from=nim-builder /root/.nimble /root/.nimble
+# Nim (x86_64 only)
+RUN --mount=type=bind,target=/mnt,from=nim-builder,source=/nim \
+    if [ "${TARGETARCH}" = "amd64" ]; then (cd /mnt && ./install.sh /usr/local/bin); fi
+RUN --mount=type=bind,target=/mnt,from=nim-builder,source=/root \
+    if [ "${TARGETARCH}" = "amd64" ]; then cp -r /mnt/.nimble /root/.nimble; fi
 ENV PATH $PATH:/root/.nimble/bin
 
 # shellgei data
