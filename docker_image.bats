@@ -51,9 +51,7 @@
 }
 
 @test "base85" {
-  if [ "$(uname -m)" == "aarch64" ]; then
-    skip "don't install base85 on aarch64"
-  fi
+  if [ "$(uname -m)" = "aarch64" ]; then skip "base85 is not installed on aarch64"; fi
   run bash -c 'echo "<~j+=c#Ju@X]X6>GN~>" | base85 -d'
   [ "$output" = "シェル芸" ]
 }
@@ -114,9 +112,7 @@
 }
 
 @test "chromium" {
-  if [ "$(uname -m)" == "aarch64" ]; then
-    skip "don't install chromium on aarch64"
-  fi
+  if [ "$(uname -m)" = "aarch64" ]; then skip "chromium is not installed on aarch64"; fi
   run chrome --version
   [[ "$output" =~ "Chromium" ]]
 }
@@ -199,6 +195,7 @@
 }
 
 @test "eachdo" {
+  if [ "$(uname -m)" = "aarch64" ]; then skip "eachdo is not installed on aarch64"; fi
   run eachdo -v
   [[ "$output" =~ "eachdo command" ]]
 }
@@ -209,6 +206,7 @@
 }
 
 @test "edens" {
+  if [ "$(uname -m)" = "aarch64" ]; then skip "edens is not installed on aarch64"; fi
   run edens -h
   [ "$status" -eq 0 ]
 }
@@ -268,11 +266,6 @@
   [ "${lines[2]}" = "\___ \| '_ \ / _ \ | | |  _ / _ \ |" ]
   [ "${lines[3]}" = " ___) | | | |  __/ | | |_| |  __/ |" ]
   [ "${lines[4]}" = "|____/|_| |_|\___|_|_|\____|\___|_|" ]
-}
-
-@test "firefox" {
-  run firefox --version
-  [[ "$output" =~ "Mozilla Firefox" ]]
 }
 
 @test "fish" {
@@ -366,6 +359,7 @@
 }
 
 @test "gyaric" {
+  if [ "$(uname -m)" = "aarch64" ]; then skip "gyaric is not installed on aarch64"; fi
   run gyaric -h
   [ "${lines[0]}" = "gyaric encode/decode a text to unreadable gyaru's text." ]
 }
@@ -424,10 +418,8 @@
 }
 
 @test "J" {
-  if [ "$(uname -m)" = "aarch64" ]; then
-    skip "don't install Jlang on aarch64"
-  fi
-  run bash -c "echo \"'シェル芸'\" | ijconsole"
+  if [ "$(uname -m)" = "aarch64" ]; then skip "J is not installed on aarch64"; fi
+  run bash -c "echo \"'シェル芸'\" | jconsole"
   [ "${lines[0]}" = 'シェル芸' ]
 }
 
@@ -462,9 +454,7 @@
 }
 
 @test "ke2daira" {
-  if [ "$(uname -m)" == "aarch64" ]; then
-    skip "ke2daira is not installed on aarch64"
-  fi
+  if [ "$(uname -m)" = "aarch64" ]; then skip "ke2daira is not installed on aarch64"; fi
   run bash -c "echo シェル 芸 | ke2daira -m"
   [ "$output" = 'ゲェル シイ' ]
 }
@@ -526,6 +516,7 @@
 }
 
 @test "maze" {
+  if [ "$(uname -m)" = "aarch64" ]; then skip "maze is not installed on aarch64"; fi
   run maze -h
   [ "$status" -eq 0 ]
 
@@ -552,9 +543,7 @@
 }
 
 @test "morsed" {
-  if [ "$(uname -m)" == "aarch64" ]; then
-    skip "don't install morsed on aarch64"
-  fi
+  if [ "$(uname -m)" = "aarch64" ]; then skip "morsed is not installed on aarch64"; fi
   run bash -c "morsed -p 名詞 -s 寿司 吾輩は猫である"
   [ "$output" = "寿司は寿司である" ]
 }
@@ -586,6 +575,7 @@
 }
 
 @test "nim" {
+  if [ "$(uname -m)" = "aarch64" ]; then skip "nim is not installed on aarch64"; fi
   run nim --help
   [[ "${lines[0]}" =~ 'Nim Compiler' ]]
 }
@@ -660,7 +650,7 @@
   [ "$output" = 'シ ェ ル 芸' ]
 }
 
-@test "openjdk11" {
+@test "openjdk" {
   run javac -version
   [[ "$output" =~ "javac " ]]
 }
@@ -807,6 +797,7 @@
 }
 
 @test "rect" {
+  if [ "$(uname -m)" = "aarch64" ]; then skip "rect is not installed on aarch64"; fi
   run rect --help
   [ "${lines[0]}" = 'rect is a command to crop/paste rectangle text' ]
 }
