@@ -485,10 +485,10 @@
   [[ "${lines[0]}" =~ "lolcat" ]]
 }
 
-@test "longcat" {
-  run longcat -i 4 -o /a.png
-  [ -f /a.png ]
-}
+# @test "longcat" {
+#   run longcat -i 4 -o /a.png
+#   [ -f /a.png ]
+# }
 
 @test "lua" {
   run lua -e 'print("シェル芸")'
