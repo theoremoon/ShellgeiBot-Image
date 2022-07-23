@@ -843,18 +843,6 @@
   [ "$output" = "シェル芸" ]
 }
 
-@test "rustc" {
-  run rustc --help
-  [ $status -ne 0 ]
-  [[ "$output" =~ 'error: no override and no default toolchain set' ]]
-}
-
-@test "rustup" {
-  run rustup --help
-  [ $status -eq 0 ]
-  [ "${lines[1]}" = 'The Rust toolchain installer' ]
-}
-
 @test "saizeriya" {
   run saizeriya
   [ $status -eq 0 ]
