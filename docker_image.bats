@@ -646,7 +646,7 @@
 }
 
 @test "Open usp Tukubai" {
-  run bash -c "echo シェル芸 | grep -o . | tateyoko"
+  run bash -c "echo シェル芸 | grep -o . | tateyoko -"
   [ "$output" = 'シ ェ ル 芸' ]
 }
 
