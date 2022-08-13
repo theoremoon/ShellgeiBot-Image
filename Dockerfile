@@ -78,7 +78,7 @@ RUN tar xf nodejs.tar.gz \
     && mv node-* /usr/local/nodejs
 ENV PATH $PATH:/usr/local/nodejs/bin
 RUN --mount=type=cache,target=/root/.npm \
-    npm install -g --silent faker-cli chemi fx yukichant @amanoese/muscular kana2ipa receiptio
+    npm install -g --silent faker-cli chemi fx yukichant @amanoese/muscular kana2ipa receiptio bats
 # enable png output on receiptio
 RUN --mount=type=cache,target=/root/.npm \
     if [ "${TARGETARCH}" = "amd64" ]; then npm install -g --silent puppeteer; fi \
@@ -291,7 +291,6 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      agrep \
      apache2-utils \
      ash yash \
-     bats \
      bbe \
      bc \
      bf \
