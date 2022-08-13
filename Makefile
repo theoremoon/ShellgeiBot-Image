@@ -39,7 +39,7 @@ test-ci:
 		--net none \
 		-v $(CURDIR):/root/src \
 		$(DOCKER_IMAGE_NAME) \
-		/bin/bash -c "bats --tap /root/src/docker_image.bats"
+		/bin/bash -c "bats --print-output-on-failure --tap /root/src/docker_image.bats"
 
 clean: $(subdirs)
 	rm -f *.log
