@@ -142,8 +142,9 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
     --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y -qq file jq libncursesw5-dev libmecab-dev mecab
 WORKDIR /downloads
-# Open-usp-Tukubai
-RUN git clone --depth 1 https://github.com/usp-engineers-community/Open-usp-Tukubai.git
+# Open-usp-Tukubai; uconv は icu-devtools パッケージで入るため、Open-usp-Tukubai の uconv はインストールしない
+RUN git clone --depth 1 https://github.com/usp-engineers-community/Open-usp-Tukubai.git \
+    && sed -E 's/uconv[\.txt|\.html]?//' -i ./Open-usp-Tukubai/Makefile
 # edfsay
 RUN git clone --depth 1 https://github.com/jiro4989/edfsay.git
 # color, rainbow
