@@ -339,8 +339,8 @@
 }
 
 @test "glueutils" {
-  run bash -c 'switch12 ls aaaaaaaaaaa'
-  [[ "$(wc -l <<< $output)" =~ '1' ]]
+  run bash -c 'flip12 ls aaaaaaaaaaa'
+  [ "$output" = "ls: 'aaaaaaaaaaa' にアクセスできません: そのようなファイルやディレクトリはありません" ]
 }
 
 @test "gnuplot" {
