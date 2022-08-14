@@ -1,22 +1,24 @@
 #!/usr/bin/env bats
 
+bats_require_minimum_version 1.5.0
+
 @test "5ktrillion" {
-  run bash -c "5ktrillion -5"
+  run -0 bash -c "5ktrillion -5"
   [ "$output" = '5000兆円欲しい！' ]
 }
 
 @test "abcMIDI" {
-  run bash -c "abc2midi -ver"
+  run -0 bash -c "abc2midi -ver"
   [[ "$output" =~ abc2midi ]]
 }
 
 @test "agrep" {
-  run bash -c "echo unko | agrep -2 miko"
+  run -0 bash -c "echo unko | agrep -2 miko"
   [ "$output" = "unko" ]
 }
 
 @test "align" {
-  run bash -c "yes シェル芸 | head -4 | awk '{print substr(\$1,1,NR)}' | align center"
+  run -0 bash -c "yes シェル芸 | head -4 | awk '{print substr(\$1,1,NR)}' | align center"
   [ "${lines[0]}" = '   シ   ' ]
   [ "${lines[1]}" = '  シェ  ' ]
   [ "${lines[2]}" = ' シェル ' ]
@@ -25,125 +27,119 @@
 
 # 不要では?
 @test "apache2-utils" {
-  run ab -V
+  run -0 ab -V
   [[ "${lines[0]}" =~ "ApacheBench" ]]
 }
 
 @test "asciinema" {
-  run asciinema --version
+  run -0 asciinema --version
   [[ "${lines[0]}" =~ "asciinema " ]]
 }
 
 # /bin/ash は /bin/dash へのエイリアス, /usr/bin/ash は /usr/bin/dash へのエイリアスで、両方とも同じ
 # apt install ash ではエイリアスが作成されるのみ
 @test "ash" {
-  run ash -c "echo シェル芸"
+  run -0 ash -c "echo シェル芸"
   [ "$output" = シェル芸 ]
 }
 
 @test "babashka" {
   # コマンドラインではbbコマンド
-  run which bb
-  [ "$status" -eq 0 ]
-
-  run bb -i '(println "Hello")'
-  [ "$status" -eq 0 ]
+  run -0 which bb
+  run -0 bb -i '(println "Hello")'
 }
 
 @test "base85" {
   if [ "$(uname -m)" = "aarch64" ]; then skip "base85 is not installed on aarch64"; fi
-  run bash -c 'echo "<~j+=c#Ju@X]X6>GN~>" | base85 -d'
+  run -0 bash -c 'echo "<~j+=c#Ju@X]X6>GN~>" | base85 -d'
   [ "$output" = "シェル芸" ]
 }
 
 @test "bat" {
-  run bat --version
+  run -0 bat --version
   [[ "$output" =~ "bat " ]]
 }
 
 @test "bbe" {
-  run bbe -?
+  run -0 bbe -?
   [[ "${lines[0]}" =~ "bbe " ]]
 }
 
 @test "bc" {
-  run bash -c "echo 'print \"シェル芸\n\"' | bc"
+  run -0 bash -c "echo 'print \"シェル芸\n\"' | bc"
   [ "$output" = "シェル芸" ]
 }
 
 @test "boxes" {
-  run bash -c "echo シェル芸 | boxes"
+  run -0 bash -c "echo シェル芸 | boxes"
   [[ "$output" =~ \/\*\ シェル芸\ \*\/ ]]
 }
 
 @test "Brainf*ck" {
-  run bash -c "echo '+++++++++[>+++++++++<-]>++.<+++++++++[>++<-]>+++.---.+++++++..<+++++++++[>----<-]>-.<+++++++++[>+++<-]>+++.++++.' | bf /dev/stdin"
+  run -0 bash -c "echo '+++++++++[>+++++++++<-]>++.<+++++++++[>++<-]>+++.---.+++++++..<+++++++++[>----<-]>-.<+++++++++[>+++<-]>+++.++++.' | bf /dev/stdin"
   [ "$output" = 'ShellGei' ]
 }
 
 @test "bsdgames" {
-  run bash -c "echo '... .... . .-.. .-.. --. . ..  ...-.-' | morse -d"
+  run -0 bash -c "echo '... .... . .-.. .-.. --. . ..  ...-.-' | morse -d"
   [ "$output" = "SHELLGEI" ]
 }
 
 @test "build-essential" {
-  run gcc --version
+  run -0 gcc --version
   [[ "${lines[0]}" =~ gcc ]]
 }
 
 @test "busybox" {
-  run /bin/busybox echo "シェル芸"
+  run -0 /bin/busybox echo "シェル芸"
   [ "$output" = "シェル芸" ]
 }
 
 @test "cal" {
-  run cal -h
-  [[ "${lines[0]}" =~ "Usage: cal" ]]
+  run -0 cal 12 2020
+  [[ "${lines[0]}" =~ "12月 2020" ]]
 }
 
 @test "ccze" {
-  run bash -c "echo シェル芸 | ccze -A"
+  run -0 bash -c "echo シェル芸 | ccze -A"
   [[ "$output" =~ シェル芸 ]]
 }
 
 @test "chemi" {
-  run chemi -s H
+  run -0 chemi -s H
   [ "${lines[2]}" = 'element     : Hydrogen' ]
 }
 
 @test "chromium" {
   if [ "$(uname -m)" = "aarch64" ]; then skip "chromium is not installed on aarch64"; fi
-  run chrome --version
+  run -0 chrome --version
   [[ "$output" =~ "Chromium" ]]
 }
 
 @test "clisp" {
-  run clisp -q -x '(+ 1 2)'
+  run -0 clisp -q -x '(+ 1 2)'
   [ "$output" = '3' ]
 }
 
 @test "clojure" {
-  run which clojure
-  [ "$status" -eq 0 ]
-
+  run -0 which clojure
   # JAVA_HOME未設定だったりランタイムがないと動かない
-  run clojure -M -e '(println "Hello")'
-  [ "$status" -eq 0 ]
+  run -0 clojure -M -e '(println "Hello")'
   [ "$output" = 'Hello' ]
 }
 
 @test "cmatrix" {
-  run cmatrix -h
+  run -0 cmatrix -h
   [[ "${lines[0]}" =~ 'Usage: cmatrix' ]]
 }
 
 @test "color" {
-  run bash -c "color 1f"
+  run -0 bash -c "color 1f"
   [ "$output" = '[30m  \x1b[30m  [m[31m  \x1b[31m  [m[32m  \x1b[32m  [m[33m  \x1b[33m  [m[34m  \x1b[34m  [m[35m  \x1b[35m  [m[36m  \x1b[36m  [m[37m  \x1b[37m  [m' ]
 }
 
 @test "cowsay" {
-  run cowsay シェル芸
+  run -0 cowsay シェル芸
   [ "${lines[0]}" = ' __________' ]
   [ "${lines[1]}" = '< シェル芸 >' ]
   [ "${lines[2]}" = ' ----------' ]
@@ -155,111 +151,108 @@
 }
 
 @test "csharp" {
-  run csharp -e 'print("シェル芸")'
+  run -0 csharp -e 'print("シェル芸")'
   [ "$output" = "シェル芸" ]
 }
 
 @test "csvquote" {
-  run bash -c 'echo -e "unko,\"un,ko\"" | csvquote | cut -d "," -f 2 | csvquote -u'
+  run -0 bash -c 'echo -e "unko,\"un,ko\"" | csvquote | cut -d "," -f 2 | csvquote -u'
   [ "$output" = '"un,ko"' ]
 }
 
 @test "cureutils" {
-  run bash -c "cure girls | head -1"
+  run -0 bash -c "cure girls | head -1"
   [ "$output" = "美墨なぎさ" ]
 }
 
 @test "curl" {
-  run curl --help
+  run -0 curl --help
   [ "${lines[0]}" = "Usage: curl [options...] <url>" ]
 }
 
 @test "datamash" {
-  run datamash --version
+  run -0 datamash --version
   [[ "${lines[0]}" =~ "datamash (GNU datamash)" ]]
 }
 
 @test "dateutils" {
-  run /usr/bin/dateutils.dtest -V
+  run -0 /usr/bin/dateutils.dtest -V
   [[ "$output" =~ "datetest" ]]
 }
 
 @test "dc" {
-  run dc -V
+  run -0 dc -V
   [[ "${lines[0]}" =~ "dc" ]]
 }
 
 @test "dotnet" {
-  run dotnet --help
+  run -129 dotnet --help
   [[ "${lines[0]}" =~ "Usage: dotnet" ]]
 }
 
 @test "eachdo" {
   if [ "$(uname -m)" = "aarch64" ]; then skip "eachdo is not installed on aarch64"; fi
-  run eachdo -v
+  run -0 eachdo -v
   [[ "$output" =~ "eachdo command" ]]
 }
 
 @test "echo-meme" {
-  run echo-meme シェル芸
+  run -0 echo-meme シェル芸
   [[ "$output" =~ "シェル芸" ]]
 }
 
 @test "edens" {
   if [ "$(uname -m)" = "aarch64" ]; then skip "edens is not installed on aarch64"; fi
-  run edens -h
-  [ "$status" -eq 0 ]
+  run -0 edens -h
 }
 
 @test "edf" {
-  run edf words scientist
-  [ $status -eq 0 ]
+  run -0 edf words scientist
 }
 
 @test "egison" {
-  run egison -e 'foldl (+) 0 (take 10 nats)'
+  run -0 egison -e 'foldl (+) 0 (take 10 nats)'
   [ "$output" = "55" ]
 }
 
 @test "egzact" {
-  run bash -c "echo シェル芸 | dupl 2"
+  run -0 bash -c "echo シェル芸 | dupl 2"
   [ "${lines[0]}" = 'シェル芸' ]
   [ "${lines[1]}" = 'シェル芸' ]
 }
 
 @test "eki" {
-  run bash -c "eki | grep -q 京急川崎"
-  run bash -c "eki line 京急川崎 | grep 大師"
+  run -0 bash -c "eki | grep -q 京急川崎"
+  run -0 bash -c "eki line 京急川崎 | grep 大師"
   [ "$output" = '京急大師線' ]
 }
 
 @test "Emacs" {
-  run bash -c "echo シェル芸 | emacs -Q --batch --insert /dev/stdin --eval='(princ (buffer-string))'"
+  run -0 bash -c "echo シェル芸 | emacs -Q --batch --insert /dev/stdin --eval='(princ (buffer-string))'"
   [ "$output" = シェル芸 ]
 }
 
 @test "faker" {
-  run faker name
-  [ $status -eq 0 ]
+  run -0 faker name
 }
 
 @test "faker-cli" {
-  run faker-cli --help
+  run -0 faker-cli --help
   [ "${lines[0]}" = 'Usage: faker-cli [option]' ]
 }
 
 @test "faketime" {
-  run faketime --version
+  run -0 faketime --version
   [[ "${lines[0]}" =~ 'faketime: Version' ]]
 }
 
 @test "ffmpeg" {
-  run ffmpeg -version
+  run -0 ffmpeg -version
   [[ "${lines[0]}" =~ "ffmpeg version" ]]
 }
 
 @test "figlet" {
-  run bash -c "echo ShellGei | figlet"
+  run -0 bash -c "echo ShellGei | figlet"
   echo "lines[0]: '${lines[0]}'"
   [ "${lines[0]}" = " ____  _          _ _  ____      _ " ]
   [ "${lines[1]}" = "/ ___|| |__   ___| | |/ ___| ___(_)" ]
@@ -269,480 +262,470 @@
 }
 
 @test "fish" {
-  run fish -c "echo シェル芸"
+  run -0 fish -c "echo シェル芸"
   [ "$output" = "シェル芸" ]
 }
 
 @test "fonts-ipafont" {
-  run bash -c "fc-list | grep ipa | wc -l"
+  run -0 bash -c "fc-list | grep ipa | wc -l"
   [ $output -ge 4 ]
 }
 
 @test "fonts-nanum" {
-  run bash -c "fc-list | grep nanum | wc -l"
+  run -0 bash -c "fc-list | grep nanum | wc -l"
   [ $output -ge 10 ]
 }
 
 @test "fonts-noto-color-emoji" {
-  run bash -c "fc-list | grep NotoColorEmoji | wc -l"
+  run -0 bash -c "fc-list | grep NotoColorEmoji | wc -l"
   [ $output -ge 1 ]
 }
 
 @test "fonts-symbola" {
-  run bash -c "fc-list | grep Symbola | wc -l"
+  run -0 bash -c "fc-list | grep Symbola | wc -l"
   [ $output -ge 1 ]
 }
 
 @test "fonts-vlgothic" {
-  run bash -c "fc-list | grep vlgothic | wc -l"
+  run -0 bash -c "fc-list | grep vlgothic | wc -l"
   [ $output -ge 2 ]
 }
 
 @test "forest" {
-  run bash -c "echo シェル芸 | forest"
+  run -0 bash -c "echo シェル芸 | forest"
   [ "$output" = '└ ─ シェル芸' ]
 }
 
 @test "fortune" {
-  run fortune
-  [ $status -eq 0 ]
+  run -0 fortune
 }
 
 @test "fujiaire" {
-  run fujiaire フジエアー
+  run -0 fujiaire フジエアー
   [ "$output" = "フピエアー" ]
 }
 
 @test "funnychar" {
-  run funnychar -p 3 abcABC
+  run -0 funnychar -p 3 abcABC
   [ "$output" = '𝑎𝑏𝑐𝐴𝐵𝐶' ]
 }
 
 @test "fx" {
-  run bash -c "echo '{\"item\": \"unko\"}' | fx 'this.item'"
+  run -0 bash -c "echo '{\"item\": \"unko\"}' | fx 'this.item'"
   [ "$output" = 'unko' ]
 }
 
 @test "gawk" {
-  run bash -c "echo シェル芸 | gawk '{print \$0}'"
+  run -0 bash -c "echo シェル芸 | gawk '{print \$0}'"
   [ "$output" = "シェル芸" ]
 }
 
 @test "Git" {
-  run git version
+  run -0 git version
   [[ "$output" =~ "git version" ]]
 }
 
 @test "glue" {
-  run bash -c 'echo echo 10 | glue /dev/stdin'
+  run -0 bash -c 'echo echo 10 | glue /dev/stdin'
   [[ "$output" =~ '10' ]]
 }
 
 @test "glueutils" {
-  run bash -c 'flip12 ls aaaaaaaaaaa'
+  run -2 bash -c 'flip12 ls aaaaaaaaaaa'
   [ "$output" = "ls: 'aaaaaaaaaaa' にアクセスできません: そのようなファイルやディレクトリはありません" ]
 }
 
 @test "gnuplot" {
-  run gnuplot -V
+  run -0 gnuplot -V
   [[ "$output" =~ "gnuplot" ]]
 }
 
 @test "graphviz" {
-  run dot -V
+  run -0 dot -V
   [[ "${lines[0]}" =~ 'dot - graphviz' ]]
 }
 
 @test "gron" {
-  run bash -c "echo '{\"s\":\"シェル芸\"}' | gron -m"
+  run -0 bash -c "echo '{\"s\":\"シェル芸\"}' | gron -m"
   [ "${lines[1]}" = 'json.s = "シェル芸";' ]
 }
 
 @test "gyaric" {
   if [ "$(uname -m)" = "aarch64" ]; then skip "gyaric is not installed on aarch64"; fi
-  run gyaric -h
+  run -0 gyaric -h
   [ "${lines[0]}" = "gyaric encode/decode a text to unreadable gyaru's text." ]
 }
 
 @test "HanazonoMincho" {
-  run bash -c "fc-list | grep 花園明朝"
+  run -0 bash -c "fc-list | grep 花園明朝"
   [ "${lines[0]}" == '/usr/share/fonts/truetype/hanazono/HanaMinA.ttf: 花園明朝A,HanaMinA:style=Regular' ]
   [ "${lines[1]}" == '/usr/share/fonts/truetype/hanazono/HanaMinB.ttf: 花園明朝B,HanaMinB:style=Regular' ]
 }
 
 @test "Haskell" {
-  run ghc -e 'putStrLn "シェル芸"'
+  run -0 ghc -e 'putStrLn "シェル芸"'
   [ "$output" = "シェル芸" ]
 }
 
 @test "himechat-cli" {
-  run himechat-cli -V
+  run -0 himechat-cli -V
   [ "$output" = 'https://github.com/gyozabu/himechat-cli' ]
 }
 
 @test "home-commands" {
-  run echo-sd シェル芸
+  run -0 echo-sd シェル芸
   [ "${lines[0]}" = '＿人人人人人人＿' ]
   [ "${lines[1]}" = '＞　シェル芸　＜' ]
   [ "${lines[2]}" = '￣Y^Y^Y^Y^Y^Y^￣' ]
 }
 
 @test "horizon" {
-  run bash -c "echo ⁃‐﹘╸―ⲻ━= | horizon -d"
+  run -0 bash -c "echo ⁃‐﹘╸―ⲻ━= | horizon -d"
   [ "$output" = 'unko' ]
 }
 
 @test "idn" {
-  run idn うんこ.com
+  run -0 idn うんこ.com
   [ "$output" = 'xn--p8j0a9n.com' ]
 }
 
 @test "ImageMagick" {
-  run convert -version
+  run -0 convert -version
   [[ "${lines[0]}" =~ "Version: ImageMagick" ]]
 }
 
 @test "imgout" {
-  run imgout -h
+  run -0 imgout -h
   [ "$output" = 'usage: imgout [-f <font>]' ]
 }
 
 @test "ipcalc" {
-  run ipcalc 192.168.10.55
+  run -0 ipcalc 192.168.10.55
   [ "${lines[0]}" = 'Address:   192.168.10.55        11000000.10101000.00001010. 00110111' ]
 }
 
 @test "ivsteg" {
-  run ivsteg -h
+  run -0 ivsteg -h
   [ "${lines[0]}" = 'IVS steganography encoder or decode from standard input to standard output.' ]
 }
 
 @test "J" {
   if [ "$(uname -m)" = "aarch64" ]; then skip "J is not installed on aarch64"; fi
-  run bash -c "echo \"'シェル芸'\" | jconsole"
+  run -0 bash -c "echo \"'シェル芸'\" | jconsole"
   [ "${lines[0]}" = 'シェル芸' ]
 }
 
 @test "jq" {
-  run bash -c "echo シェル芸 | jq -Rr '.'"
+  run -0 bash -c "echo シェル芸 | jq -Rr '.'"
   [ "$output" = シェル芸 ]
 }
 
 @test "julia" {
-  run julia -e 'println("シェル芸")'
+  run -0 julia -e 'println("シェル芸")'
   [ "$output" = 'シェル芸' ]
 }
 
 @test "kagome" {
-  run kagome -h
-  [ "${lines[0]}" = 'Japanese Morphological Analyzer -- github.com/ikawaha/kagome/v2' ]
+  run -0 kagome <<< シェル芸
+  [[ "${lines[0]}" =~ "名詞,一般,*,*,*,*,シェル,シェル,シェル" ]]
 }
 
 @test "kakasi" {
-  run bash -c "echo シェル芸 | nkf -e | kakasi -JH | nkf -w"
+  run -0 bash -c "echo シェル芸 | nkf -e | kakasi -JH | nkf -w"
   [ "$output" = "シェルげい" ]
 }
 
 @test "kakikokera" {
-  run bash -c "echo 柿杮杮杮柿杮柿杮柿杮杮柿杮杮杮柿柿杮杮柿杮柿杮杮柿杮杮柿杮杮杮杮 | kakikokera -d"
+  run -0 bash -c "echo 柿杮杮杮柿杮柿杮柿杮杮柿杮杮杮柿柿杮杮柿杮柿杮杮柿杮杮柿杮杮杮杮 | kakikokera -d"
   [ "$output" = 'unko' ]
 }
 
 @test "kana2ipa" {
-  run kana2ipa -h
+  run -0 kana2ipa -h
   [ "${lines[0]}" = 'Usage: kana2ipa [text]' ]
 }
 
 @test "ke2daira" {
   if [ "$(uname -m)" = "aarch64" ]; then skip "ke2daira is not installed on aarch64"; fi
-  run bash -c "echo シェル 芸 | ke2daira -m"
+  run -0 bash -c "echo シェル 芸 | ke2daira -m"
   [ "$output" = 'ゲェル シイ' ]
 }
 
 @test "kkc" {
-  run kkc help
+  run -0 kkc help
   [[ "${lines[1]}" =~ "  kkc help" ]]
 }
 
 @test "kkcw" {
-  run kkcw <<< やまだたろう
+  run -0 kkcw <<< やまだたろう
   [ "$output" = '山田太郎' ]
 }
 
 # 不要?
 @test "libskk-dev" {
-  run stat /usr/lib/$(uname -m)-linux-gnu/libskk.so
+  run -0 stat /usr/lib/$(uname -m)-linux-gnu/libskk.so
   [ "${lines[0]}" = "  File: /usr/lib/$(uname -m)-linux-gnu/libskk.so -> libskk.so.0.0.0" ]
 }
 
 @test "libxml2-utils" {
-  run bash -c "echo '<?xml version=\"1.0\"?><e>ShellGei</e>' | xmllint --xpath '/e/text()' -"
+  run -0 bash -c "echo '<?xml version=\"1.0\"?><e>ShellGei</e>' | xmllint --xpath '/e/text()' -"
   [ "$output" = "ShellGei" ]
 }
 
 @test "lolcat" {
-  run lolcat --version
+  run -0 lolcat --version
   [[ "${lines[0]}" =~ "lolcat" ]]
 }
 
 # @test "longcat" {
-#   run longcat -i 4 -o /a.png
+#   run -0 longcat -i 4 -o /a.png
 #   [ -f /a.png ]
 # }
 
 @test "lua" {
-  run lua -e 'print("シェル芸")'
+  run -0 lua -e 'print("シェル芸")'
   [ "$output" = "シェル芸" ]
 }
 
 @test "man" {
-  run bash -c "man シェル芸 |& cat"
+  run -0 bash -c "man シェル芸 |& cat"
   [ "$output" = 'シェル芸 というマニュアルはありません' ]
 }
 
 @test "marky_markov" {
-  run marky_markov -h
+  run -0 marky_markov -h
   [ "${lines[0]}" = 'Usage: marky_markov COMMAND [OPTIONS]' ]
 }
 
 @test "matplotlib" {
-  run python3 -c 'import matplotlib; print(matplotlib.__name__)'
+  run -0 python3 -c 'import matplotlib; print(matplotlib.__name__)'
   [ "$output" = "matplotlib" ]
 }
 
 @test "matsuya" {
-  run matsuya
-  [ $status -eq 0 ]
+  run -0 matsuya
 }
 
 @test "maze" {
   if [ "$(uname -m)" = "aarch64" ]; then skip "maze is not installed on aarch64"; fi
-  run maze -h
-  [ "$status" -eq 0 ]
-
-  run maze -v
-  [ "$status" -eq 0 ]
-
-  run maze
-  [ "$status" -eq 0 ]
+  run -0 maze -h
+  run -0 maze -v
+  run -0 maze
 }
 
 @test "mecab with NEologd" {
-  run bash -c "echo シェル芸 | mecab -Owakati"
+  run -0 bash -c "echo シェル芸 | mecab -Owakati"
   [ "$output" = "シェル芸 " ]
 }
 
 @test "mono-runtime" {
-  run mono --version
+  run -0 mono --version
   [[ "${lines[0]}" =~ "Mono JIT compiler version" ]]
 }
 
 @test "moreutils" {
-  run errno 1
+  run -0 errno 1
   [ "$output" = "EPERM 1 許可されていない操作です" ]
 }
 
 @test "morsed" {
   if [ "$(uname -m)" = "aarch64" ]; then skip "morsed is not installed on aarch64"; fi
-  run bash -c "morsed -p 名詞 -s 寿司 吾輩は猫である"
+  run -0 bash -c "morsed -p 名詞 -s 寿司 吾輩は猫である"
   [ "$output" = "寿司は寿司である" ]
 }
 
 @test "morsegen" {
-  run morsegen
-  [ $status -eq 1 ]
-  [[ "${lines[1]}" =~ "Morse Generator." ]]
+  run -0 morsegen <(echo -n shellgei)
+  [ "${lines[0]}" = "... .... . .-.. .-.. --. . .." ]
 }
 
 @test "mt" {
-  run mt -v
+  run -0 mt -v
   [[ "${lines[0]}" =~ "mt-st" ]]
 }
 
 @test "muscular" {
-  run bash -c "muscular shout ナイスバルク | grep -P -o '\p{Katakana}'|tr -d '\n'"
+  run -0 bash -c "muscular shout ナイスバルク | grep -P -o '\p{Katakana}'|tr -d '\n'"
   [ "${lines[0]}" = 'ナイスバルク' ]
 }
 
 @test "nameko.svg" {
-  run file nameko.svg
+  run -0 file nameko.svg
   [ "$output" = 'nameko.svg: SVG Scalable Vector Graphics image' ]
 }
 
 @test "nginx" {
-  run nginx -v
+  run -0 nginx -v
   [[ "$output" =~ "nginx version:" ]]
 }
 
 @test "nim" {
   if [ "$(uname -m)" = "aarch64" ]; then skip "nim is not installed on aarch64"; fi
-  run nim --help
+  run -0 nim --help
   [[ "${lines[0]}" =~ 'Nim Compiler' ]]
 }
 
 @test "nise" {
-  run bash -c "echo 私はシェル芸を嗜みます | nise"
+  run -0 bash -c "echo 私はシェル芸を嗜みます | nise"
   [ "$output" = '我シェル芸嗜了' ]
 }
 
 @test "nkf" {
-  run bash -c "echo シェル芸 | nkf"
+  run -0 bash -c "echo シェル芸 | nkf"
   [ "$output" = シェル芸 ]
 }
 
 @test "no-more-secrets" {
-  run nms -v
-  [ $status -eq 0 ]
+  run -0 nms -v
 }
 
 @test "noc" {
-  run noc --decode 部邊邊󠄓邊󠄓邉邉󠄊邊邊󠄒邊󠄓邊󠄓邉邉󠄊辺邉󠄊邊邊󠄓邊󠄓邉邉󠄎辺邉󠄎邊辺󠄀邉邉󠄈辺邉󠄍邊邊󠄓部
+  run -0 noc --decode 部邊邊󠄓邊󠄓邉邉󠄊邊邊󠄒邊󠄓邊󠄓邉邉󠄊辺邉󠄊邊邊󠄓邊󠄓邉邉󠄎辺邉󠄎邊辺󠄀邉邉󠄈辺邉󠄍邊邊󠄓部
   [ "$output" = 'シェル芸' ]
 }
 
 @test "Not python2" {
-  run python --version
+  run -0 python --version
   [[ ! "$output" =~ 'Python 2.' ]]
 }
 
 @test "num-utils" {
-  run numaverage -h
+  run -0 numaverage -h
   [ "${lines[1]}" = "numaverage : A program for finding the average of numbers." ]
 }
 
 @test "numconv" {
-  run numconv -h
-  [ "${lines[0]}" = 'Filter to convert integers from one number system to another.' ]
+  run -0 numconv -b 2 -B 10 <<< 101010
+  [ "$output" = "42" ]
 }
 
 @test "numpy" {
-  run python3 -c 'import numpy; print(numpy.__name__)'
+  run -0 python3 -c 'import numpy; print(numpy.__name__)'
   [ "$output" = "numpy" ]
 }
 
 @test "num2words" {
-  run num2words 10001
+  run -0 num2words 10001
   [ "$output" = "ten thousand and one" ]
 }
 
 @test "nyancat" {
-  run nyancat -h
+  run -0 nyancat -h
   [ "${lines[0]}" = "Terminal Nyancat" ]
 }
 
 @test "ocs" {
-  run sh -c "seq 10 | ocs 'BEGIN{var sum=0}{sum+=int.Parse(F0)}END{Console.WriteLine(sum)}'"
+  run -0 sh -c "seq 10 | ocs 'BEGIN{var sum=0}{sum+=int.Parse(F0)}END{Console.WriteLine(sum)}'"
   [ $output -eq 55 ]
 }
 
 @test "ojichat" {
-  run ojichat --version
+  run -0 ojichat --version
   [[ "${lines[0]}" =~ 'Ojisan Nanchatte (ojichat) command' ]]
 }
 
 @test "onefetch" {
-  run bash -c "cd /ShellGeiData && onefetch | sed $'s/\033[^m]*m//g'"
+  run -0 bash -c "cd /ShellGeiData && onefetch | sed $'s/\033[^m]*m//g'"
   [[ "${lines[2]}" =~ 'Project: ShellGeiData' ]]
 }
 
 @test "Open usp Tukubai" {
-  run bash -c "echo シェル芸 | grep -o . | tateyoko -"
+  run -0 bash -c "echo シェル芸 | grep -o . | tateyoko -"
   [ "$output" = 'シ ェ ル 芸' ]
 }
 
 @test "openjdk" {
-  run javac -version
+  run -0 javac -version
   [[ "$output" =~ "javac " ]]
 }
 
 @test "opy" {
-  run bash -c 'seq 2 | opy "F1%2==1"'
+  run -0 bash -c 'seq 2 | opy "F1%2==1"'
   [ "$output" = "1" ]
 }
 
 @test "osquery" {
-  run osqueryi --version
+  run -0 osqueryi --version
   [[ "$output" =~ 'osqueryi version ' ]]
 }
 
 @test "owari" {
-  run owari
+  run -0 owari
   [[ "$output" =~ '糸冬' ]]
 }
 
 @test "pandoc" {
-  run pandoc -v
+  run -0 pandoc -v
   [[ "${lines[0]}" =~ "pandoc" ]]
 }
 
 @test "parallel" {
-  run parallel --version
+  run -0 parallel --version
   [[ "${lines[0]}" =~ "GNU parallel" ]]
 }
 
 @test "Perl" {
-  run bash -c "echo シェル芸 | perl -nle 'print \$_'"
+  run -0 bash -c "echo シェル芸 | perl -nle 'print \$_'"
   [ "$output" = "シェル芸" ]
 }
 
 @test "php" {
-  run php -r 'echo "シェル芸\n";'
+  run -0 php -r 'echo "シェル芸\n";'
   [ "$output" = "シェル芸" ]
 }
 
 @test "pillow" {
-  run python3 -c 'import PIL; print(PIL.__name__)'
+  run -0 python3 -c 'import PIL; print(PIL.__name__)'
   [ "$output" = "PIL" ]
 }
 
 @test "pokemonsay" {
-  run pokemonsay --help
+  run -0 pokemonsay --help
   [ "${lines[0]}" = '  Description: Pokemonsay makes a pokémon say something to you.' ]
 }
 
 @test "ponpe" {
-  run ponpe ponponpain haraita-i
+  run -0 ponpe ponponpain haraita-i
   [ "$output" = 'pͪoͣnͬpͣoͥnͭpͣa͡iͥn' ]
 }
 
 @test "postgresql" {
-  run which psql
+  run -0 which psql
   [ "$output" = "/usr/bin/psql" ]
 }
 
 @test "PowerShell" {
-  run pwsh -C Write-Host シェル芸
+  run -0 pwsh -C Write-Host シェル芸
   [ "$output" = 'シェル芸' ]
 }
 
 @test "pup" {
-  run pup --help
+  run -0 pup --help
   [ "${lines[1]}" = '    pup [flags] [selectors] [optional display function]' ]
 }
 
 @test "pwgen" {
-  run bash -c "pwgen -h"
-  [ $status -eq 1 ]
+  run -1 bash -c "pwgen -h"
   [[ "$output" =~ pwgen ]]
 }
 
 @test "Python3" {
-  run python3 --version
+  run -0 python3 --version
   [[ "$output" =~ 'Python 3.' ]]
 }
 
 @test "qrencode" {
-  run qrencode -V
+  run -0 qrencode -V
   [[ "${lines[0]}" =~ "qrencode version" ]]
 }
 
 @test "R" {
-  run bash -c "echo シェル芸 | R -q -e 'cat(readLines(\"stdin\"))'"
+  run -0 bash -c "echo シェル芸 | R -q -e 'cat(readLines(\"stdin\"))'"
   [[ "$output" =~ シェル芸 ]]
 }
 
 @test "rainbow" {
-  run bash -c "rainbow -f ansi_f -t text"
+  run -0 bash -c "rainbow -f ansi_f -t text"
   [ "$output" = '[38;2;255;0;0mtext[m
 [38;2;255;13;0mtext[m
 [38;2;255;26;0mtext[m
@@ -781,49 +764,49 @@
 }
 
 @test "rargs" {
-  run rargs --help
+  run -0 rargs --help
   [[ "${lines[0]}" =~ "Rargs " ]]
   [ "${lines[1]}" = 'Xargs with pattern matching' ]
 }
 
 @test "rb" {
-  run which rb
+  run -0 which rb
   [ "$output" = '/usr/local/bin/rb' ]
 }
 
 @test "receiptio" {
-  run receiptio -h
+  run -1 receiptio -h
   [ "${lines[0]}" = "usage: receiptio [options] [source]" ]
 }
 
 @test "rect" {
   if [ "$(uname -m)" = "aarch64" ]; then skip "rect is not installed on aarch64"; fi
-  run rect --help
+  run -0 rect --help
   [ "${lines[0]}" = 'rect is a command to crop/paste rectangle text' ]
 }
 
 @test "reiwa" {
-  run date -d '2019-05-01' '+%Ec'
+  run -0 date -d '2019-05-01' '+%Ec'
   [ "$output" = '令和元年05月01日 00時00分00秒' ]
 }
 
 @test "rename" {
-  run rename -V
+  run -0 rename -V
   [[ "${lines[0]}" =~ "/usr/bin/rename" ]]
 }
 
 @test "rs" {
-  run bash -c "echo シェル芸 | grep -o . | rs -T | tr -d ' '"
+  run -0 bash -c "echo シェル芸 | grep -o . | rs -T | tr -d ' '"
   [ "$output" = シェル芸 ]
 }
 
 @test "rsvg-convert" {
-  run rsvg-convert -v
+  run -0 rsvg-convert -v
   [[ "${output}" =~ 'rsvg-convert version' ]]
 }
 
 @test "rubipara" {
-  run rubipara kashikoma
+  run -0 rubipara kashikoma
   [ "${lines[0]}"  = '                 ／^v ＼'                                      ]
   [ "${lines[1]}"  = '               _{ / |-.(`_￣}__'                               ]
   [ "${lines[2]}"  = "        _人_  〃⌒ ﾝ'八{   ｀ノト､\`ヽ"                           ]
@@ -839,54 +822,47 @@
 }
 
 @test "Ruby" {
-  run bash -c "echo シェル芸 | ruby -nle 'puts \$_'"
+  run -0 bash -c "echo シェル芸 | ruby -nle 'puts \$_'"
   [ "$output" = "シェル芸" ]
 }
 
 @test "saizeriya" {
-  run saizeriya
-  [ $status -eq 0 ]
+  run -0 saizeriya
 }
 
 @test "sayhoozoku shoplist" {
-  run stat "/root/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping/shoplist.txt"
+  run -0 stat "/root/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping/shoplist.txt"
   [ "${lines[0]}" = '  File: /root/go/src/github.com/YuheiNakasaka/sayhuuzoku/scraping/shoplist.txt' ]
 }
 
 @test "sayhuuzoku" {
-  run sayhuuzoku g
-  [ $status -eq 0 ]
+  run -0 sayhuuzoku g
 }
 
 @test "scipy" {
-  run python3 -c 'import scipy; print(scipy.__name__)'
+  run -0 python3 -c 'import scipy; print(scipy.__name__)'
   [ "$output" = "scipy" ]
 }
 
 @test "screen" {
-  run bash -c "screen -v"
+  run -0 bash -c "screen -v"
   [[ "$output" =~ Screen ]]
 }
 
 @test "screenfetch" {
-  run bash -c "screenfetch -V | sed $'s/\033\[[0-9]m//g'"
+  run -0 bash -c "screenfetch -V | sed $'s/\033\[[0-9]m//g'"
   [[ "${lines[0]}" =~ "screenFetch - Version" ]]
 }
 
 @test "sel" {
-  run bash -c "sel --version"
+  run -0 bash -c "sel --version"
   [[ "${output}" =~ "sel version" ]]
 }
 
 @test "shellgeibot-image" {
-  run shellgeibot-image help
-  [ $status -eq 0 ]
-
-  run shellgeibot-image revision
-  [ $status -eq 0 ]
-
-  run shellgeibot-image build-log
-  [ $status -eq 0 ]
+  run -0 shellgeibot-image help
+  run -0 shellgeibot-image revision
+  run -0 shellgeibot-image build-log
   [ "${lines[0]}" = '"build_num","vcs_revision","start_time","stop_time"' ]
   [[ "${lines[1]}" =~ ^.[0-9]+.,.*$ ]]
   [[ "${lines[2]}" =~ ^.[0-9]+.,.*$ ]]
@@ -894,55 +870,52 @@
 }
 
 @test "ShellGeiData" {
-  run stat /ShellGeiData/README.md
+  run -0 stat /ShellGeiData/README.md
   [ "${lines[0]}" = '  File: /ShellGeiData/README.md' ]
 }
 
 @test "sl" {
-  run which sl
+  run -0 which sl
   [ "$output" = /usr/games/sl ]
 }
 
 @test "snacknomama" {
-  run snacknomama
-  [ $status -eq 0 ]
+  run -0 snacknomama
 }
 
 @test "super unko" {
-  run unko.tower 2
+  run -0 unko.tower 2
   [ "${lines[0]}" = '　　　　人' ]
   [ "${lines[1]}" = '　　（　　　）' ]
   [ "${lines[2]}" = '　（　　　　　）' ]
 }
 
 @test "surge" {
-  run surge --version
+  run -0 surge --version
   [[ "$output" =~ "surge" ]]
 }
 
 @test "sushiro" {
-  run sushiro -l
-  [ $status -eq 0 ]
+  run -0 sushiro -l
   [[ ! "${output}" =~ '/usr/local/share/sushiro_cache' ]]
 }
 
 @test "sympy" {
-  run python3 -c 'import sympy; print(sympy.__name__)'
+  run -0 python3 -c 'import sympy; print(sympy.__name__)'
   [ "$output" = "sympy" ]
 }
 
 @test "taishoku" {
-  run taishoku
+  run -0 taishoku
   [ "${lines[0]}" = '　　　代株　　　　二退こ　　　　　　' ]
 }
 
 @test "takarabako" {
-  run takarabako
-  [ $status -eq 0 ]
+  run -0 takarabako
 }
 
 @test "tate" {
-  run tate
+  run -0 tate
   [ "${lines[0]}" = 'ご そ ツ 気' ]
   [ "${lines[1]}" = '提 ん イ 軽' ]
   [ "${lines[2]}" = '供 な ｜ に' ]
@@ -960,51 +933,49 @@
 }
 
 @test "tcsh" {
-  run tcsh -c "echo シェル芸"
+  run -0 tcsh -c "echo シェル芸"
   [ "$output" = "シェル芸" ]
 }
 
 @test "teip" {
-  run teip -f2 -- sed 's/.*/芸/' <<< "シェル ゲイ"
+  run -0 teip -f2 -- sed 's/.*/芸/' <<< "シェル ゲイ"
   [ "$output" = "シェル 芸" ]
 }
 
 @test "telnet" {
-  run telnet -h
-  [ $status -eq 1 ]
+  run -1 telnet -h
   [ "${lines[0]}" = "telnet: invalid option -- 'h'" ]
 }
 
 @test "terminal-parrot" {
-  run terminal-parrot -h
-  [ $status -eq 0 ]
+  run -0 terminal-parrot -h
   [ "${lines[0]}" == 'Usage of terminal-parrot:' ]
 }
 
 @test "textchat" {
-  run bash -c "textchat -n bob hello"
+  run -0 bash -c "textchat -n bob hello"
   [ "${lines[0]}" == ".-----.  .---------.                                                            " ]
   [ "${lines[1]}" == "| bob | <   hello  |                                                            " ]
   [ "${lines[2]}" == "\`-----'  \`---------'                                                            " ]
 }
 
 @test "textimg" {
-  run textimg --version
+  run -0 textimg --version
   [[ "$output" =~ "textimg version " ]]
 }
 
 @test "TiMidity++" {
-  run bash -c "timidity -v"
+  run -0 bash -c "timidity -v"
   [[ "$output" =~ TiMidity\+\+ ]]
 }
 
 @test "tmux" {
-  run tmux -c "echo シェル芸"
+  run -0 tmux -c "echo シェル芸"
   [ "$output" = "シェル芸" ]
 }
 
 @test "toilet" {
-  run bash -c "echo シェル芸 | toilet"
+  run -0 bash -c "echo シェル芸 | toilet"
   [ "${lines[0]}" = '                                          ' ]
   [ "${lines[1]}" = '   ""m                        m  "m       ' ]
   [ "${lines[2]}" = '  mm                           #  #       ' ]
@@ -1016,116 +987,116 @@
 }
 
 @test "trdsql" {
-  run sh -c "trdsql --version | xxd"
+  run -0 sh -c "trdsql --version | xxd"
   [[ "$output" =~ "trdsql version" ]]
 }
 
 @test "tree" {
-  run tree --help
+  run -0 tree --help
   [[ "${lines[0]}" =~ 'usage: tree' ]]
 }
 
 @test "ttyrec" {
-  run bash -c "ttyrec -h"
+  run -1 bash -c "ttyrec -h"
   [[ "$output" =~ ttyrec ]]
 }
 
 @test "ttyrec2gif" {
-  run ttyrec2gif -help
+  run -0 ttyrec2gif -help
   [ "${lines[0]}" = 'Usage of ttyrec2gif:' ]
 }
 
 @test "uconv" {
-  run bash -c "echo 30b730a730eb82b8 | xxd -p -r | uconv -f utf-16be -t utf-8"
+  run -0 bash -c "echo 30b730a730eb82b8 | xxd -p -r | uconv -f utf-16be -t utf-8"
   [ "$output" = "シェル芸" ]
 }
 
 @test "unicode-data" {
-  run stat /usr/share/unicode/ReadMe.txt
+  run -0 stat /usr/share/unicode/ReadMe.txt
   [ "${lines[0]}" = "  File: /usr/share/unicode/ReadMe.txt" ]
 }
 
 @test "uniname" {
-  run uniname -h 2>&1
+  run -2 uniname -h 2>&1
   [ "${lines[0]}" = "Name the characters in a Unicode file." ]
 }
 
 @test "Vim" {
-  run bash -c "echo シェル芸 | vim -es +%p +q! /dev/stdin"
+  run -0 bash -c "echo シェル芸 | vim -es +%p +q! /dev/stdin"
   [ "$output" = シェル芸 ]
 }
 
 @test "w3m" {
-  run w3m -version
+  run -0 w3m -version
   [[ "$output" =~ 'w3m version' ]]
 }
 
 @test "whiptail" {
-  run whiptail -v
+  run -0 whiptail -v
   [[ "$output" =~ "whiptail" ]]
 }
 
 @test "whitespace" {
-  run bash -c "echo -e '   \t \t  \t\t\n\t\n     \t\t \t   \n\t\n     \t\t  \t \t\n\t\n     \t\t \t\t  \n\t\n     \t\t \t\t  \n\t\n     \t   \t\t\t\n\t\n     \t\t  \t \t\n\t\n     \t\t \t  \t\n\t\n  \n\n' | whitespace"
+  run -0 bash -c "echo -e '   \t \t  \t\t\n\t\n     \t\t \t   \n\t\n     \t\t  \t \t\n\t\n     \t\t \t\t  \n\t\n     \t\t \t\t  \n\t\n     \t   \t\t\t\n\t\n     \t\t  \t \t\n\t\n     \t\t \t  \t\n\t\n  \n\n' | whitespace"
   [ "$output" = 'ShellGei' ]
 }
 
 @test "wordcloud_cli" {
-  run wordcloud_cli --version
+  run -0 wordcloud_cli --version
   [[ "$output" =~ "wordcloud_cli" ]]
 }
 
 @test "x11-apps" {
-  run which xwd
+  run -0 which xwd
   [ "$output" = '/usr/bin/xwd' ]
 }
 
 @test "xdotool" {
-  run xdotool --version
+  run -0 xdotool --version
   [[ "$output" =~ 'xdotool version' ]]
 }
 
 @test "xonsh" {
-  run xonsh -c 'echo シェル芸'
+  run -0 xonsh -c 'echo シェル芸'
   [ "$output" = "シェル芸" ]
 }
 
 @test "xterm" {
-  run xterm -v
+  run -0 xterm -v
   [[ "$output" =~ 'XTerm' ]]
 }
 
 @test "xvfb" {
-  run Xvfb -help
+  run -0 Xvfb -help
   [ "${lines[0]}" = 'use: X [:<display>] [option]' ]
 }
 
 @test "yash" {
-  run yash -c "echo シェル芸"
+  run -0 yash -c "echo シェル芸"
   [ "$output" = シェル芸 ]
 }
 
 @test "yq" {
-  run yq --version
+  run -0 yq --version
   [[ "${lines[0]}" =~ "yq" ]]
 }
 
 @test "yukichant" {
-  run bash -c "echo -n unko | chant | chant -d"
+  run -0 bash -c "echo -n unko | chant | chant -d"
   [ "$output" = "unko" ]
 }
 
 @test "zen_to_i" {
-  run bash -c 'ruby -rzen_to_i -pe \$_=\$_.zen_to_i <<< 三十二'
+  run -0 bash -c 'ruby -rzen_to_i -pe \$_=\$_.zen_to_i <<< 三十二'
   [ "${lines[0]}" = '32' ]
 }
 
 @test "zsh" {
-  run zsh -c "echo シェル芸"
+  run -0 zsh -c "echo シェル芸"
   [ "$output" = "シェル芸" ]
 }
 
 @test "zws" {
-  run bash -c "echo J+KBouKAjeKAi+KBouKAjeKAi+KAi+KAjeKAjeKBouKAjOKBouKBouKAjeKAi+KBouKAjeKAi+KAi+KAjeKAjeKAjeKAjOKBouKBouKAjeKAi+KBouKAjeKAi+KAi+KBouKAjeKAjeKAjeKBouKBouKAjeKAjeKAi+KAjeKAi+KAjeKAjeKAjeKBouKAjeKAi+KAi+KAi+KAjeKAjScK | base64 -d | zws -d"
+  run -0 bash -c "echo J+KBouKAjeKAi+KBouKAjeKAi+KAi+KAjeKAjeKBouKAjOKBouKBouKAjeKAi+KBouKAjeKAi+KAi+KAjeKAjeKAjeKAjOKBouKBouKAjeKAi+KBouKAjeKAi+KAi+KBouKAjeKAjeKAjeKBouKBouKAjeKAjeKAi+KAjeKAi+KAjeKAjeKAjeKBouKAjeKAi+KAi+KAi+KAjeKAjScK | base64 -d | zws -d"
   [ "$output" = 'シェル芸' ]
 }

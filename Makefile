@@ -31,7 +31,7 @@ test:
 		--pids-limit 1024 \
 		-v $(CURDIR):/root/src \
 		$(DOCKER_IMAGE_NAME) \
-		/bin/bash -c "bats /root/src/docker_image.bats"
+		/bin/bash -c "bats --print-output-on-failure /root/src/docker_image.bats"
 
 test-ci:
 	@docker container run \
