@@ -477,10 +477,10 @@ bats_require_minimum_version 1.5.0
   [[ "${lines[0]}" =~ "lolcat" ]]
 }
 
-# @test "longcat" {
-#   run -0 longcat -i 4 -o /a.png
-#   [ -f /a.png ]
-# }
+@test "longcat" {
+  run -0 longcat -i 4 -o /a.png
+  [ -f /a.png ]
+}
 
 @test "lua" {
   run -0 lua -e 'print("シェル芸")'
