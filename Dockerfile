@@ -28,7 +28,7 @@ RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cach
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/jiro4989/textchat@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/jiro4989/textimg/v3@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/jmhobbs/terminal-parrot@latest
-# RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/mattn/longcat@latest
+RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/mattn/longcat@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/ryuichiueda/kkcw@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/sugyan/ttyrec2gif@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/tomnomnom/gron@latest
