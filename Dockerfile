@@ -81,8 +81,8 @@ RUN --mount=type=cache,target=/root/.npm \
     npm install -g --silent faker-cli chemi fx yukichant @amanoese/muscular kana2ipa receiptio bats
 # enable png output on receiptio
 RUN --mount=type=cache,target=/root/.npm \
-    if [ "${TARGETARCH}" = "amd64" ]; then npm install -g --silent puppeteer; fi \
-    && sed "s/puppeteer.launch({/& args: ['--no-sandbox'],/" -i /usr/local/nodejs/lib/node_modules/receiptio/lib/receiptio.js 
+    if [ "${TARGETARCH}" = "amd64" ]; then PUPPETEER_SKIP_DOWNLOAD=true npm install -g --silent puppeteer; fi \
+    && sed "s/puppeteer.launch({/& args: ['--no-sandbox'],/" -i /usr/local/nodejs/lib/node_modules/receiptio/lib/receiptio.js
 
 ## .NET
 FROM base AS dotnet-builder
@@ -475,6 +475,7 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     && ln -s /usr/local/trdsql_v0.9.1_linux_*/trdsql /usr/local/bin \
     && /bin/bash /downloads/clojure_install.sh \
     && if [ "${TARGETARCH}" = "amd64" ]; then unzip /downloads/chrome-linux.zip -d /usr/local; fi
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/local/chrome-linux/chrome
 
 ENV JAVA_HOME /usr/local/jdk-18.0.1
 ENV PATH $PATH:/usr/local/julia-1.6.6/bin:$JAVA_HOME/bin:/usr/local/chrome-linux
