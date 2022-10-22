@@ -79,9 +79,9 @@ RUN tar xf nodejs.tar.gz \
 ENV PATH $PATH:/usr/local/nodejs/bin
 RUN --mount=type=cache,target=/root/.npm \
     npm install -g --silent faker-cli chemi fx yukichant @amanoese/muscular kana2ipa receiptio bats
-# enable png output on receiptio
+# enable png output on receiptio; do not install chromium here
 RUN --mount=type=cache,target=/root/.npm \
-    if [ "${TARGETARCH}" = "amd64" ]; then PUPPETEER_SKIP_DOWNLOAD=true npm install -g --silent puppeteer; fi \
+    if [ "${TARGETARCH}" = "amd64" ]; then npm install -g puppeteer --ignore-scripts; fi \
     && sed "s/puppeteer.launch({/& args: ['--no-sandbox'],/" -i /usr/local/nodejs/lib/node_modules/receiptio/lib/receiptio.js
 
 ## .NET
