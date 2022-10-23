@@ -1,8 +1,8 @@
 # syntax = docker/dockerfile:latest
-FROM ubuntu:22.04 AS apt-cache
+FROM ubuntu:22.10 AS apt-cache
 RUN apt-get update
 
-FROM ubuntu:22.04 AS base
+FROM ubuntu:22.10 AS base
 ENV DEBIAN_FRONTEND noninteractive
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
@@ -85,13 +85,13 @@ FROM base AS dotnet-builder
 ARG TARGETARCH
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq libc6 libgcc-s1 libgssapi-krb5-2 libicu70 libssl3 libstdc++6 zlib1g
+    apt-get install -y -qq libc6 libgcc-s1 libgssapi-krb5-2 libicu71 libssl3 libstdc++6 zlib1g
 
 # https://docs.microsoft.com/ja-jp/dotnet/core/tools/dotnet-install-script
 ADD https://dot.net/v1/dotnet-install.sh dotnet-install.sh
-# Runtime: 6.0.4, SDK: 6.0.202; https://dotnet.microsoft.com/en-us/download/dotnet/6.0
-RUN bash dotnet-install.sh --version 6.0.4 --runtime dotnet --install-dir /usr/local/dotnet
-RUN bash dotnet-install.sh --version 6.0.202
+# Runtime: 6.0.10, SDK: 6.0.402; https://dotnet.microsoft.com/en-us/download/dotnet/6.0
+RUN bash dotnet-install.sh --version 6.0.10 --runtime dotnet --install-dir /usr/local/dotnet
+RUN bash dotnet-install.sh --version 6.0.402
 ENV PATH $PATH:/root/.dotnet
 # noc
 RUN git clone --depth 1 https://github.com/xztaityozx/noc.git
@@ -125,7 +125,7 @@ FROM base AS nim-builder
 ARG TARGETARCH
 RUN mkdir nim \
     && if [ "${TARGETARCH}" = "amd64" ]; then \
-      curl -sfSL --retry 5 https://nim-lang.org/download/nim-1.6.4-linux_x64.tar.xz -o nim.tar.xz \
+      curl -sfSL --retry 5 https://nim-lang.org/download/nim-1.6.8-linux_x64.tar.xz -o nim.tar.xz \
       && tar xf nim.tar.xz --strip-components 1 -C nim \
       && (cd nim/; ./install.sh /usr/local/bin && cp ./bin/nimble /usr/local/bin/) \
     fi
@@ -175,13 +175,13 @@ RUN mkdir mecab-ipadic-neologd-utf8
 RUN mecab-ipadic-neologd/bin/install-mecab-ipadic-neologd -u -y -p /downloads/mecab-ipadic-neologd-utf8
 # bat
 RUN case ${TARGETARCH} in \
-      amd64) curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.20.0/bat_0.20.0_amd64.deb -o bat.deb ;; \
-      arm64) curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.20.0/bat_0.20.0_arm64.deb -o bat.deb ;; \
+      amd64) curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.22.1/bat_0.22.1_amd64.deb -o bat.deb ;; \
+      arm64) curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.22.1/bat_0.22.1_arm64.deb -o bat.deb ;; \
     esac
 # osquery
 RUN case ${TARGETARCH} in \
-      amd64) curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.2.2/osquery_5.2.2-1.linux_amd64.deb -o osquery.deb ;; \
-      arm64) curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.2.2/osquery_5.2.2-1.linux_arm64.deb -o osquery.deb ;; \
+      amd64) curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.5.1/osquery_5.5.1-1.linux_amd64.deb -o osquery.deb ;; \
+      arm64) curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.5.1/osquery_5.5.1-1.linux_arm64.deb -o osquery.deb ;; \
     esac
 # J
 RUN if [ "${TARGETARCH}" = "amd64" ]; then \
@@ -199,11 +199,11 @@ COPY prefetched/$TARGETARCH/openjdk.tar.gz .
 RUN curl -sfSL --retry 5 https://download.clojure.org/install/linux-install-1.11.1.1105.sh -o clojure_install.sh
 # trdsql
 RUN case ${TARGETARCH} in \
-      amd64) curl -sfSL --retry 5 https://github.com/noborus/trdsql/releases/download/v0.9.1/trdsql_v0.9.1_linux_amd64.zip -o trdsql.zip ;; \
-      arm64) curl -sfSL --retry 5 https://github.com/noborus/trdsql/releases/download/v0.9.1/trdsql_v0.9.1_linux_arm64.zip -o trdsql.zip ;; \
+      amd64) curl -sfSL --retry 5 https://github.com/noborus/trdsql/releases/download/v0.10.0/trdsql_v0.10.0_linux_amd64.zip -o trdsql.zip ;; \
+      arm64) curl -sfSL --retry 5 https://github.com/noborus/trdsql/releases/download/v0.10.0/trdsql_v0.10.0_linux_arm64.zip -o trdsql.zip ;; \
     esac
 # PowerShell
-ENV POWERSHELL_VERSION 7.2.2
+ENV POWERSHELL_VERSION 7.2.7
 RUN case ${TARGETARCH} in \
       amd64) curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v$POWERSHELL_VERSION/powershell-$POWERSHELL_VERSION-linux-x64.tar.gz   -o powershell.tar.gz ;; \
       arm64) curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v$POWERSHELL_VERSION/powershell-$POWERSHELL_VERSION-linux-arm64.tar.gz -o powershell.tar.gz ;; \
@@ -363,6 +363,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      w3m nginx \
      whiptail \
      xvfb xterm x11-apps xdotool \
+     xxd \
      zsh
 
 # kagome
@@ -466,11 +467,11 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     tar xf /downloads/julia.tar.gz -C /usr/local \
     && tar xf /downloads/openjdk.tar.gz -C /usr/local \
     && unzip /downloads/trdsql.zip -d /usr/local \
-    && ln -s /usr/local/trdsql_v0.9.1_linux_*/trdsql /usr/local/bin \
+    && ln -s /usr/local/trdsql_v0.10.0_linux_*/trdsql /usr/local/bin \
     && /bin/bash /downloads/clojure_install.sh
 
-ENV JAVA_HOME /usr/local/jdk-18.0.1
-ENV PATH $PATH:/usr/local/julia-1.6.6/bin:$JAVA_HOME/bin
+ENV JAVA_HOME /usr/local/jdk-19.0.1
+ENV PATH $PATH:/usr/local/julia-1.8.2/bin:$JAVA_HOME/bin
 # Clojure が実行時に必要とするパッケージを取得
 RUN clojure -e '(println "test")'
 # Clojure ワンライナー
@@ -494,7 +495,7 @@ RUN mv /usr/bin/man.REAL /usr/bin/man
 
 # reset apt config
 RUN rm /etc/apt/apt.conf.d/keep-cache /etc/apt/apt.conf.d/no-install-recommends
-COPY --from=ubuntu:22.04 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
+COPY --from=ubuntu:22.10 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
 
 # ShellgeiBot-Image information
 RUN mkdir -p /etc/shellgeibot-image

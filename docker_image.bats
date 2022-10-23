@@ -932,8 +932,8 @@ bats_require_minimum_version 1.5.0
 }
 
 @test "telnet" {
-  run -1 telnet -h
-  [ "${lines[0]}" = "telnet: invalid option -- 'h'" ]
+  run -0 telnet --help
+  [ "${lines[0]}" = "Usage: telnet [OPTION...] [HOST [PORT]]" ]
 }
 
 @test "terminal-parrot" {
