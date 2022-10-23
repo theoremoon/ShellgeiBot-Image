@@ -25,10 +25,6 @@ download() {
 if [ "$arch" = "amd64" ]; then download https://dl.google.com/go/go1.18.1.linux-amd64.tar.gz go.tar.gz; fi
 if [ "$arch" = "arm64" ]; then download https://dl.google.com/go/go1.18.1.linux-arm64.tar.gz go.tar.gz; fi
 
-# chromium (x64 only)
-if [ "$arch" = "amd64" ]; then download "https://download-chromium.appspot.com/dl/Linux_x64?type=snapshots" chrome-linux.zip; fi
-if [ "$arch" = "arm64" ]; then touch "$DOWNLOAD_DIR/$arch/chrome-linux.zip" ; fi  # dummy
-
 # julia
 if [ "$arch" = "amd64" ]; then download https://julialang-s3.julialang.org/bin/linux/x64/1.6/julia-1.6.6-linux-x86_64.tar.gz      julia.tar.gz; fi
 if [ "$arch" = "arm64" ]; then download https://julialang-s3.julialang.org/bin/linux/aarch64/1.6/julia-1.6.6-linux-aarch64.tar.gz julia.tar.gz; fi

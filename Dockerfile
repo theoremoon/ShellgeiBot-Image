@@ -78,11 +78,7 @@ RUN tar xf nodejs.tar.gz \
     && mv node-* /usr/local/nodejs
 ENV PATH $PATH:/usr/local/nodejs/bin
 RUN --mount=type=cache,target=/root/.npm \
-    npm install -g --silent faker-cli chemi fx yukichant @amanoese/muscular kana2ipa receiptio bats
-# enable png output on receiptio
-RUN --mount=type=cache,target=/root/.npm \
-    if [ "${TARGETARCH}" = "amd64" ]; then PUPPETEER_SKIP_DOWNLOAD=true npm install -g --silent puppeteer; fi \
-    && sed "s/puppeteer.launch({/& args: ['--no-sandbox'],/" -i /usr/local/nodejs/lib/node_modules/receiptio/lib/receiptio.js
+    npm install -g --silent faker-cli chemi fx yukichant @amanoese/muscular kana2ipa bats
 
 ## .NET
 FROM base AS dotnet-builder
@@ -212,8 +208,6 @@ RUN case ${TARGETARCH} in \
       amd64) curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v$POWERSHELL_VERSION/powershell-$POWERSHELL_VERSION-linux-x64.tar.gz   -o powershell.tar.gz ;; \
       arm64) curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v$POWERSHELL_VERSION/powershell-$POWERSHELL_VERSION-linux-arm64.tar.gz -o powershell.tar.gz ;; \
     esac
-# Chromium
-COPY prefetched/$TARGETARCH/chrome-linux.zip .
 # morsed (最新版のreleasesを取得するためjqで最新タグを取得)
 RUN if [ "${TARGETARCH}" = "amd64" ]; then \
       curl -s https://api.github.com/repos/jiro4989/morsed/releases \
@@ -467,18 +461,16 @@ ENV PATH $PATH:/usr/local/jsoftware/bin
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     dpkg --install /downloads/bat.deb /downloads/osquery.deb
 
-# Julia, OpenJDK, trdsql (apply sql to csv), Clojure, chromium
+# Julia, OpenJDK, trdsql (apply sql to csv), Clojure
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     tar xf /downloads/julia.tar.gz -C /usr/local \
     && tar xf /downloads/openjdk.tar.gz -C /usr/local \
     && unzip /downloads/trdsql.zip -d /usr/local \
     && ln -s /usr/local/trdsql_v0.9.1_linux_*/trdsql /usr/local/bin \
-    && /bin/bash /downloads/clojure_install.sh \
-    && if [ "${TARGETARCH}" = "amd64" ]; then unzip /downloads/chrome-linux.zip -d /usr/local; fi
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/local/chrome-linux/chrome
+    && /bin/bash /downloads/clojure_install.sh
 
 ENV JAVA_HOME /usr/local/jdk-18.0.1
-ENV PATH $PATH:/usr/local/julia-1.6.6/bin:$JAVA_HOME/bin:/usr/local/chrome-linux
+ENV PATH $PATH:/usr/local/julia-1.6.6/bin:$JAVA_HOME/bin
 # Clojure が実行時に必要とするパッケージを取得
 RUN clojure -e '(println "test")'
 # Clojure ワンライナー

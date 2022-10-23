@@ -110,12 +110,6 @@ bats_require_minimum_version 1.5.0
   [ "${lines[2]}" = 'element     : Hydrogen' ]
 }
 
-@test "chromium" {
-  if [ "$(uname -m)" = "aarch64" ]; then skip "chromium is not installed on aarch64"; fi
-  run -0 chrome --version
-  [[ "$output" =~ "Chromium" ]]
-}
-
 @test "clisp" {
   run -0 clisp -q -x '(+ 1 2)'
   [ "$output" = '3' ]
@@ -772,11 +766,6 @@ bats_require_minimum_version 1.5.0
 @test "rb" {
   run -0 which rb
   [ "$output" = '/usr/local/bin/rb' ]
-}
-
-@test "receiptio" {
-  run -1 receiptio -h
-  [ "${lines[0]}" = "usage: receiptio [options] [source]" ]
 }
 
 @test "rect" {
