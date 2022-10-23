@@ -3,10 +3,10 @@ version: 2.1
 executors:
   builder:
     machine:
-      image: ubuntu-2004:202111-02  # https://circleci.com/docs/2.0/configuration-reference/#available-machine-images
+      image: ubuntu-2204:2022.10.1  # https://circleci.com/docs/configuration-reference/#available-linux-machine-images-cloud
   deployer:
     docker:
-      - image: cimg/base:2021.12-20.04  # https://circleci.com/docs/2.0/next-gen-migration-guide/
+      - image: cimg/base:2022.10-22.04  # https://circleci.com/developer/ja/images/image/cimg/base
 
 commands:
   build-image:
@@ -71,14 +71,14 @@ jobs:
     environment:
       DOCKER_BUILDKIT: '1'
       DOCKER_IMAGE_NAME: theoldmoon0602/shellgeibot
-    resource_class: large  # 4vCPU, 8GB RAM; https://circleci.com/docs/ja/2.0/configuration-reference/#resourceclass
+    resource_class: large  # 4vCPU, 15GB RAM; https://circleci.com/docs/ja/2.0/configuration-reference/#resourceclass
     steps:
       - build-image:
           arch: amd64
 
   build-arm64:
     executor: builder
-    resource_class: arm.medium  # 2vCPU, 8GB RAM; https://circleci.com/docs/ja/2.0/arm-resources/
+    resource_class: arm.large  # 4vCPU, 16GB RAM; https://circleci.com/docs/ja/2.0/arm-resources/
     environment:
       DOCKER_BUILDKIT: '1'
       DOCKER_IMAGE_NAME: theoldmoon0602/shellgeibot

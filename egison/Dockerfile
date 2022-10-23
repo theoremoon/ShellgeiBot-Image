@@ -14,4 +14,3 @@ FROM base AS builder
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt \
     apt-get install -y -qq haskell-platform
-COPY build.sh /

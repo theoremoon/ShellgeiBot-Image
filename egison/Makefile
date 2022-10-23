@@ -14,7 +14,7 @@ egison-linux-$(ARCH).tar.gz:
 	  amd64) touch egison-linux-$(ARCH).tar.gz ;; \
 	  arm64) \
 	    docker image build -t $(DOCKER_IMAGE_NAME) --progress plain . ; \
-	    docker run --rm -v $(CURDIR):/root/pkg $(DOCKER_IMAGE_NAME) /build.sh $(EGISON_VERSION) ;; \
+	    docker run --rm -v $(CURDIR):/root/pkg $(DOCKER_IMAGE_NAME) /root/pkg/build.sh $(EGISON_VERSION) ;; \
 	esac
 
 clean:

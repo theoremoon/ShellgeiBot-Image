@@ -22,16 +22,16 @@ download() {
 }
 
 # go
-if [ "$arch" = "amd64" ]; then download https://dl.google.com/go/go1.18.1.linux-amd64.tar.gz go.tar.gz; fi
-if [ "$arch" = "arm64" ]; then download https://dl.google.com/go/go1.18.1.linux-arm64.tar.gz go.tar.gz; fi
+if [ "$arch" = "amd64" ]; then download https://dl.google.com/go/go1.19.2.linux-amd64.tar.gz go.tar.gz; fi
+if [ "$arch" = "arm64" ]; then download https://dl.google.com/go/go1.19.2.linux-arm64.tar.gz go.tar.gz; fi
 
 # julia
-if [ "$arch" = "amd64" ]; then download https://julialang-s3.julialang.org/bin/linux/x64/1.6/julia-1.6.6-linux-x86_64.tar.gz      julia.tar.gz; fi
-if [ "$arch" = "arm64" ]; then download https://julialang-s3.julialang.org/bin/linux/aarch64/1.6/julia-1.6.6-linux-aarch64.tar.gz julia.tar.gz; fi
+if [ "$arch" = "amd64" ]; then download https://julialang-s3.julialang.org/bin/linux/x64/1.8/julia-1.8.2-linux-x86_64.tar.gz      julia.tar.gz; fi
+if [ "$arch" = "arm64" ]; then download https://julialang-s3.julialang.org/bin/linux/aarch64/1.8/julia-1.8.2-linux-aarch64.tar.gz julia.tar.gz; fi
 
 # openjdk
-if [ "$arch" = "amd64" ]; then download https://download.java.net/java/GA/jdk18.0.1/3f48cabb83014f9fab465e280ccf630b/10/GPL/openjdk-18.0.1_linux-x64_bin.tar.gz     openjdk.tar.gz; fi
-if [ "$arch" = "arm64" ]; then download https://download.java.net/java/GA/jdk18.0.1/3f48cabb83014f9fab465e280ccf630b/10/GPL/openjdk-18.0.1_linux-aarch64_bin.tar.gz openjdk.tar.gz; fi
+if [ "$arch" = "amd64" ]; then download https://download.java.net/java/GA/jdk19.0.1/afdd2e245b014143b62ccb916125e3ce/10/GPL/openjdk-19.0.1_linux-x64_bin.tar.gz     openjdk.tar.gz; fi
+if [ "$arch" = "arm64" ]; then download https://download.java.net/java/GA/jdk19.0.1/afdd2e245b014143b62ccb916125e3ce/10/GPL/openjdk-19.0.1_linux-aarch64_bin.tar.gz openjdk.tar.gz; fi
 
 # nodejs
 node_version="$(curl -s https://nodejs.org/dist/index.json | jq -r '[.[]|select(.lts)][0].version')"
