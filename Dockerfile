@@ -308,6 +308,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      fonts-noto-cjk fonts-noto-cjk-extra \
      fonts-nanum fonts-symbola fonts-noto-color-emoji \
      gawk \
+     gdb \
      gnuplot \
      graphviz \
      haskell-platform \
