@@ -314,6 +314,11 @@ bats_require_minimum_version 1.5.0
   [ "$output" = "シェル芸" ]
 }
 
+@test "gdb" {
+  run -0 gdb --help
+  [ "${lines[0]}" = "This is the GNU debugger.  Usage:" ]
+}
+
 @test "Git" {
   run -0 git version
   [[ "$output" =~ "git version" ]]
