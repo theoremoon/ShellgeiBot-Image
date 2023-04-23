@@ -76,7 +76,7 @@ bats_require_minimum_version 1.5.0
 }
 
 @test "Brainf*ck" {
-  run -0 bash -c "echo '+++++++++[>+++++++++<-]>++.<+++++++++[>++<-]>+++.---.+++++++..<+++++++++[>----<-]>-.<+++++++++[>+++<-]>+++.++++.' | bf /dev/stdin"
+  run -0 bash -c "echo '+++++++++[>+++++++++<-]>++.<+++++++++[>++<-]>+++.---.+++++++..<+++++++++[>----<-]>-.<+++++++++[>+++<-]>+++.++++.' | hsbrainfuck"
   [ "$output" = 'ShellGei' ]
 }
 
@@ -188,8 +188,8 @@ bats_require_minimum_version 1.5.0
 }
 
 @test "dotnet" {
-  run -129 dotnet --help
-  [[ "${lines[0]}" =~ "Usage: dotnet" ]]
+  run -0 dotnet --help
+  [[ "${lines[0]}" =~ ".NET SDK" ]]
 }
 
 @test "eachdo" {
@@ -591,9 +591,9 @@ bats_require_minimum_version 1.5.0
   [ "$output" = 'シェル芸' ]
 }
 
-@test "Not python2" {
+@test "python is python3" {
   run -0 python --version
-  [[ ! "$output" =~ 'Python 2.' ]]
+  [[ "$output" =~ 'Python 3' ]]
 }
 
 @test "num-utils" {

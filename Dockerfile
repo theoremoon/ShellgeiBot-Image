@@ -1,8 +1,8 @@
 # syntax = docker/dockerfile:latest
-FROM ubuntu:22.10 AS apt-cache
+FROM ubuntu:23.04 AS apt-cache
 RUN apt-get update
 
-FROM ubuntu:22.10 AS base
+FROM ubuntu:23.04 AS base
 ENV DEBIAN_FRONTEND noninteractive
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
@@ -66,12 +66,13 @@ RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/thisredone/rb/master/
 FROM base AS python-builder
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq python3-dev python3-pip python3-setuptools
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip3 install --progress-bar=off --no-use-pep517 asciinema faker matplotlib numpy num2words pillow scipy sympy wordcloud xonsh yq
+    apt-get install -y -qq python3-pip python3-venv
 WORKDIR /downloads
 RUN git clone --depth 1 https://github.com/yabeenico/concat
-RUN pip3 install --requirement concat/requirements.txt
+RUN (cd /downloads/concat && git archive --format=tar --prefix=concat/ HEAD) | tar xf - -C /usr/local
+RUN python3 -m venv /usr/local/concat
+RUN /usr/local/concat/bin/pip3 install -r /usr/local/concat/requirements.txt
+RUN echo '/usr/local/concat/bin/python3 /usr/local/concat/concat.py $@' > /usr/local/bin/concat && chmod +x /usr/local/bin/concat
 
 ## Node.js
 FROM base AS nodejs-builder
@@ -88,14 +89,7 @@ FROM base AS dotnet-builder
 ARG TARGETARCH
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq libc6 libgcc-s1 libgssapi-krb5-2 libicu71 libssl3 libstdc++6 zlib1g
-
-# https://docs.microsoft.com/ja-jp/dotnet/core/tools/dotnet-install-script
-ADD https://dot.net/v1/dotnet-install.sh dotnet-install.sh
-# Runtime: 6.0.10, SDK: 6.0.402; https://dotnet.microsoft.com/en-us/download/dotnet/6.0
-RUN bash dotnet-install.sh --version 6.0.10 --runtime dotnet --install-dir /usr/local/dotnet
-RUN bash dotnet-install.sh --version 6.0.402
-ENV PATH $PATH:/root/.dotnet
+    apt-get install -y -qq dotnet-sdk-7.0
 # noc
 RUN git clone --depth 1 https://github.com/xztaityozx/noc.git
 RUN (cd /noc/noc/noc; dotnet publish --configuration Release -p:PublishSingleFile=true -p:PublishReadyToRun=true --runtime linux-$(echo $TARGETARCH | sed 's/amd64/x64/') --self-contained false)
@@ -113,7 +107,7 @@ RUN curl -sfSL --retry 5 https://sh.rustup.rs | sh -s -- -y
 ENV PATH $PATH:/root/.cargo/bin
 RUN cargo install --git https://github.com/lotabout/rargs.git
 RUN cargo install --git https://github.com/KoharaKazuya/forest.git
-RUN cargo install --git https://github.com/o2sh/onefetch.git --tag v2.12.0
+RUN cargo install --git https://github.com/o2sh/onefetch.git --tag 2.17.0
 RUN cargo install --git https://github.com/greymd/teip.git
 RUN cargo install --git https://github.com/xztaityozx/surge.git
 RUN if [ "${TARGETARCH}" = "amd64" ]; then cargo install --git https://github.com/ryuichiueda/ke2daira.git; fi
@@ -128,7 +122,7 @@ FROM base AS nim-builder
 ARG TARGETARCH
 RUN mkdir nim \
     && if [ "${TARGETARCH}" = "amd64" ]; then \
-      curl -sfSL --retry 5 https://nim-lang.org/download/nim-1.6.8-linux_x64.tar.xz -o nim.tar.xz \
+      curl -sfSL --retry 5 https://nim-lang.org/download/nim-1.6.12-linux_x64.tar.xz -o nim.tar.xz \
       && tar xf nim.tar.xz --strip-components 1 -C nim \
       && (cd nim/; ./install.sh /usr/local/bin && cp ./bin/nimble /usr/local/bin/) \
     fi
@@ -177,15 +171,9 @@ COPY prefetched/mecab-ipadic/mecab-ipadic-2.7.0-20070801.tar.gz mecab-ipadic-neo
 RUN mkdir mecab-ipadic-neologd-utf8
 RUN mecab-ipadic-neologd/bin/install-mecab-ipadic-neologd -u -y -p /downloads/mecab-ipadic-neologd-utf8
 # bat
-RUN case ${TARGETARCH} in \
-      amd64) curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.22.1/bat_0.22.1_amd64.deb -o bat.deb ;; \
-      arm64) curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.22.1/bat_0.22.1_arm64.deb -o bat.deb ;; \
-    esac
+RUN curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.23.0/bat_0.23.0_${TARGETARCH}.deb -o bat.deb
 # osquery
-RUN case ${TARGETARCH} in \
-      amd64) curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.5.1/osquery_5.5.1-1.linux_amd64.deb -o osquery.deb ;; \
-      arm64) curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.5.1/osquery_5.5.1-1.linux_arm64.deb -o osquery.deb ;; \
-    esac
+RUN curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.8.2/osquery_5.8.2-1.linux_${TARGETARCH}.deb -o osquery.deb
 # J
 RUN if [ "${TARGETARCH}" = "amd64" ]; then \
       curl -sfSL --retry 5 http://www.jsoftware.com/download/j903/install/j903_linux64.tar.gz -o j.tar.gz; \
@@ -196,17 +184,12 @@ COPY egison/egison-linux-${TARGETARCH}.tar.gz .
 RUN if [ "${TARGETARCH}" = "amd64" ]; then curl -sfSL https://github.com/egison/egison-package-builder/releases/download/4.1.3/egison-4.1.3.x86_64.deb -o egison.deb; fi
 # Julia
 COPY prefetched/$TARGETARCH/julia.tar.gz .
-# OpenJDK
-COPY prefetched/$TARGETARCH/openjdk.tar.gz .
 # Clojure
 RUN curl -sfSL --retry 5 https://download.clojure.org/install/linux-install-1.11.1.1105.sh -o clojure_install.sh
 # trdsql
-RUN case ${TARGETARCH} in \
-      amd64) curl -sfSL --retry 5 https://github.com/noborus/trdsql/releases/download/v0.10.0/trdsql_v0.10.0_linux_amd64.zip -o trdsql.zip ;; \
-      arm64) curl -sfSL --retry 5 https://github.com/noborus/trdsql/releases/download/v0.10.0/trdsql_v0.10.0_linux_arm64.zip -o trdsql.zip ;; \
-    esac
+RUN curl -sfSL --retry 5 https://github.com/noborus/trdsql/releases/download/v0.11.1/trdsql_v0.11.1_linux_${TARGETARCH}.zip -o trdsql.zip
 # PowerShell
-ENV POWERSHELL_VERSION 7.2.7
+ENV POWERSHELL_VERSION 7.3.4
 RUN case ${TARGETARCH} in \
       amd64) curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v$POWERSHELL_VERSION/powershell-$POWERSHELL_VERSION-linux-x64.tar.gz   -o powershell.tar.gz ;; \
       arm64) curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v$POWERSHELL_VERSION/powershell-$POWERSHELL_VERSION-linux-arm64.tar.gz -o powershell.tar.gz ;; \
@@ -278,7 +261,7 @@ RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/ryuichiueda/opy/maste
 
 # base85
 RUN if [ "${TARGETARCH}" = "amd64" ]; then \
-      curl -sfSL --retry 5 https://github.com/redpeacock78/base85/releases/download/v0.0.11/base85-linux-x86 -o /usr/local/bin/base85 \
+      curl -sfSL --retry 5 https://github.com/redpeacock78/base85/releases/download/v0.0.16/base85-linux-x86 -o /usr/local/bin/base85 \
       && chmod u+x /usr/local/bin/base85 ; \
     fi
 
@@ -291,9 +274,8 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      ash yash \
      bbe \
      bc \
-     bf \
      boxes \
-     bsdgames fortunes cowsay fortunes-off fortune-mod cowsay-off \
+     bsdgames fortunes cowsay fortune-mod cowsay-off \
      busybox \
      ccze \
      clisp \
@@ -301,6 +283,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      datamash \
      dateutils \
      dc \
+     dotnet6 \
      faketime \
      ffmpeg \
      figlet \
@@ -310,11 +293,12 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      fonts-ipafont fonts-vlgothic \
      fonts-noto-cjk fonts-noto-cjk-extra \
      fonts-nanum fonts-symbola fonts-noto-color-emoji \
+     hsbrainfuck \
      gawk \
      gdb \
+     ghc \
      gnuplot \
      graphviz \
-     haskell-platform \
      icu-devtools \
      idn \
      imagemagick ghostscript \
@@ -341,13 +325,14 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      num-utils \
      numconv \
      nyancat \
+     openjdk-20-jdk \
      pandoc \
      parallel \
      perl \
      postgresql-client-common \
      postgresql-common \
      pwgen \
-     python3-pkg-resources \
+     asciinema faker python-is-python3 python3-matplotlib python3-numpy python3-num2words python3-pil python3-scipy python3-sympy python3-wordcloud xonsh yq \
      qrencode \
      r-base \
      rename \
@@ -391,21 +376,14 @@ COPY --from=ruby-builder /usr/local/bin /usr/local/bin
 COPY --from=ruby-builder /var/lib/gems /var/lib/gems
 
 # Python
-COPY --from=python-builder /usr/local/bin /usr/local/bin
-COPY --from=python-builder /usr/local/lib/python3.10 /usr/local/lib/python3.10
-RUN ln -s /usr/bin/python3 /usr/bin/python
-RUN --mount=type=bind,target=/downloads,from=python-builder,source=/downloads \
-    (cd /downloads/concat && git archive --format=tar --prefix=concat/ HEAD) | tar xf - -C /usr/local
-RUN ln -s /usr/local/concat/concat.py /usr/local/bin/concat
+COPY --from=python-builder /usr/local/concat /usr/local/concat
+COPY --from=python-builder /usr/local/bin/concat /usr/local/bin/concat
 
 # Node.js
 COPY --from=nodejs-builder /usr/local/nodejs /usr/local/nodejs
 ENV PATH $PATH:/usr/local/nodejs/bin
 
 # .NET
-COPY --from=dotnet-builder /usr/local/dotnet /usr/local/dotnet
-ENV DOTNET_ROOT=/usr/local/dotnet
-ENV PATH=$PATH:$DOTNET_ROOT
 COPY --from=dotnet-builder /noc/LICENSE /noc/README.md /noc/noc/noc/bin/Release/net6.0/linux-*/publish/noc /usr/local/noc/
 RUN ln -s /usr/local/noc/noc /usr/local/bin/noc
 COPY --from=dotnet-builder /ocs/LICENSE /ocs/README.md /ocs/ocs/bin/Release/net6.0/linux-*/publish/ /usr/local/ocs/
@@ -469,16 +447,13 @@ ENV PATH $PATH:/usr/local/jsoftware/bin
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     dpkg --install /downloads/bat.deb /downloads/osquery.deb
 
-# Julia, OpenJDK, trdsql (apply sql to csv), Clojure
+# Julia, trdsql (apply sql to csv), Clojure
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     tar xf /downloads/julia.tar.gz -C /usr/local \
-    && tar xf /downloads/openjdk.tar.gz -C /usr/local \
     && unzip /downloads/trdsql.zip -d /usr/local \
-    && ln -s /usr/local/trdsql_v0.10.0_linux_*/trdsql /usr/local/bin \
+    && ln -s /usr/local/trdsql_v0.11.1_linux_*/trdsql /usr/local/bin \
     && /bin/bash /downloads/clojure_install.sh
-
-ENV JAVA_HOME /usr/local/jdk-19.0.1
-ENV PATH $PATH:/usr/local/julia-1.8.2/bin:$JAVA_HOME/bin
+ENV PATH $PATH:/usr/local/julia-1.8.5/bin
 # Clojure が実行時に必要とするパッケージを取得
 RUN clojure -e '(println "test")'
 # Clojure ワンライナー
@@ -502,7 +477,7 @@ RUN mv /usr/bin/man.REAL /usr/bin/man
 
 # reset apt config
 RUN rm /etc/apt/apt.conf.d/keep-cache /etc/apt/apt.conf.d/no-install-recommends
-COPY --from=ubuntu:22.10 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
+COPY --from=ubuntu:23.04 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
 
 # ShellgeiBot-Image information
 RUN mkdir -p /etc/shellgeibot-image
