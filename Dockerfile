@@ -69,6 +69,9 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
     apt-get install -y -qq python3-dev python3-pip python3-setuptools
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip3 install --progress-bar=off --no-use-pep517 asciinema faker matplotlib numpy num2words pillow scipy sympy wordcloud xonsh yq
+WORKDIR /downloads
+RUN git clone --depth 1 https://github.com/yabeenico/concat
+RUN pip3 install --requirement concat/requirements.txt
 
 ## Node.js
 FROM base AS nodejs-builder
@@ -391,6 +394,9 @@ COPY --from=ruby-builder /var/lib/gems /var/lib/gems
 COPY --from=python-builder /usr/local/bin /usr/local/bin
 COPY --from=python-builder /usr/local/lib/python3.10 /usr/local/lib/python3.10
 RUN ln -s /usr/bin/python3 /usr/bin/python
+RUN --mount=type=bind,target=/downloads,from=python-builder,source=/downloads \
+    (cd /downloads/concat && git archive --format=tar --prefix=concat/ HEAD) | tar xf - -C /usr/local
+RUN ln -s /usr/local/concat/concat.py /usr/local/bin/concat
 
 # Node.js
 COPY --from=nodejs-builder /usr/local/nodejs /usr/local/nodejs
