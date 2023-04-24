@@ -189,7 +189,7 @@ bats_require_minimum_version 1.5.0
 
 @test "dotnet" {
   run -0 dotnet --help
-  [[ "${lines[0]}" =~ ".NET SDK" ]]
+  [[ "${lines[0]}" == ".NET 7.0 へようこそ!" ]]
 }
 
 @test "eachdo" {

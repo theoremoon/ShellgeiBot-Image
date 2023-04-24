@@ -283,7 +283,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      datamash \
      dateutils \
      dc \
-     dotnet6 \
+     dotnet7 \
      faketime \
      ffmpeg \
      figlet \
@@ -384,9 +384,9 @@ COPY --from=nodejs-builder /usr/local/nodejs /usr/local/nodejs
 ENV PATH $PATH:/usr/local/nodejs/bin
 
 # .NET
-COPY --from=dotnet-builder /noc/LICENSE /noc/README.md /noc/noc/noc/bin/Release/net6.0/linux-*/publish/noc /usr/local/noc/
+COPY --from=dotnet-builder /noc/LICENSE /noc/README.md /noc/noc/noc/bin/Release/net7.0/linux-*/publish/noc /usr/local/noc/
 RUN ln -s /usr/local/noc/noc /usr/local/bin/noc
-COPY --from=dotnet-builder /ocs/LICENSE /ocs/README.md /ocs/ocs/bin/Release/net6.0/linux-*/publish/ /usr/local/ocs/
+COPY --from=dotnet-builder /ocs/LICENSE /ocs/README.md /ocs/ocs/bin/Release/net7.0/linux-*/publish/ /usr/local/ocs/
 RUN ln -s /usr/local/ocs/ocs /usr/local/bin/ocs
 
 # Rust
@@ -441,7 +441,7 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
       mkdir /usr/local/jsoftware \
       && tar xf /downloads/j.tar.gz -C /usr/local/jsoftware --strip-components 1; \
     fi
-ENV PATH $PATH:/usr/local/jsoftware/bin
+ENV PATH /usr/local/jsoftware/bin:$PATH
 
 # bat, osquery
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
