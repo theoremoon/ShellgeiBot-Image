@@ -107,7 +107,7 @@ RUN curl -sfSL --retry 5 https://sh.rustup.rs | sh -s -- -y
 ENV PATH $PATH:/root/.cargo/bin
 RUN cargo install --git https://github.com/lotabout/rargs.git
 RUN cargo install --git https://github.com/KoharaKazuya/forest.git
-RUN cargo install --git https://github.com/o2sh/onefetch.git --tag 2.17.0
+RUN cargo install --git https://github.com/o2sh/onefetch.git --tag 2.17.1
 RUN cargo install --git https://github.com/greymd/teip.git
 RUN cargo install --git https://github.com/xztaityozx/surge.git
 RUN if [ "${TARGETARCH}" = "amd64" ]; then cargo install --git https://github.com/ryuichiueda/ke2daira.git; fi
