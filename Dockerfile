@@ -356,7 +356,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      zsh
 
 # kagome
-COPY --from=ikawaha/kagome /usr/local/bin/kagome /usr/local/bin/kagome
+COPY --from=ikawaha/kagome /kagome /usr/local/bin/kagome
 
 # Go
 COPY --from=go-builder /usr/local/go/LICENSE /usr/local/go/README.md /usr/local/go/
