@@ -35,4 +35,4 @@ if [ "$arch" = "amd64" ]; then download "https://nodejs.org/dist/$node_version/n
 if [ "$arch" = "arm64" ]; then download "https://nodejs.org/dist/$node_version/node-$node_version-linux-arm64.tar.gz" nodejs.tar.gz; fi
 
 # mecab-ipadic (for NEologd)
-(cd "${DOWNLOAD_DIR}/mecab-ipadic/"; sha1sum -c sha1sum.txt || curl -SfL "https://ja.osdn.net/frs/g_redir.php?m=kent&f=mecab/mecab-ipadic/2.7.0-20070801/mecab-ipadic-2.7.0-20070801.tar.gz" -o mecab-ipadic-2.7.0-20070801.tar.gz)
+(cd "${DOWNLOAD_DIR}/mecab-ipadic/"; sha1sum -c sha1sum.txt || curl -SfL "https://sourceforge.net/projects/mecab/files/mecab-ipadic/2.7.0-20070801/mecab-ipadic-2.7.0-20070801.tar.gz/download?use_mirror=autoselect#" -o mecab-ipadic-2.7.0-20070801.tar.gz)
