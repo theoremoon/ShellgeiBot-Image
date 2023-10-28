@@ -1,8 +1,8 @@
 # syntax = docker/dockerfile:latest
-FROM ubuntu:23.04 AS apt-cache
+FROM ubuntu:23.10 AS apt-cache
 RUN apt-get update
 
-FROM ubuntu:23.04 AS base
+FROM ubuntu:23.10 AS base
 ENV DEBIAN_FRONTEND noninteractive
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
@@ -107,7 +107,7 @@ RUN curl -sfSL --retry 5 https://sh.rustup.rs | sh -s -- -y
 ENV PATH $PATH:/root/.cargo/bin
 RUN cargo install --git https://github.com/lotabout/rargs.git
 RUN cargo install --git https://github.com/KoharaKazuya/forest.git
-RUN cargo install --git https://github.com/o2sh/onefetch.git --tag 2.17.1
+RUN cargo install --git https://github.com/o2sh/onefetch.git --tag 2.18.1
 RUN cargo install --git https://github.com/greymd/teip.git
 RUN cargo install --git https://github.com/xztaityozx/surge.git
 RUN if [ "${TARGETARCH}" = "amd64" ]; then cargo install --git https://github.com/ryuichiueda/ke2daira.git; fi
@@ -122,7 +122,7 @@ FROM base AS nim-builder
 ARG TARGETARCH
 RUN mkdir nim \
     && if [ "${TARGETARCH}" = "amd64" ]; then \
-      curl -sfSL --retry 5 https://nim-lang.org/download/nim-1.6.12-linux_x64.tar.xz -o nim.tar.xz \
+      curl -sfSL --retry 5 https://nim-lang.org/download/nim-2.0.0-linux_x64.tar.xz -o nim.tar.xz \
       && tar xf nim.tar.xz --strip-components 1 -C nim \
       && (cd nim/; ./install.sh /usr/local/bin && cp ./bin/nimble /usr/local/bin/) \
     fi
@@ -171,12 +171,12 @@ COPY prefetched/mecab-ipadic/mecab-ipadic-2.7.0-20070801.tar.gz mecab-ipadic-neo
 RUN mkdir mecab-ipadic-neologd-utf8
 RUN mecab-ipadic-neologd/bin/install-mecab-ipadic-neologd -u -y -p /downloads/mecab-ipadic-neologd-utf8
 # bat
-RUN curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.23.0/bat_0.23.0_${TARGETARCH}.deb -o bat.deb
+RUN curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.24.0/bat_0.24.0_${TARGETARCH}.deb -o bat.deb
 # osquery
-RUN curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.8.2/osquery_5.8.2-1.linux_${TARGETARCH}.deb -o osquery.deb
+RUN curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.10.2/osquery_5.10.2-1.linux_${TARGETARCH}.deb -o osquery.deb
 # J
 RUN if [ "${TARGETARCH}" = "amd64" ]; then \
-      curl -sfSL --retry 5 http://www.jsoftware.com/download/j903/install/j903_linux64.tar.gz -o j.tar.gz; \
+      curl -sfSL --retry 5 http://www.jsoftware.com/download/j904/install/j904_linux64.tar.gz -o j.tar.gz; \
     fi
 
 # Egison
@@ -187,9 +187,9 @@ COPY prefetched/$TARGETARCH/julia.tar.gz .
 # Clojure
 RUN curl -sfSL --retry 5 https://download.clojure.org/install/linux-install-1.11.1.1105.sh -o clojure_install.sh
 # trdsql
-RUN curl -sfSL --retry 5 https://github.com/noborus/trdsql/releases/download/v0.11.1/trdsql_v0.11.1_linux_${TARGETARCH}.zip -o trdsql.zip
+RUN curl -sfSL --retry 5 https://github.com/noborus/trdsql/releases/download/v0.12.1/trdsql_v0.12.1_linux_${TARGETARCH}.zip -o trdsql.zip
 # PowerShell
-ENV POWERSHELL_VERSION 7.3.4
+ENV POWERSHELL_VERSION 7.3.9
 RUN case ${TARGETARCH} in \
       amd64) curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v$POWERSHELL_VERSION/powershell-$POWERSHELL_VERSION-linux-x64.tar.gz   -o powershell.tar.gz ;; \
       arm64) curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v$POWERSHELL_VERSION/powershell-$POWERSHELL_VERSION-linux-arm64.tar.gz -o powershell.tar.gz ;; \
@@ -269,7 +269,6 @@ RUN if [ "${TARGETARCH}" = "amd64" ]; then \
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt \
     apt-get install -y -qq \
-     agrep \
      apache2-utils \
      ash yash \
      bbe \
@@ -297,6 +296,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      gawk \
      gdb \
      ghc \
+     glimpse \
      gnuplot \
      graphviz \
      icu-devtools \
@@ -308,13 +308,13 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      language-pack-ja \
      libc++-dev \
      libkkc-utils \
-     libncurses5 \
+     libncurses6 \
      libnss3 libgdk3.0-cil \
      libmecab-dev \
      librsvg2-bin \
      libskk-dev \
      libxml2-utils \
-     lua5.4 php8.1 php8.1-cli php8.1-common \
+     lua5.4 php8.2 php8.2-cli php8.2-common \
      mecab mecab-ipadic mecab-ipadic-utf8 \
      mono-csharp-shell \
      moreutils \
@@ -451,9 +451,9 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     tar xf /downloads/julia.tar.gz -C /usr/local \
     && unzip /downloads/trdsql.zip -d /usr/local \
-    && ln -s /usr/local/trdsql_v0.11.1_linux_*/trdsql /usr/local/bin \
+    && ln -s /usr/local/trdsql_v0.12.1_linux_*/trdsql /usr/local/bin \
     && /bin/bash /downloads/clojure_install.sh
-ENV PATH $PATH:/usr/local/julia-1.8.5/bin
+ENV PATH $PATH:/usr/local/julia-1.9.3/bin
 # Clojure が実行時に必要とするパッケージを取得
 RUN clojure -e '(println "test")'
 # Clojure ワンライナー
@@ -477,7 +477,7 @@ RUN mv /usr/bin/man.REAL /usr/bin/man
 
 # reset apt config
 RUN rm /etc/apt/apt.conf.d/keep-cache /etc/apt/apt.conf.d/no-install-recommends
-COPY --from=ubuntu:23.04 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
+COPY --from=ubuntu:23.10 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
 
 # ShellgeiBot-Image information
 RUN mkdir -p /etc/shellgeibot-image
