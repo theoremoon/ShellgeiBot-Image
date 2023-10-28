@@ -122,9 +122,11 @@ FROM base AS nim-builder
 ARG TARGETARCH
 RUN mkdir nim \
     && if [ "${TARGETARCH}" = "amd64" ]; then \
-      curl -sfSL --retry 5 https://nim-lang.org/download/nim-1.6.16-linux_x64.tar.xz -o nim.tar.xz \
+      curl -sfSL --retry 5 https://nim-lang.org/download/nim-2.0.0-linux_x64.tar.xz -o nim.tar.xz \
       && tar xf nim.tar.xz --strip-components 1 -C nim \
-      && (cd nim/; ./install.sh /usr/local/bin && cp ./bin/nimble /usr/local/bin/) \
+      && (cd nim/; ./install.sh /usr/local/bin) \
+      && cp ./nim/bin/nimble /usr/local/bin/ \
+      && cp -r ./nim/lib /usr/local/lib/nim/; \
     fi
 RUN if [ "${TARGETARCH}" = "amd64" ]; then nimble install edens gyaric maze rect svgo eachdo -Y; fi
 
