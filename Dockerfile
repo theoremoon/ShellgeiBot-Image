@@ -122,7 +122,7 @@ FROM base AS nim-builder
 ARG TARGETARCH
 RUN mkdir nim \
     && if [ "${TARGETARCH}" = "amd64" ]; then \
-      curl -sfSL --retry 5 https://nim-lang.org/download/nim-2.0.0-linux_x64.tar.xz -o nim.tar.xz \
+      curl -sfSL --retry 5 https://nim-lang.org/download/nim-1.6.16-linux_x64.tar.xz -o nim.tar.xz \
       && tar xf nim.tar.xz --strip-components 1 -C nim \
       && (cd nim/; ./install.sh /usr/local/bin && cp ./bin/nimble /usr/local/bin/) \
     fi
@@ -176,7 +176,7 @@ RUN curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.24.
 RUN curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.10.2/osquery_5.10.2-1.linux_${TARGETARCH}.deb -o osquery.deb
 # J
 RUN if [ "${TARGETARCH}" = "amd64" ]; then \
-      curl -sfSL --retry 5 http://www.jsoftware.com/download/j904/install/j904_linux64.tar.gz -o j.tar.gz; \
+      curl -sfSL --retry 5 https://www.jsoftware.com/download/j9.4/install/j9.4_linux64.tar.gz -o j.tar.gz; \
     fi
 
 # Egison
@@ -348,7 +348,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      tree \
      ttyrec \
      unicode-data uniutils \
-     vim emacs-nox \
+     vim \
      w3m nginx \
      whiptail \
      xvfb xterm x11-apps xdotool \

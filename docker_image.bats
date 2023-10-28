@@ -230,11 +230,6 @@ bats_require_minimum_version 1.5.0
   [ "$output" = '京急大師線' ]
 }
 
-@test "Emacs" {
-  run -0 bash -c "echo シェル芸 | emacs -Q --batch --insert /dev/stdin --eval='(princ (buffer-string))'"
-  [ "$output" = シェル芸 ]
-}
-
 @test "faker" {
   run -0 faker name
 }
