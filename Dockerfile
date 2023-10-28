@@ -365,7 +365,8 @@ COPY --from=go-builder /root/go/bin /root/go/bin
 COPY --from=go-builder /tmp/usr/local/go /usr/local/go
 COPY --from=go-builder /tmp/root/go /root/go
 COPY --from=go-builder /usr/local/src/noto-emoji/png/128/ /usr/local/src/noto-emoji
-ENV GOPATH /root/go
+# https://github.com/golang/go/issues/61921
+ENV GOROOT /usr/local/go
 ENV PATH $PATH:/usr/local/go/bin:/root/go/bin
 RUN ln -s /root/go/src/github.com/YuheiNakasaka/sayhuuzoku/db /
 ENV TEXTIMG_EMOJI_DIR /usr/local/src/noto-emoji

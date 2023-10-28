@@ -12,6 +12,7 @@ bats_require_minimum_version 1.5.0
   [[ "$output" =~ abc2midi ]]
 }
 
+# glimpse で入る
 @test "agrep" {
   run -0 bash -c "echo unko | agrep -2 miko"
   [ "$output" = "unko" ]
