@@ -40,10 +40,7 @@ commands:
           command: |
             sudo apt update -qq
             sudo apt install -y -qq moreutils
-            mkdir ~/opt
-            tar xf prefetched/*/nodejs.tar.gz -C ~/opt --strip-components 1
-            PATH=${PATH}:~/opt/bin npm install --global --silent --no-progress tap-xunit
-            echo "export PATH=${PATH}:~/opt/bin" >> ${BASH_ENV}
+            npm install --global --silent --no-progress tap-xunit
       - run:
           name: Test a docker image
           command: |
