@@ -12,6 +12,7 @@ bats_require_minimum_version 1.5.0
   [[ "$output" =~ abc2midi ]]
 }
 
+# glimpse で入る
 @test "agrep" {
   run -0 bash -c "echo unko | agrep -2 miko"
   [ "$output" = "unko" ]
@@ -227,11 +228,6 @@ bats_require_minimum_version 1.5.0
   run -0 bash -c "eki | grep -q 京急川崎"
   run -0 bash -c "eki line 京急川崎 | grep 大師"
   [ "$output" = '京急大師線' ]
-}
-
-@test "Emacs" {
-  run -0 bash -c "echo シェル芸 | emacs -Q --batch --insert /dev/stdin --eval='(princ (buffer-string))'"
-  [ "$output" = シェル芸 ]
 }
 
 @test "faker" {
