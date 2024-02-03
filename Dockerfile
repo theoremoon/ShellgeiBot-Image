@@ -267,6 +267,11 @@ RUN if [ "${TARGETARCH}" = "amd64" ]; then \
       && chmod u+x /usr/local/bin/base85 ; \
     fi
 
+# torikizoku
+RUN curl -sfSL --retry 5 https://codeberg.org/shutosheep/torikizoku/raw/branch/main/torikizoku -o /usr/local/bin/torikizoku \
+    && chmod +x /usr/local/bin/torikizoku \
+    && torikizoku -c
+
 # apt
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt \

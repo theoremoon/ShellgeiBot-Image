@@ -984,6 +984,11 @@ bats_require_minimum_version 1.5.0
   [ "${lines[7]}" = '                                          ' ]
 }
 
+@test "torikizoku" {
+  run -0 torikizoku -h
+  [[ "${lines[0]}" =~ 'Usage: torikizoku' ]]
+}
+
 @test "trdsql" {
   run -0 sh -c "trdsql --version | xxd"
   [[ "$output" =~ "trdsql version" ]]
