@@ -310,6 +310,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      idn \
      imagemagick ghostscript \
      ipcalc \
+     jc \
      jq \
      kakasi \
      language-pack-ja \
