@@ -275,7 +275,7 @@ RUN curl -sfSL --retry 5 https://codeberg.org/shutosheep/torikizoku/raw/branch/m
 # apt
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt \
-    apt-get install -y -qq \
+    apt-get install -y -q \
      apache2-utils \
      ash yash \
      bbe \
