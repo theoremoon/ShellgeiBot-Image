@@ -32,6 +32,7 @@ commands:
           name: Build a docker image
           command: |
             make build-ci
+          no_output_timeout: 15m  # デフォルト 10m; apt-get install がタイムアウトするため延長
       - save_cache:
           key: mecab-ipadic-{{ checksum "prefetched/mecab-ipadic/sha1sum.txt" }}
           paths: prefetched/mecab-ipadic/
