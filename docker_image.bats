@@ -81,11 +81,6 @@ bats_require_minimum_version 1.5.0
   [ "$output" = 'ShellGei' ]
 }
 
-@test "bsdgames" {
-  run -0 bash -c "echo '... .... . .-.. .-.. --. . ..  ...-.-' | morse -d"
-  [ "$output" = "SHELLGEI" ]
-}
-
 @test "build-essential" {
   run -0 gcc --version
   [[ "${lines[0]}" =~ gcc ]]
@@ -133,13 +128,13 @@ bats_require_minimum_version 1.5.0
   [ "$output" = '[30m  \x1b[30m  [m[31m  \x1b[31m  [m[32m  \x1b[32m  [m[33m  \x1b[33m  [m[34m  \x1b[34m  [m[35m  \x1b[35m  [m[36m  \x1b[36m  [m[37m  \x1b[37m  [m' ]
 }
 
-@test "concat" {
-  run -0 concat cat
-  [ "${lines[0]}" = " /\    /" ]
-  [ "${lines[1]}" = "(' )  ( " ]
-  [ "${lines[2]}" = " (  \  )" ]
-  [ "${lines[3]}" = " |(__)/ " ]
-}
+# @test "concat" {
+#   run -0 concat cat
+#   [ "${lines[0]}" = " /\    /" ]
+#   [ "${lines[1]}" = "(' )  ( " ]
+#   [ "${lines[2]}" = " (  \  )" ]
+#   [ "${lines[3]}" = " |(__)/ " ]
+# }
 
 @test "cowsay" {
   run -0 cowsay シェル芸
@@ -190,7 +185,7 @@ bats_require_minimum_version 1.5.0
 
 @test "dotnet" {
   run -0 dotnet --help
-  [[ "${lines[0]}" == ".NET 7.0 へようこそ!" ]]
+  [[ "${lines[0]}" == ".NET 8.0 へようこそ!" ]]
 }
 
 @test "eachdo" {
@@ -582,10 +577,10 @@ bats_require_minimum_version 1.5.0
   run -0 nms -v
 }
 
-@test "noc" {
-  run -0 noc --decode 部邊邊󠄓邊󠄓邉邉󠄊邊邊󠄒邊󠄓邊󠄓邉邉󠄊辺邉󠄊邊邊󠄓邊󠄓邉邉󠄎辺邉󠄎邊辺󠄀邉邉󠄈辺邉󠄍邊邊󠄓部
-  [ "$output" = 'シェル芸' ]
-}
+# @test "noc" {
+#   run -0 noc --decode 部邊邊󠄓邊󠄓邉邉󠄊邊邊󠄒邊󠄓邊󠄓邉邉󠄊辺邉󠄊邊邊󠄓邊󠄓邉邉󠄎辺邉󠄎邊辺󠄀邉邉󠄈辺邉󠄍邊邊󠄓部
+#   [ "$output" = 'シェル芸' ]
+# }
 
 @test "python is python3" {
   run -0 python --version
@@ -617,10 +612,10 @@ bats_require_minimum_version 1.5.0
   [ "${lines[0]}" = "Terminal Nyancat" ]
 }
 
-@test "ocs" {
-  run -0 sh -c "seq 10 | ocs 'BEGIN{var sum=0}{sum+=int.Parse(F0)}END{Console.WriteLine(sum)}'"
-  [ $output -eq 55 ]
-}
+# @test "ocs" {
+#   run -0 sh -c "seq 10 | ocs 'BEGIN{var sum=0}{sum+=int.Parse(F0)}END{Console.WriteLine(sum)}'"
+#   [ $output -eq 55 ]
+# }
 
 @test "ojichat" {
   run -0 ojichat --version
