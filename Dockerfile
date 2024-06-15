@@ -92,9 +92,11 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
     apt-get install -y -qq dotnet-sdk-7.0
 # noc
 RUN git clone --depth 1 https://github.com/xztaityozx/noc.git
+RUN (cd /noc; git fetch --depth 1 origin 8849105fd184cbb21a7d1818bec3d3e30e0a4ab0 && git checkout 8849105fd184cbb21a7d1818bec3d3e30e0a4ab0)
 RUN (cd /noc/noc/noc; dotnet publish --configuration Release -p:PublishSingleFile=true -p:PublishReadyToRun=true --runtime linux-$(echo $TARGETARCH | sed 's/amd64/x64/') --self-contained false)
 # ocs
 RUN git clone --depth 1 https://github.com/xztaityozx/ocs.git
+RUN (cd /ocs; git fetch --depth 1 origin 3060774d825978fcc4ceca63c30a1a0027ef67e7 && git checkout 3060774d825978fcc4ceca63c30a1a0027ef67e7)
 RUN (cd /ocs/ocs; dotnet publish --configuration Release --runtime linux-$(echo $TARGETARCH | sed 's/amd64/x64/') --self-contained false ocs.csproj)
 
 ## Rust
