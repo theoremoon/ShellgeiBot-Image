@@ -84,18 +84,18 @@ ENV PATH $PATH:/usr/local/nodejs/bin
 RUN --mount=type=cache,target=/root/.npm \
     npm install -g --silent faker-cli chemi fx yukichant @amanoese/muscular kana2ipa bats
 
-# ## .NET
-# FROM base AS dotnet-builder
-# ARG TARGETARCH
-# RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
-#     --mount=type=cache,target=/var/cache/apt,sharing=private \
-#     apt-get install -y -qq dotnet-sdk-8.0
-# # noc
-# RUN git clone --depth 1 https://github.com/xztaityozx/noc.git
-# RUN (cd /noc/noc/noc; dotnet publish --configuration Release -p:PublishSingleFile=true -p:PublishReadyToRun=true --runtime linux-$(echo $TARGETARCH | sed 's/amd64/x64/') --self-contained false)
-# # ocs
-# RUN git clone --depth 1 https://github.com/xztaityozx/ocs.git
-# RUN (cd /ocs/ocs; dotnet publish --configuration Release --runtime linux-$(echo $TARGETARCH | sed 's/amd64/x64/') --self-contained false ocs.csproj)
+## .NET
+FROM base AS dotnet-builder
+ARG TARGETARCH
+RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
+    --mount=type=cache,target=/var/cache/apt,sharing=private \
+    apt-get install -y -qq dotnet-sdk-8.0
+# noc
+RUN git clone --depth 1 https://github.com/xztaityozx/noc.git
+RUN (cd /noc/noc/noc; dotnet publish --configuration Release -p:PublishSingleFile=true -p:PublishReadyToRun=true --runtime linux-$(echo $TARGETARCH | sed 's/amd64/x64/') --self-contained false)
+# ocs
+RUN git clone --depth 1 https://github.com/xztaityozx/ocs.git
+RUN (cd /ocs/ocs; dotnet publish --configuration Release --runtime linux-$(echo $TARGETARCH | sed 's/amd64/x64/') --self-contained false ocs.csproj)
 
 ## Rust
 FROM base AS rust-builder
@@ -392,11 +392,11 @@ COPY --from=python-builder /usr/local/bin/concat /usr/local/bin/concat
 COPY --from=nodejs-builder /usr/local/nodejs /usr/local/nodejs
 ENV PATH $PATH:/usr/local/nodejs/bin
 
-# # .NET
-# COPY --from=dotnet-builder /noc/LICENSE /noc/README.md /noc/noc/noc/bin/Release/net7.0/linux-*/publish/noc /usr/local/noc/
-# RUN ln -s /usr/local/noc/noc /usr/local/bin/noc
-# COPY --from=dotnet-builder /ocs/LICENSE /ocs/README.md /ocs/ocs/bin/Release/net7.0/linux-*/publish/ /usr/local/ocs/
-# RUN ln -s /usr/local/ocs/ocs /usr/local/bin/ocs
+# .NET
+COPY --from=dotnet-builder /noc/LICENSE /noc/README.md /noc/noc/noc/bin/Release/net8.0/linux-*/publish/noc /usr/local/noc/
+RUN ln -s /usr/local/noc/noc /usr/local/bin/noc
+COPY --from=dotnet-builder /ocs/LICENSE /ocs/README.md /ocs/ocs/bin/Release/net8.0/linux-*/publish/ /usr/local/ocs/
+RUN ln -s /usr/local/ocs/ocs /usr/local/bin/ocs
 
 # Rust
 COPY --from=rust-builder /root/.cargo/bin /root/.cargo/bin

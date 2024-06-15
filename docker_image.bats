@@ -577,10 +577,10 @@ bats_require_minimum_version 1.5.0
   run -0 nms -v
 }
 
-# @test "noc" {
-#   run -0 noc --decode 部邊邊󠄓邊󠄓邉邉󠄊邊邊󠄒邊󠄓邊󠄓邉邉󠄊辺邉󠄊邊邊󠄓邊󠄓邉邉󠄎辺邉󠄎邊辺󠄀邉邉󠄈辺邉󠄍邊邊󠄓部
-#   [ "$output" = 'シェル芸' ]
-# }
+@test "noc" {
+  run -0 noc --decode 部邊邊󠄓邊󠄓邉邉󠄊邊邊󠄒邊󠄓邊󠄓邉邉󠄊辺邉󠄊邊邊󠄓邊󠄓邉邉󠄎辺邉󠄎邊辺󠄀邉邉󠄈辺邉󠄍邊邊󠄓部
+  [ "$output" = 'シェル芸' ]
+}
 
 @test "python is python3" {
   run -0 python --version
@@ -612,10 +612,10 @@ bats_require_minimum_version 1.5.0
   [ "${lines[0]}" = "Terminal Nyancat" ]
 }
 
-# @test "ocs" {
-#   run -0 sh -c "seq 10 | ocs 'BEGIN{var sum=0}{sum+=int.Parse(F0)}END{Console.WriteLine(sum)}'"
-#   [ $output -eq 55 ]
-# }
+@test "ocs" {
+  run -0 sh -c "seq 10 | ocs 'BEGIN{var sum=0}{sum+=int.Parse(F0)}END{Console.WriteLine(sum)}'"
+  [ $output -eq 55 ]
+}
 
 @test "ojichat" {
   run -0 ojichat --version
