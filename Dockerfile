@@ -1,8 +1,8 @@
 # syntax = docker/dockerfile:latest
-FROM ubuntu:23.10 AS apt-cache
+FROM ubuntu:24.04 AS apt-cache
 RUN apt-get update
 
-FROM ubuntu:23.10 AS base
+FROM ubuntu:24.04 AS base
 ENV DEBIAN_FRONTEND noninteractive
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
@@ -89,7 +89,7 @@ FROM base AS dotnet-builder
 ARG TARGETARCH
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq dotnet-sdk-7.0
+    apt-get install -y -qq dotnet-sdk-8.0
 # noc
 RUN git clone --depth 1 https://github.com/xztaityozx/noc.git
 RUN (cd /noc/noc/noc; dotnet publish --configuration Release -p:PublishSingleFile=true -p:PublishReadyToRun=true --runtime linux-$(echo $TARGETARCH | sed 's/amd64/x64/') --self-contained false)
@@ -122,7 +122,7 @@ FROM base AS nim-builder
 ARG TARGETARCH
 RUN mkdir nim \
     && if [ "${TARGETARCH}" = "amd64" ]; then \
-      curl -sfSL --retry 5 https://nim-lang.org/download/nim-2.0.0-linux_x64.tar.xz -o nim.tar.xz \
+      curl -sfSL --retry 5 https://nim-lang.org/download/nim-2.0.4-linux_x64.tar.xz -o nim.tar.xz \
       && tar xf nim.tar.xz --strip-components 1 -C nim \
       && (cd nim/; ./install.sh /usr/local/bin) \
       && cp ./nim/bin/nimble /usr/local/bin/ \
@@ -175,10 +175,10 @@ RUN mecab-ipadic-neologd/bin/install-mecab-ipadic-neologd -u -y -p /downloads/me
 # bat
 RUN curl -sfSL --retry 5 https://github.com/sharkdp/bat/releases/download/v0.24.0/bat_0.24.0_${TARGETARCH}.deb -o bat.deb
 # osquery
-RUN curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.10.2/osquery_5.10.2-1.linux_${TARGETARCH}.deb -o osquery.deb
+RUN curl -sfSL --retry 5 https://github.com/osquery/osquery/releases/download/5.12.2/osquery_5.12.2-1.linux_${TARGETARCH}.deb -o osquery.deb
 # J
 RUN if [ "${TARGETARCH}" = "amd64" ]; then \
-      curl -sfSL --retry 5 https://www.jsoftware.com/download/j9.4/install/j9.4_linux64.tar.gz -o j.tar.gz; \
+      curl -sfSL --retry 5 https://www.jsoftware.com/download/j9.5/install/j9.5_linux64.tar.gz -o j.tar.gz; \
     fi
 
 # Egison
@@ -187,11 +187,11 @@ RUN if [ "${TARGETARCH}" = "amd64" ]; then curl -sfSL https://github.com/egison/
 # Julia
 COPY prefetched/$TARGETARCH/julia.tar.gz .
 # Clojure
-RUN curl -sfSL --retry 5 https://download.clojure.org/install/linux-install-1.11.1.1105.sh -o clojure_install.sh
+RUN curl -sfSL --retry 5 https://download.clojure.org/install/linux-install-1.11.3.1463.sh -o clojure_install.sh
 # trdsql
-RUN curl -sfSL --retry 5 https://github.com/noborus/trdsql/releases/download/v0.12.1/trdsql_v0.12.1_linux_${TARGETARCH}.zip -o trdsql.zip
+RUN curl -sfSL --retry 5 https://github.com/noborus/trdsql/releases/download/v1.0.0/trdsql_v1.0.0_linux_${TARGETARCH}.zip -o trdsql.zip
 # PowerShell
-ENV POWERSHELL_VERSION 7.3.9
+ENV POWERSHELL_VERSION 7.4.2
 RUN case ${TARGETARCH} in \
       amd64) curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v$POWERSHELL_VERSION/powershell-$POWERSHELL_VERSION-linux-x64.tar.gz   -o powershell.tar.gz ;; \
       arm64) curl -sfSL --retry 5 https://github.com/PowerShell/PowerShell/releases/download/v$POWERSHELL_VERSION/powershell-$POWERSHELL_VERSION-linux-arm64.tar.gz -o powershell.tar.gz ;; \
@@ -289,7 +289,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      datamash \
      dateutils \
      dc \
-     dotnet7 \
+     dotnet8 \
      faketime \
      ffmpeg \
      figlet \
@@ -322,7 +322,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      librsvg2-bin \
      libskk-dev \
      libxml2-utils \
-     lua5.4 php8.2 php8.2-cli php8.2-common \
+     lua5.4 php8.3 php8.3-cli php8.3-common \
      mecab mecab-ipadic mecab-ipadic-utf8 \
      mono-csharp-shell \
      moreutils \
@@ -333,7 +333,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      num-utils \
      numconv \
      nyancat \
-     openjdk-20-jdk \
+     openjdk-21-jdk \
      pandoc \
      parallel \
      perl \
@@ -393,9 +393,9 @@ COPY --from=nodejs-builder /usr/local/nodejs /usr/local/nodejs
 ENV PATH $PATH:/usr/local/nodejs/bin
 
 # .NET
-COPY --from=dotnet-builder /noc/LICENSE /noc/README.md /noc/noc/noc/bin/Release/net7.0/linux-*/publish/noc /usr/local/noc/
+COPY --from=dotnet-builder /noc/LICENSE /noc/README.md /noc/noc/noc/bin/Release/net8.0/linux-*/publish/noc /usr/local/noc/
 RUN ln -s /usr/local/noc/noc /usr/local/bin/noc
-COPY --from=dotnet-builder /ocs/LICENSE /ocs/README.md /ocs/ocs/bin/Release/net7.0/linux-*/publish/ /usr/local/ocs/
+COPY --from=dotnet-builder /ocs/LICENSE /ocs/README.md /ocs/ocs/bin/Release/net8.0/linux-*/publish/ /usr/local/ocs/
 RUN ln -s /usr/local/ocs/ocs /usr/local/bin/ocs
 
 # Rust
@@ -460,9 +460,9 @@ RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
 RUN --mount=type=bind,target=/downloads,from=general-builder,source=/downloads \
     tar xf /downloads/julia.tar.gz -C /usr/local \
     && unzip /downloads/trdsql.zip -d /usr/local \
-    && ln -s /usr/local/trdsql_v0.12.1_linux_*/trdsql /usr/local/bin \
+    && ln -s /usr/local/trdsql_v1.0.0_linux_*/trdsql /usr/local/bin \
     && /bin/bash /downloads/clojure_install.sh
-ENV PATH $PATH:/usr/local/julia-1.9.3/bin
+ENV PATH $PATH:/usr/local/julia-1.10.4/bin
 # Clojure が実行時に必要とするパッケージを取得
 RUN clojure -e '(println "test")'
 # Clojure ワンライナー
@@ -486,7 +486,7 @@ RUN mv /usr/bin/man.REAL /usr/bin/man
 
 # reset apt config
 RUN rm /etc/apt/apt.conf.d/keep-cache /etc/apt/apt.conf.d/no-install-recommends
-COPY --from=ubuntu:23.10 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
+COPY --from=ubuntu:24.04 /etc/apt/apt.conf.d/docker-clean /etc/apt/apt.conf.d/
 
 # ShellgeiBot-Image information
 RUN mkdir -p /etc/shellgeibot-image

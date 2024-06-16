@@ -3,10 +3,10 @@ version: 2.1
 executors:
   builder:
     machine:
-      image: ubuntu-2204:2023.10.1  # https://circleci.com/docs/configuration-reference/#available-linux-machine-images-cloud
+      image: ubuntu-2204:2024.04.4  # https://circleci.com/docs/configuration-reference/#available-linux-machine-images-cloud
   deployer:
     docker:
-      - image: cimg/base:2023.10-22.04  # https://circleci.com/developer/ja/images/image/cimg/base
+      - image: cimg/base:2024.06-22.04  # https://circleci.com/developer/ja/images/image/cimg/base
 
 commands:
   build-image:

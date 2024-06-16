@@ -22,12 +22,12 @@ download() {
 }
 
 # go
-if [ "$arch" = "amd64" ]; then download https://go.dev/dl/go1.21.3.linux-amd64.tar.gz go.tar.gz; fi
-if [ "$arch" = "arm64" ]; then download https://go.dev/dl/go1.21.3.linux-arm64.tar.gz go.tar.gz; fi
+if [ "$arch" = "amd64" ]; then download https://go.dev/dl/go1.22.4.linux-amd64.tar.gz go.tar.gz; fi
+if [ "$arch" = "arm64" ]; then download https://go.dev/dl/go1.22.4.linux-arm64.tar.gz go.tar.gz; fi
 
-# julia
-if [ "$arch" = "amd64" ]; then download https://julialang-s3.julialang.org/bin/linux/x64/1.9/julia-1.9.3-linux-x86_64.tar.gz      julia.tar.gz; fi
-if [ "$arch" = "arm64" ]; then download https://julialang-s3.julialang.org/bin/linux/aarch64/1.9/julia-1.9.3-linux-aarch64.tar.gz julia.tar.gz; fi
+# julia; https://julialang.org/downloads/#official_binaries_for_manual_download
+if [ "$arch" = "amd64" ]; then download https://julialang-s3.julialang.org/bin/linux/x64/1.10/julia-1.10.4-linux-x86_64.tar.gz    julia.tar.gz; fi
+if [ "$arch" = "arm64" ]; then download https://julialang-s3.julialang.org/bin/linux/aarch64/1.10/julia-1.10.4-linux-aarch64.tar.gz julia.tar.gz; fi
 
 # nodejs
 node_version="$(curl -s https://nodejs.org/dist/index.json | jq -r '[.[]|select(.lts)][0].version')"

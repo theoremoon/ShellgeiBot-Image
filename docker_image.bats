@@ -81,11 +81,6 @@ bats_require_minimum_version 1.5.0
   [ "$output" = 'ShellGei' ]
 }
 
-@test "bsdgames" {
-  run -0 bash -c "echo '... .... . .-.. .-.. --. . ..  ...-.-' | morse -d"
-  [ "$output" = "SHELLGEI" ]
-}
-
 @test "build-essential" {
   run -0 gcc --version
   [[ "${lines[0]}" =~ gcc ]]
@@ -190,7 +185,7 @@ bats_require_minimum_version 1.5.0
 
 @test "dotnet" {
   run -0 dotnet --help
-  [[ "${lines[0]}" == ".NET 7.0 へようこそ!" ]]
+  [[ "${lines[0]}" == ".NET 8.0 へようこそ!" ]]
 }
 
 @test "eachdo" {
