@@ -128,13 +128,13 @@ bats_require_minimum_version 1.5.0
   [ "$output" = '[30m  \x1b[30m  [m[31m  \x1b[31m  [m[32m  \x1b[32m  [m[33m  \x1b[33m  [m[34m  \x1b[34m  [m[35m  \x1b[35m  [m[36m  \x1b[36m  [m[37m  \x1b[37m  [m' ]
 }
 
-# @test "concat" {
-#   run -0 concat cat
-#   [ "${lines[0]}" = " /\    /" ]
-#   [ "${lines[1]}" = "(' )  ( " ]
-#   [ "${lines[2]}" = " (  \  )" ]
-#   [ "${lines[3]}" = " |(__)/ " ]
-# }
+@test "concat" {
+  run -0 concat cat
+  [ "${lines[0]}" = " /\    /" ]
+  [ "${lines[1]}" = "(' )  ( " ]
+  [ "${lines[2]}" = " (  \  )" ]
+  [ "${lines[3]}" = " |(__)/ " ]
+}
 
 @test "cowsay" {
   run -0 cowsay シェル芸
