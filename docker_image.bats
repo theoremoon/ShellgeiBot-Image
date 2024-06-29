@@ -129,11 +129,11 @@ bats_require_minimum_version 1.5.0
 }
 
 @test "concat" {
-  run -0 concat cat
-  [ "${lines[0]}" = " /\    /" ]
-  [ "${lines[1]}" = "(' )  ( " ]
-  [ "${lines[2]}" = " (  \  )" ]
-  [ "${lines[3]}" = " |(__)/ " ]
+  run -0 concat 'cat * 2'
+  [ "${lines[0]}" = " /\    /  /\    /" ]
+  [ "${lines[1]}" = "(' )  (  (' )  ( " ]
+  [ "${lines[2]}" = " (  \  )  (  \  )" ]
+  [ "${lines[3]}" = " |(__)/   |(__)/ " ]
 }
 
 @test "cowsay" {
