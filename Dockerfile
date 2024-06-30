@@ -72,7 +72,7 @@ RUN git clone --depth 1 https://github.com/yabeenico/concat
 RUN (cd /downloads/concat && git archive --format=tar --prefix=concat/ HEAD) | tar xf - -C /usr/local
 RUN python3 -m venv /usr/local/concat
 RUN /usr/local/concat/bin/pip3 install -r /usr/local/concat/requirements.txt
-RUN echo '/usr/local/concat/bin/python3 /usr/local/concat/concat.py $@' > /usr/local/bin/concat && chmod +x /usr/local/bin/concat
+RUN echo '/usr/local/concat/bin/python3 /usr/local/concat/concat.py "$@"' > /usr/local/bin/concat && chmod +x /usr/local/bin/concat
 
 ## Node.js
 FROM base AS nodejs-builder
