@@ -268,7 +268,7 @@ RUN if [ "${TARGETARCH}" = "amd64" ]; then \
     fi
 
 # torikizoku
-RUN curl -sfSL --retry 5 https://codeberg.org/shutosheep/torikizoku/raw/branch/main/torikizoku -o /usr/local/bin/torikizoku \
+RUN curl -sfSL --retry 5 https://codeberg.org/s10a/torikizoku/raw/branch/main/torikizoku -o /usr/local/bin/torikizoku \
     && chmod +x /usr/local/bin/torikizoku \
     && torikizoku -c
 
