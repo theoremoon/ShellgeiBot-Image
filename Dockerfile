@@ -228,7 +228,7 @@ RUN curl -sfSL --retry 5 https://raw.githubusercontent.com/kanata2003/ZeroWidthS
     && chmod +x /usr/local/bin/zws
 
 # ivsteg
-RUN curl -sfSL --retry 5 https://raintrees.net/attachments/download/698/ivsteg -o /usr/local/bin/ivsteg \
+RUN curl -sfSL --retry 5 https://raintrees.net/attachments/download/228/ivsteg -o /usr/local/bin/ivsteg \
     && chmod +x /usr/local/bin/ivsteg
 
 # funnychar
