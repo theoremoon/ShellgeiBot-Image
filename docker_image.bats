@@ -185,7 +185,7 @@ bats_require_minimum_version 1.5.0
 
 @test "dotnet" {
   run -0 dotnet --help
-  [[ "${lines[0]}" == ".NET 8.0 へようこそ!" ]]
+  [[ "${lines[0]}" == ".NET 10.0 へようこそ!" ]]
 }
 
 @test "eachdo" {

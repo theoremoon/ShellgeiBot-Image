@@ -289,7 +289,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      datamash \
      dateutils \
      dc \
-     dotnet8 \
+     dotnet10 \
      faketime \
      ffmpeg \
      figlet \
