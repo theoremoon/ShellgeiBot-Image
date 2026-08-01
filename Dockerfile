@@ -18,7 +18,7 @@ COPY prefetched/$TARGETARCH/go.tar.gz .
 RUN tar xzf go.tar.gz -C /usr/local && rm go.tar.gz
 ENV PATH $PATH:/usr/local/go/bin
 ENV GOPATH /root/go
-RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/ericchiang/pup@latest
+RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/gromgit/pup@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/greymd/ojichat@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/gyozabu/himechat-cli@latest
 RUN --mount=type=cache,target=/root/go/pkg --mount=type=cache,target=/root/.cache/go-build go install github.com/ikawaha/nise@latest
@@ -89,7 +89,7 @@ FROM base AS dotnet-builder
 ARG TARGETARCH
 RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/apt/lists \
     --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get install -y -qq dotnet-sdk-8.0
+    apt-get install -y -qq dotnet-sdk-10.0
 # noc
 RUN git clone --depth 1 https://github.com/xztaityozx/noc.git
 RUN (cd /noc/noc/noc; dotnet publish --configuration Release -p:PublishSingleFile=true -p:PublishReadyToRun=true --runtime linux-$(echo $TARGETARCH | sed 's/amd64/x64/') --self-contained false)
@@ -289,7 +289,7 @@ RUN --mount=type=bind,target=/var/lib/apt/lists,from=apt-cache,source=/var/lib/a
      datamash \
      dateutils \
      dc \
-     dotnet8 \
+     dotnet10 \
      faketime \
      ffmpeg \
      figlet \
@@ -395,7 +395,7 @@ ENV PATH $PATH:/usr/local/nodejs/bin
 # .NET
 COPY --from=dotnet-builder /noc/LICENSE /noc/README.md /noc/noc/noc/bin/Release/net8.0/linux-*/publish/noc /usr/local/noc/
 RUN ln -s /usr/local/noc/noc /usr/local/bin/noc
-COPY --from=dotnet-builder /ocs/LICENSE /ocs/README.md /ocs/ocs/bin/Release/net8.0/linux-*/publish/ /usr/local/ocs/
+COPY --from=dotnet-builder /ocs/LICENSE /ocs/README.md /ocs/ocs/bin/Release/net10.0/linux-*/publish/ /usr/local/ocs/
 RUN ln -s /usr/local/ocs/ocs /usr/local/bin/ocs
 
 # Rust
